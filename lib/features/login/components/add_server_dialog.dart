@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_colors.dart';
+import '../../../theme/app_colors.dart';
 
 class AddServerDialog extends StatefulWidget {
   final Function(String alias, String url) onServerAdded;
@@ -147,9 +147,9 @@ class _AddServerDialogState extends State<AddServerDialog> {
               TextFormField(
                 controller: _aliasController,
                 style: GoogleFonts.inter(fontSize: 14, color: colors.onSurface),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'e.g. IFS Cloud Jakarta Hub',
-                  prefixIcon: Icon(Icons.label_outline_rounded, size: 20, color: colors.onSurfaceVariant),
+                  prefixIcon: Icon(Icons.label_outline_rounded, size: 20),
                 ),
                 validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter alias' : null,
               ),
@@ -169,9 +169,9 @@ class _AddServerDialogState extends State<AddServerDialog> {
               TextFormField(
                 controller: _urlController,
                 style: GoogleFonts.jetBrainsMono(fontSize: 13, color: colors.onSurface),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'https://ifs.internal.company.com',
-                  prefixIcon: Icon(Icons.link_rounded, size: 20, color: colors.onSurfaceVariant),
+                  prefixIcon: Icon(Icons.link_rounded, size: 20),
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) return 'Please enter server URL';
@@ -197,8 +197,8 @@ class _AddServerDialogState extends State<AddServerDialog> {
               TextFormField(
                 controller: _realmController,
                 style: GoogleFonts.jetBrainsMono(fontSize: 13, color: colors.onSurface),
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.vpn_key_outlined, size: 20, color: colors.onSurfaceVariant),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.vpn_key_outlined, size: 20),
                 ),
               ),
               const SizedBox(height: 24),

@@ -1,7 +1,8 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_colors.dart';
+import '../../theme/app_colors.dart';
+import 'splash_contract.dart';
+import 'splash_view_model.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,22 +13,16 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-
-  final List<Map<String, dynamic>> _steps = [
-    {'text': 'Establishing WebSocket Secure tunnel...', 'progress': 0.35},
-    {'text': 'Synchronizing schema & metadata cache...', 'progress': 0.68},
-    {'text': 'Validating operational auth token...', 'progress': 0.88},
-    {'text': 'Connected. Initializing Workspace...', 'progress': 1.00},
-  ];
-
-  int _currentStepIndex = 0;
-  Timer? _stepTimer;
+  late final SplashViewModel _viewModel;
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulseAnimation;
 
   @override
   void initState() {
     super.initState();
+    _viewModel = SplashViewModel();
+    _viewModel.addListener(_onStateChanged);
+
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
@@ -37,29 +32,21 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    _startTelemetrySequence();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _viewModel.dispatch(const SplashStartTelemetryAction());
+    });
   }
 
-  void _startTelemetrySequence() {
-    _stepTimer = Timer.periodic(const Duration(milliseconds: 800), (timer) {
-      if (_currentStepIndex < _steps.length - 1) {
-        setState(() {
-          _currentStepIndex++;
-        });
-      } else {
-        timer.cancel();
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            Navigator.of(context).pushReplacementNamed('/login');
-          }
-        });
-      }
-    });
+  void _onStateChanged() {
+    if (_viewModel.value.isCompleted && mounted) {
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
   }
 
   @override
   void dispose() {
-    _stepTimer?.cancel();
+    _viewModel.removeListener(_onStateChanged);
+    _viewModel.dispose();
     _pulseController.dispose();
     super.dispose();
   }
@@ -67,9 +54,6 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-    final currentStep = _steps[_currentStepIndex];
-    final progress = currentStep['progress'] as double;
-    final statusText = currentStep['text'] as String;
 
     return Scaffold(
       backgroundColor: colors.surfaceDeep,
@@ -194,75 +178,80 @@ class _SplashScreenState extends State<SplashScreen>
 
                   const Spacer(flex: 2),
 
-                  // Telemetry Status Container
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: colors.surfaceCard,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: colors.surfaceBorder,
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        if (!colors.isDark)
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                  // Telemetry Status Container (Observed from ViewModel)
+                  ValueListenableBuilder<SplashState>(
+                    valueListenable: _viewModel,
+                    builder: (context, state, _) {
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: colors.surfaceCard,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: colors.surfaceBorder,
+                            width: 1,
                           ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
+                          boxShadow: [
+                            if (!colors.isDark)
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                          ],
+                        ),
+                        child: Column(
                           children: [
-                            SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      colors.statusActive,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    state.statusText,
+                                    style: GoogleFonts.jetBrainsMono(
+                                      fontSize: 11,
+                                      color: colors.onSurface,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Text(
+                                  '${(state.progress * 100).toInt()}%',
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: colors.statusActive,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: state.progress,
+                                minHeight: 4,
+                                backgroundColor: colors.surfaceBorder,
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   colors.statusActive,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                statusText,
-                                style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 11,
-                                  color: colors.onSurface,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Text(
-                              '${(progress * 100).toInt()}%',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: colors.statusActive,
-                              ),
-                            ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            minHeight: 4,
-                            backgroundColor: colors.surfaceBorder,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              colors.statusActive,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
 
                   const Spacer(flex: 1),
