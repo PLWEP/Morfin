@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../theme/app_colors.dart';
 import 'settings_profile_avatar.dart';
-import 'settings_profile_verification_bar.dart';
 
 class SettingsProfileCard extends StatelessWidget {
   final VoidCallback? onQuickVerifyTap;
@@ -42,9 +42,6 @@ class SettingsProfileCard extends StatelessWidget {
                 Expanded(child: _buildDetails(colors)),
               ],
             ),
-          ),
-          SettingsProfileVerificationBar(
-            onQuickVerifyTap: onQuickVerifyTap,
           ),
         ],
       ),

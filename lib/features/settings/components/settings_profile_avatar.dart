@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../../theme/app_colors.dart';
 
 class SettingsProfileAvatar extends StatelessWidget {
   final String imageUrl;
 
-  const SettingsProfileAvatar({
-    super.key,
-    required this.imageUrl,
-  });
+  const SettingsProfileAvatar({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -35,25 +33,6 @@ class SettingsProfileAvatar extends StatelessWidget {
                 size: 32,
                 color: colors.statusActive,
               ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          right: 0,
-          child: Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: colors.statusSuccess,
-              shape: BoxShape.circle,
-              border: Border.all(color: colors.surfaceDeep, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: colors.statusSuccess.withValues(alpha: 0.6),
-                  blurRadius: 4,
-                ),
-              ],
             ),
           ),
         ),

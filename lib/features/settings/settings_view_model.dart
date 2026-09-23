@@ -34,6 +34,10 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
         value = value.copyWith(
           toastMessage: 'Locking Terminal Node Sec-04...',
         );
+      case SettingsChangePassword():
+        value = value.copyWith(
+          toastMessage: 'Password successfully reset',
+        );
       case SettingsDismissToast():
         value = value.copyWith(clearToast: true);
     }

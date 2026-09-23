@@ -77,3 +77,8 @@ class SettingsLockTerminal extends SettingsAction {
 class SettingsDismissToast extends SettingsAction {
   const SettingsDismissToast();
 }
+
+class SettingsChangePassword extends SettingsAction {
+  final String newPassword;
+  const SettingsChangePassword(this.newPassword);
+}
