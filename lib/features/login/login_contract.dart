@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'models/server_config.dart';
 
 @immutable
 class LoginState {
-  final List<String> servers;
-  final String selectedServer;
+  final List<ServerConfig> servers;
+  final ServerConfig selectedServer;
   final String username;
   final String password;
   final bool isObscurePassword;
@@ -24,14 +25,34 @@ class LoginState {
 
   factory LoginState.initial() {
     const defaultServers = [
-      'IFS Cloud Prod (ap-southeast-1)',
-      'IFS Cloud Prod (eu-central-1)',
-      'IFS Cloud Prod (us-east-1)',
-      'IFS Cloud UAT / Staging',
+      ServerConfig(
+        id: 'srv-prod-apse1',
+        name: 'IFS Cloud Prod (ap-southeast-1)',
+        baseUrl: 'https://prod-apse1.ifscloud.com',
+        realm: 'ifs',
+        clientId: 'IFS_mobile_prod',
+        clientSecret: '••••••••',
+      ),
+      ServerConfig(
+        id: 'srv-prod-euc1',
+        name: 'IFS Cloud Prod (eu-central-1)',
+        baseUrl: 'https://prod-euc1.ifscloud.com',
+        realm: 'ifs',
+        clientId: 'IFS_mobile_prod',
+        clientSecret: '••••••••',
+      ),
+      ServerConfig(
+        id: 'srv-uat-emea',
+        name: 'IFS Cloud UAT / Staging',
+        baseUrl: 'https://uat.ifscloud.com',
+        realm: 'ifs-uat',
+        clientId: 'IFS_mobile_uat',
+        clientSecret: '••••••••',
+      ),
     ];
-    return const LoginState(
+    return LoginState(
       servers: defaultServers,
-      selectedServer: 'IFS Cloud Prod (ap-southeast-1)',
+      selectedServer: defaultServers.first,
       username: 'diana.prince@operations.ifs',
       password: '••••••••••••',
       isObscurePassword: true,
@@ -42,8 +63,8 @@ class LoginState {
   }
 
   LoginState copyWith({
-    List<String>? servers,
-    String? selectedServer,
+    List<ServerConfig>? servers,
+    ServerConfig? selectedServer,
     String? username,
     String? password,
     bool? isObscurePassword,
@@ -70,14 +91,23 @@ sealed class LoginAction {
 }
 
 class LoginSelectServerAction extends LoginAction {
-  final String server;
+  final ServerConfig server;
   const LoginSelectServerAction(this.server);
 }
 
 class LoginAddServerAction extends LoginAction {
-  final String alias;
-  final String url;
-  const LoginAddServerAction(this.alias, this.url);
+  final ServerConfig server;
+  const LoginAddServerAction(this.server);
+}
+
+class LoginUpdateServerAction extends LoginAction {
+  final ServerConfig server;
+  const LoginUpdateServerAction(this.server);
+}
+
+class LoginDeleteServerAction extends LoginAction {
+  final String serverId;
+  const LoginDeleteServerAction(this.serverId);
 }
 
 class LoginUsernameChangedAction extends LoginAction {

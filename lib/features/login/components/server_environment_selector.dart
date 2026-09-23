@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../login_contract.dart';
-import 'add_server_dialog.dart';
+import '../manage_servers_screen.dart';
 
 class ServerEnvironmentSelector extends StatelessWidget {
   final LoginState state;
@@ -13,6 +13,21 @@ class ServerEnvironmentSelector extends StatelessWidget {
     required this.state,
     required this.onAction,
   });
+
+  void _openManageServers(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ManageServersScreen(
+          servers: state.servers,
+          selectedServerId: state.selectedServer.id,
+          onSelect: (server) => onAction(LoginSelectServerAction(server)),
+          onAdd: (server) => onAction(LoginAddServerAction(server)),
+          onUpdate: (server) => onAction(LoginUpdateServerAction(server)),
+          onDelete: (id) => onAction(LoginDeleteServerAction(id)),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,27 +49,20 @@ class ServerEnvironmentSelector extends StatelessWidget {
               ),
             ),
             InkWell(
-              onTap: () {
-                AddServerDialog.show(
-                  context,
-                  onServerAdded: (alias, url) {
-                    onAction(LoginAddServerAction(alias, url));
-                  },
-                );
-              },
+              onTap: () => _openManageServers(context),
               borderRadius: BorderRadius.circular(4),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 child: Row(
                   children: [
                     Icon(
-                      Icons.add_circle_outline_rounded,
+                      Icons.settings_outlined,
                       size: 14,
                       color: colors.primary,
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Add Server',
+                      'Manage Server',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -69,7 +77,8 @@ class ServerEnvironmentSelector extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: state.selectedServer,
+          key: ValueKey(state.selectedServer.id),
+          initialValue: state.selectedServer.id,
           isExpanded: true,
           dropdownColor: colors.surfaceCard,
           icon: Icon(
@@ -93,16 +102,22 @@ class ServerEnvironmentSelector extends StatelessWidget {
           ),
           items: state.servers.map((srv) {
             return DropdownMenuItem<String>(
-              value: srv,
+              value: srv.id,
               child: Text(
-                srv,
+                srv.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             );
           }).toList(),
-          onChanged: (val) {
-            if (val != null) onAction(LoginSelectServerAction(val));
+          onChanged: (selectedId) {
+            if (selectedId != null) {
+              final chosen = state.servers.firstWhere(
+                (s) => s.id == selectedId,
+                orElse: () => state.selectedServer,
+              );
+              onAction(LoginSelectServerAction(chosen));
+            }
           },
         ),
       ],

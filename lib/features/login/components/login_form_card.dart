@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../theme/app_colors.dart';
 import '../login_contract.dart';
 import 'server_environment_selector.dart';
@@ -8,11 +9,7 @@ class LoginFormCard extends StatelessWidget {
   final LoginState state;
   final ValueChanged<LoginAction> onAction;
 
-  const LoginFormCard({
-    super.key,
-    required this.state,
-    required this.onAction,
-  });
+  const LoginFormCard({super.key, required this.state, required this.onAction});
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +20,7 @@ class LoginFormCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surfaceCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colors.surfaceBorder,
-          width: 1,
-        ),
+        border: Border.all(color: colors.surfaceBorder, width: 1),
         boxShadow: [
           BoxShadow(
             color: colors.isDark
@@ -54,12 +48,9 @@ class LoginFormCard extends StatelessWidget {
           const SizedBox(height: 8),
           TextFormField(
             initialValue: state.username,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: colors.onSurface,
-            ),
+            style: GoogleFonts.inter(fontSize: 14, color: colors.onSurface),
             decoration: InputDecoration(
-              hintText: 'Enter username or email',
+              hintText: 'Enter username',
               prefixIcon: Icon(
                 Icons.person_outline_rounded,
                 size: 20,
@@ -69,38 +60,20 @@ class LoginFormCard extends StatelessWidget {
             onChanged: (val) => onAction(LoginUsernameChangedAction(val)),
           ),
           const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'PASSWORD',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: colors.onSurfaceVariant,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              InkWell(
-                onTap: () {},
-                child: Text(
-                  'Forgot?',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: colors.primary,
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            'PASSWORD',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: colors.onSurfaceVariant,
+              letterSpacing: 0.5,
+            ),
           ),
           const SizedBox(height: 8),
           TextFormField(
             initialValue: state.password,
             obscureText: state.isObscurePassword,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: colors.onSurface,
-            ),
+            style: GoogleFonts.inter(fontSize: 14, color: colors.onSurface),
             decoration: InputDecoration(
               hintText: 'Enter password',
               prefixIcon: Icon(
@@ -116,7 +89,8 @@ class LoginFormCard extends StatelessWidget {
                   size: 19,
                   color: colors.onSurfaceVariant,
                 ),
-                onPressed: () => onAction(const LoginTogglePasswordVisibilityAction()),
+                onPressed: () =>
+                    onAction(const LoginTogglePasswordVisibilityAction()),
               ),
             ),
             onChanged: (val) => onAction(LoginPasswordChangedAction(val)),
@@ -126,7 +100,9 @@ class LoginFormCard extends StatelessWidget {
             width: double.infinity,
             height: 48,
             child: ElevatedButton(
-              onPressed: state.isLoading ? null : () => onAction(const LoginSubmitAction()),
+              onPressed: state.isLoading
+                  ? null
+                  : () => onAction(const LoginSubmitAction()),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.primary,
                 shape: RoundedRectangleBorder(
@@ -148,7 +124,7 @@ class LoginFormCard extends StatelessWidget {
                         const Icon(Icons.login_rounded, size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          'Sign In to IFS Cloud',
+                          'Login',
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
