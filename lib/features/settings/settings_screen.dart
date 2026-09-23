@@ -8,6 +8,7 @@ import 'components/settings_operations_section.dart';
 import 'components/settings_profile_card.dart';
 import 'components/settings_security_section.dart';
 import 'components/settings_terminal_lock_card.dart';
+import 'components/settings_theme_section.dart';
 import 'settings_contract.dart';
 import 'settings_view_model.dart';
 
@@ -80,11 +81,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SettingsProfileCard(
-                    onQuickVerifyTap: () {
-                      _viewModel.dispatch(const SettingsExportLogs());
-                    },
-                  ),
+                  const SettingsProfileCard(),
+                  const SizedBox(height: 18),
+                  const SettingsThemeSection(),
                   const SizedBox(height: 18),
                   SettingsSecuritySection(
                     onChangePasswordTap: () {
