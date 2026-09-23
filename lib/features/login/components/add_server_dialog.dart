@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
+import 'add_server_dialog_header.dart';
+import 'add_server_form_fields.dart';
 
 class AddServerDialog extends StatefulWidget {
   final Function(String alias, String url) onServerAdded;
@@ -74,7 +76,6 @@ class _AddServerDialogState extends State<AddServerDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Grab Handle
               Center(
                 child: Container(
                   width: 36,
@@ -86,124 +87,14 @@ class _AddServerDialogState extends State<AddServerDialog> {
                   ),
                 ),
               ),
-
-              // Header
-              Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: colors.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: colors.primary.withValues(alpha: 0.4),
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.dns_rounded,
-                      size: 20,
-                      color: colors.statusActive,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Add Server Environment',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: colors.onSurface,
-                          ),
-                        ),
-                        Text(
-                          'Connect to an on-premise or cloud node',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              const AddServerDialogHeader(),
               const SizedBox(height: 20),
-
-              // Alias Field
-              Text(
-                'ENVIRONMENT ALIAS',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: colors.onSurfaceVariant,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _aliasController,
-                style: GoogleFonts.inter(fontSize: 14, color: colors.onSurface),
-                decoration: const InputDecoration(
-                  hintText: 'e.g. IFS Cloud Jakarta Hub',
-                  prefixIcon: Icon(Icons.label_outline_rounded, size: 20),
-                ),
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter alias' : null,
-              ),
-              const SizedBox(height: 14),
-
-              // URL Field
-              Text(
-                'ENDPOINT URL',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: colors.onSurfaceVariant,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _urlController,
-                style: GoogleFonts.jetBrainsMono(fontSize: 13, color: colors.onSurface),
-                decoration: const InputDecoration(
-                  hintText: 'https://ifs.internal.company.com',
-                  prefixIcon: Icon(Icons.link_rounded, size: 20),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Please enter server URL';
-                  if (!val.startsWith('http://') && !val.startsWith('https://')) {
-                    return 'URL must start with http:// or https://';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 14),
-
-              // Realm / System ID
-              Text(
-                'SYSTEM REALM / ID',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: colors.onSurfaceVariant,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _realmController,
-                style: GoogleFonts.jetBrainsMono(fontSize: 13, color: colors.onSurface),
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.vpn_key_outlined, size: 20),
-                ),
+              AddServerFormFields(
+                aliasController: _aliasController,
+                urlController: _urlController,
+                realmController: _realmController,
               ),
               const SizedBox(height: 24),
-
-              // Action Buttons
               Row(
                 children: [
                   Expanded(

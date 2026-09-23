@@ -5,11 +5,13 @@ import '../../../theme/app_colors.dart';
 class LobbyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String connectionNode;
   final int unreadAlertCount;
+  final VoidCallback? onAlertTap;
 
   const LobbyAppBar({
     super.key,
     required this.connectionNode,
     required this.unreadAlertCount,
+    this.onAlertTap,
   });
 
   @override
@@ -118,7 +120,7 @@ class LobbyAppBar extends StatelessWidget implements PreferredSizeWidget {
           children: [
             IconButton(
               icon: Icon(Icons.notifications_none_rounded, color: colors.onSurfaceVariant, size: 22),
-              onPressed: () {},
+              onPressed: onAlertTap ?? () {},
             ),
             if (unreadAlertCount > 0)
               Positioned(

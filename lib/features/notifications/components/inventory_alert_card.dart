@@ -1,0 +1,193 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_colors.dart';
+import '../notifications_contract.dart';
+
+class InventoryAlertCard extends StatelessWidget {
+  final NotificationItem item;
+  final VoidCallback? onGeneratePO;
+
+  const InventoryAlertCard({
+    super.key,
+    required this.item,
+    this.onGeneratePO,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surfaceCard,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.surfaceBorder),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 4,
+              color: colors.statusWarning,
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.statusWarning.withValues(alpha: 0.16),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.inventory_2_rounded,
+                                    size: 11,
+                                    color: colors.statusWarning,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    item.tag,
+                                    style: GoogleFonts.jetBrainsMono(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.statusWarning,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              item.timeAgo,
+                              style: GoogleFonts.jetBrainsMono(
+                                fontSize: 10,
+                                color: colors.outline,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          'REORDER POINT',
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: colors.statusWarning,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      item.title,
+                      style: GoogleFonts.spaceGrotesk(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: colors.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      item.description,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: colors.onSurfaceVariant,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: item.progress ?? 0.32,
+                            minHeight: 6,
+                            backgroundColor: colors.surfaceContainerHigh,
+                            valueColor: AlwaysStoppedAnimation(colors.statusWarning),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Capacity: 60 Drums',
+                              style: GoogleFonts.jetBrainsMono(
+                                fontSize: 9,
+                                color: colors.outline,
+                              ),
+                            ),
+                            Text(
+                              item.progressLabel ?? 'Remaining: 20%',
+                              style: GoogleFonts.jetBrainsMono(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                                color: colors.statusWarning,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: InkWell(
+                        onTap: onGeneratePO,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.surfaceContainer,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Generate Replenishment PO',
+                                style: GoogleFonts.jetBrainsMono(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.statusWarning,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 14,
+                                color: colors.statusWarning,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

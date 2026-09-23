@@ -11,8 +11,13 @@ import 'lobby_view_model.dart';
 
 class LobbyScreen extends StatefulWidget {
   final bool showBottomNav;
+  final VoidCallback? onAlertTap;
 
-  const LobbyScreen({super.key, this.showBottomNav = false});
+  const LobbyScreen({
+    super.key,
+    this.showBottomNav = false,
+    this.onAlertTap,
+  });
 
   @override
   State<LobbyScreen> createState() => _LobbyScreenState();
@@ -45,6 +50,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
           appBar: LobbyAppBar(
             connectionNode: state.connectionNode,
             unreadAlertCount: state.unreadAlertCount,
+            onAlertTap: widget.onAlertTap,
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

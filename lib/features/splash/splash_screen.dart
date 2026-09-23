@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_colors.dart';
+import 'components/splash_ambient_glow.dart';
+import 'components/splash_telemetry_box.dart';
 import 'splash_contract.dart';
 import 'splash_view_model.dart';
 
@@ -59,61 +61,13 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: colors.surfaceDeep,
       body: Stack(
         children: [
-          // Background Tech Glow
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.2,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                width: 280,
-                height: 280,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: colors.primary.withValues(alpha: colors.isDark ? 0.12 : 0.08),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.primary.withValues(alpha: colors.isDark ? 0.25 : 0.15),
-                      blurRadius: 100,
-                      spreadRadius: 30,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.25,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: colors.statusActive.withValues(alpha: colors.isDark ? 0.08 : 0.05),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colors.statusActive.withValues(alpha: colors.isDark ? 0.15 : 0.10),
-                      blurRadius: 90,
-                      spreadRadius: 20,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Main Center Content
+          const SplashAmbientGlow(),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28),
               child: Column(
                 children: [
                   const Spacer(flex: 2),
-
-                  // Brand Logo with Pulse Animation
                   ScaleTransition(
                     scale: _pulseAnimation,
                     child: Container(
@@ -155,8 +109,6 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // App Title
                   Text(
                     'IFS Cloud Mobile',
                     style: GoogleFonts.spaceGrotesk(
@@ -175,88 +127,14 @@ class _SplashScreenState extends State<SplashScreen>
                       letterSpacing: 0.2,
                     ),
                   ),
-
                   const Spacer(flex: 2),
-
-                  // Telemetry Status Container (Observed from ViewModel)
                   ValueListenableBuilder<SplashState>(
                     valueListenable: _viewModel,
                     builder: (context, state, _) {
-                      return Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: colors.surfaceCard,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: colors.surfaceBorder,
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            if (!colors.isDark)
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      colors.statusActive,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    state.statusText,
-                                    style: GoogleFonts.jetBrainsMono(
-                                      fontSize: 11,
-                                      color: colors.onSurface,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Text(
-                                  '${(state.progress * 100).toInt()}%',
-                                  style: GoogleFonts.jetBrainsMono(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: colors.statusActive,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: state.progress,
-                                minHeight: 4,
-                                backgroundColor: colors.surfaceBorder,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  colors.statusActive,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
+                      return SplashTelemetryBox(state: state);
                     },
                   ),
-
                   const Spacer(flex: 1),
-
-                  // Legal & Version Footer
                   Text(
                     'IFS Cloud © 2025 IFS AB. All rights reserved.',
                     style: GoogleFonts.jetBrainsMono(

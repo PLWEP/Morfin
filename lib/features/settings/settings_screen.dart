@@ -11,7 +11,9 @@ import 'settings_contract.dart';
 import 'settings_view_model.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final VoidCallback? onAlertTap;
+
+  const SettingsScreen({super.key, this.onAlertTap});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -70,7 +72,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (context, state, _) {
         return Scaffold(
           backgroundColor: colors.surfaceDeep,
-          appBar: const IndustrialTopAppBar(title: 'Setting'),
+          appBar: IndustrialTopAppBar(
+            title: 'Settings',
+            onAlertTap: widget.onAlertTap,
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             physics: const BouncingScrollPhysics(),

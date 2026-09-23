@@ -5,21 +5,24 @@ import '../../../theme/app_colors.dart';
 class AppBottomNav extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
+  final bool hasUnreadAlerts;
 
   const AppBottomNav({
     super.key,
     required this.selectedIndex,
     required this.onDestinationSelected,
+    this.hasUnreadAlerts = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    final items = const [
-      _NavItem(icon: Icons.grid_view_rounded, label: 'Menu'),
-      _NavItem(icon: Icons.dashboard_rounded, label: 'Lobby'),
-      _NavItem(icon: Icons.settings_rounded, label: 'Setting'),
+    final items = [
+      const _NavItem(icon: Icons.grid_view_rounded, label: 'Menu'),
+      const _NavItem(icon: Icons.dashboard_rounded, label: 'Lobby'),
+      const _NavItem(icon: Icons.notifications_rounded, label: 'Alerts', hasBadge: true),
+      const _NavItem(icon: Icons.settings_rounded, label: 'Settings'),
     ];
 
     return Container(
@@ -49,7 +52,7 @@ class AppBottomNav extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 58,
+                        width: 54,
                         height: 30,
                         decoration: BoxDecoration(
                           color: isSelected
@@ -63,14 +66,37 @@ class AppBottomNav extends StatelessWidget {
                                 )
                               : null,
                         ),
-                        child: Center(
-                          child: Icon(
-                            item.icon,
-                            size: 22,
-                            color: isSelected
-                                ? colors.statusActive
-                                : colors.onSurfaceVariant,
-                          ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Icon(
+                              item.icon,
+                              size: 21,
+                              color: isSelected
+                                  ? colors.statusActive
+                                  : colors.onSurfaceVariant,
+                            ),
+                            if (item.hasBadge && hasUnreadAlerts)
+                              Positioned(
+                                top: 5,
+                                right: 14,
+                                child: Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: colors.statusActive,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: colors.statusActive,
+                                        blurRadius: 4,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 3),
@@ -98,6 +124,11 @@ class AppBottomNav extends StatelessWidget {
 class _NavItem {
   final IconData icon;
   final String label;
+  final bool hasBadge;
 
-  const _NavItem({required this.icon, required this.label});
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    this.hasBadge = false,
+  });
 }

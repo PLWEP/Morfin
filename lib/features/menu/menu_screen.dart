@@ -10,7 +10,9 @@ import 'menu_contract.dart';
 import 'menu_view_model.dart';
 
 class MenuScreen extends StatefulWidget {
-  const MenuScreen({super.key});
+  final VoidCallback? onAlertTap;
+
+  const MenuScreen({super.key, this.onAlertTap});
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
@@ -40,7 +42,10 @@ class _MenuScreenState extends State<MenuScreen> {
       builder: (context, state, _) {
         return Scaffold(
           backgroundColor: colors.surfaceDeep,
-          appBar: const IndustrialTopAppBar(title: 'Menu'),
+          appBar: IndustrialTopAppBar(
+            title: 'Menu',
+            onAlertTap: widget.onAlertTap,
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             physics: const BouncingScrollPhysics(),
