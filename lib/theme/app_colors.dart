@@ -6,6 +6,7 @@ class AppPalette {
   final Color surfaceCard;
   final Color surface;
   final Color surfaceContainerLow;
+  final Color surfaceContainerLowest;
   final Color surfaceContainer;
   final Color surfaceContainerHigh;
   final Color surfaceBorder;
@@ -32,6 +33,7 @@ class AppPalette {
     required this.surfaceCard,
     required this.surface,
     required this.surfaceContainerLow,
+    required this.surfaceContainerLowest,
     required this.surfaceContainer,
     required this.surfaceContainerHigh,
     required this.surfaceBorder,
@@ -61,6 +63,7 @@ class AppColors {
     surfaceCard: Color(0xFF111726),
     surface: Color(0xFF0F131C),
     surfaceContainerLow: Color(0xFF181C24),
+    surfaceContainerLowest: Color(0xFF0A0E16),
     surfaceContainer: Color(0xFF1C2028),
     surfaceContainerHigh: Color(0xFF262A33),
     surfaceBorder: Color(0xFF1E293B),
@@ -86,6 +89,7 @@ class AppColors {
     surfaceCard: Color(0xFFFFFFFF),
     surface: Color(0xFFF8FAFC),
     surfaceContainerLow: Color(0xFFF1F5F9),
+    surfaceContainerLowest: Color(0xFFFFFFFF),
     surfaceContainer: Color(0xFFE2E8F0),
     surfaceContainerHigh: Color(0xFFF8FAFC),
     surfaceBorder: Color(0xFFCBD5E1),

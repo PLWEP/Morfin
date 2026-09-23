@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'theme/app_theme.dart';
-import 'features/splash/splash_screen.dart';
 import 'features/login/login_screen.dart';
-import 'features/lobby/lobby_screen.dart';
+import 'features/shell/main_shell_screen.dart';
+import 'features/splash/splash_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +24,7 @@ class IfsCloudMobileApp extends StatelessWidget {
       routes: {
         '/splash': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
-        '/lobby': (context) => const LobbyScreen(),
+        '/lobby': (context) => const MainShellScreen(initialIndex: 1),
       },
     );
   }

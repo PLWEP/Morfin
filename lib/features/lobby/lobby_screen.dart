@@ -10,7 +10,9 @@ import 'lobby_contract.dart';
 import 'lobby_view_model.dart';
 
 class LobbyScreen extends StatefulWidget {
-  const LobbyScreen({super.key});
+  final bool showBottomNav;
+
+  const LobbyScreen({super.key, this.showBottomNav = false});
 
   @override
   State<LobbyScreen> createState() => _LobbyScreenState();
@@ -64,12 +66,14 @@ class _LobbyScreenState extends State<LobbyScreen> {
               ],
             ),
           ),
-          bottomNavigationBar: LobbyBottomNav(
-            selectedIndex: state.selectedNavIndex,
-            onDestinationSelected: (index) {
-              _viewModel.dispatch(LobbySelectNavAction(index));
-            },
-          ),
+          bottomNavigationBar: widget.showBottomNav
+              ? LobbyBottomNav(
+                  selectedIndex: state.selectedNavIndex,
+                  onDestinationSelected: (index) {
+                    _viewModel.dispatch(LobbySelectNavAction(index));
+                  },
+                )
+              : null,
         );
       },
     );
