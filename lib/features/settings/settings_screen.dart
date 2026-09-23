@@ -44,7 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, color: Colors.cyanAccent, size: 16),
+              Icon(Icons.check_circle_rounded, color: AppColors.of(context).statusActive, size: 16),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -54,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: AppColors.of(context).surfaceBorder,
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
