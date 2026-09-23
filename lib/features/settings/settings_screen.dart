@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/widgets/industrial_top_app_bar.dart';
 import '../../theme/app_colors.dart';
 import 'components/settings_connectivity_section.dart';
 import 'components/settings_hardware_storage_section.dart';
@@ -72,59 +71,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (context, state, _) {
         return Scaffold(
           backgroundColor: colors.surfaceDeep,
-          appBar: IndustrialTopAppBar(
-            title: 'Settings',
-            onAlertTap: widget.onAlertTap,
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SettingsProfileCard(
-                  onQuickVerifyTap: () {
-                    _viewModel.dispatch(const SettingsExportLogs());
-                  },
-                ),
-                const SizedBox(height: 18),
-                SettingsConnectivitySection(
-                  isOfflineMode: state.isOfflineModeEnabled,
-                  syncChannel: state.syncChannel,
-                  onOfflineModeChanged: (val) {
-                    _viewModel.dispatch(SettingsToggleOfflineMode(val));
-                  },
-                ),
-                const SizedBox(height: 18),
-                SettingsOperationsSection(
-                  isEscalationAlerts: state.isEscalationAlertsEnabled,
-                  isBiometrics: state.isBiometricsEnabled,
-                  onEscalationAlertsChanged: (val) {
-                    _viewModel.dispatch(SettingsToggleEscalationAlerts(val));
-                  },
-                  onBiometricsChanged: (val) {
-                    _viewModel.dispatch(SettingsToggleBiometrics(val));
-                  },
-                ),
-                const SizedBox(height: 18),
-                SettingsHardwareStorageSection(
-                  cacheSizeText: state.cacheSizeText,
-                  onClearCache: () {
-                    _viewModel.dispatch(const SettingsClearCache());
-                  },
-                  onExportLogs: () {
-                    _viewModel.dispatch(const SettingsExportLogs());
-                  },
-                ),
-                const SizedBox(height: 20),
-                SettingsTerminalLockCard(
-                  onLockTerminal: () {
-                    _viewModel.dispatch(const SettingsLockTerminal());
-                    Navigator.pushReplacementNamed(context, '/login');
-                  },
-                ),
-                const SizedBox(height: 24),
-              ],
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SettingsProfileCard(
+                    onQuickVerifyTap: () {
+                      _viewModel.dispatch(const SettingsExportLogs());
+                    },
+                  ),
+                  const SizedBox(height: 18),
+                  SettingsConnectivitySection(
+                    isOfflineMode: state.isOfflineModeEnabled,
+                    syncChannel: state.syncChannel,
+                    onOfflineModeChanged: (val) {
+                      _viewModel.dispatch(SettingsToggleOfflineMode(val));
+                    },
+                  ),
+                  const SizedBox(height: 18),
+                  SettingsOperationsSection(
+                    isEscalationAlerts: state.isEscalationAlertsEnabled,
+                    isBiometrics: state.isBiometricsEnabled,
+                    onEscalationAlertsChanged: (val) {
+                      _viewModel.dispatch(SettingsToggleEscalationAlerts(val));
+                    },
+                    onBiometricsChanged: (val) {
+                      _viewModel.dispatch(SettingsToggleBiometrics(val));
+                    },
+                  ),
+                  const SizedBox(height: 18),
+                  SettingsHardwareStorageSection(
+                    cacheSizeText: state.cacheSizeText,
+                    onClearCache: () {
+                      _viewModel.dispatch(const SettingsClearCache());
+                    },
+                    onExportLogs: () {
+                      _viewModel.dispatch(const SettingsExportLogs());
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  SettingsTerminalLockCard(
+                    onLockTerminal: () {
+                      _viewModel.dispatch(const SettingsLockTerminal());
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
         );

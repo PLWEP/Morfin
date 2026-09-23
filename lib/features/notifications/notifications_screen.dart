@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/widgets/industrial_top_app_bar.dart';
 import '../../theme/app_colors.dart';
 import 'components/approval_request_card.dart';
 import 'components/critical_overheat_card.dart';
@@ -81,14 +80,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
         return Scaffold(
           backgroundColor: colors.surfaceDeep,
-          appBar: IndustrialTopAppBar(
-            title: 'Alerts',
-            unreadAlertCount: state.unreadCount,
-            onAlertTap: widget.onAlertTap,
-            onProfileTap: widget.onProfileTap,
-          ),
-          body: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             children: [
               NotificationsHeader(
                 unreadCount: state.unreadCount,
@@ -156,8 +150,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               const SizedBox(height: 16),
             ],
           ),
-        );
-      },
+        ),
+      );
+    },
     );
   }
 }
