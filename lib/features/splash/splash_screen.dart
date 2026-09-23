@@ -95,7 +95,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '© 2025 IFS AB. All rights reserved.',
+                      'Version 24.2 (Build 8842)',
                       style: GoogleFonts.jetBrainsMono(
                         fontSize: 10,
                         color: colors.outline.withValues(alpha: 0.7),

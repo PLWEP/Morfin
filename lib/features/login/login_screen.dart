@@ -129,11 +129,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Legal Footer
                   Text(
-                    'IFS Cloud © 2025 IFS AB. All rights reserved.',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 10,
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.7),
-                      letterSpacing: 0.3,
+                    'IFS Cloud™',
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.8,
+                      color: colors.onSurface.withValues(alpha: 0.85),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -141,7 +142,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Version 24.2 (Build 8842)',
                     style: GoogleFonts.jetBrainsMono(
                       fontSize: 10,
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+                      color: colors.outline.withValues(alpha: 0.7),
+                      letterSpacing: 0.3,
                     ),
                   ),
                 ],
