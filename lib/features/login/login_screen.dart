@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/widgets/ifs_logo_badge.dart';
 import '../../theme/app_colors.dart';
 import 'components/login_form_card.dart';
 import 'login_contract.dart';
@@ -78,41 +79,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   // Logo Card
                   Container(
-                    width: 84,
-                    height: 84,
                     decoration: BoxDecoration(
-                      color: colors.surfaceCard,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: colors.surfaceBorder,
-                        width: 1.5,
-                      ),
                       boxShadow: [
                         BoxShadow(
                           color: colors.isDark
                               ? Colors.black.withValues(alpha: 0.5)
-                              : Colors.black.withValues(alpha: 0.08),
+                              : Colors.black.withValues(alpha: 0.1),
                           blurRadius: 18,
                           offset: const Offset(0, 6),
                         ),
                       ],
                     ),
-                    child: Center(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.network(
-                          'https://lh3.googleusercontent.com/aida/AEtjO1XE5IqVYas3jIWiElWM7qe6FsSCZV0quXLVZleMrKIMfp7o4ZoKRFpfUxwqXMy90nY7BJvpt3ISnv93YVBV7IzUrUoPWNjYA1nLg3rla7ClDWV7Ocoul7IYxKfRN66_Pfpcm0NsAr3ahe1FG_H1VtiNYen3palwP4YfI0d5h8LYyPZWBUIhGeU1evCsl5mBVraUyZfOafgMlhh-8QZsLzcYBW6GcqTmUpjskomVfOPP1Lp_SLJZsVat8oTs',
-                          width: 58,
-                          height: 58,
-                          fit: BoxFit.contain,
-                          errorBuilder: (ctx, err, stack) => Icon(
-                            Icons.hub_rounded,
-                            size: 42,
-                            color: colors.statusActive,
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: const IfsLogoBadge(size: 80),
                   ),
                   const SizedBox(height: 16),
 
