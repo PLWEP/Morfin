@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../notifications_contract.dart';
+import 'critical_card_actions.dart';
 import 'critical_telemetry_box.dart';
 
 class CriticalOverheatCard extends StatelessWidget {
@@ -78,7 +79,10 @@ class CriticalOverheatCard extends StatelessWidget {
                       sensorId: item.sensorId ?? 'TG-A3-TH09 • Sector 02-B',
                     ),
                     const SizedBox(height: 10),
-                    _buildActions(colors),
+                    CriticalCardActions(
+                      onAcknowledge: onAcknowledge,
+                      onMonitor: onMonitor,
+                    ),
                   ],
                 ),
               ),
@@ -134,55 +138,6 @@ class CriticalOverheatCard extends StatelessWidget {
           onTap: onDismiss,
           borderRadius: BorderRadius.circular(6),
           child: Icon(Icons.close_rounded, size: 16, color: colors.outline),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActions(AppPalette colors) {
-    return Row(
-      children: [
-        Expanded(
-          child: InkWell(
-            onTap: onAcknowledge,
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 9),
-              decoration: BoxDecoration(
-                color: colors.statusCritical,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.bolt_rounded, size: 16, color: colors.surfaceDeep),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Acknowledge & Dispatch',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: colors.surfaceDeep,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        InkWell(
-          onTap: onMonitor,
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.insights_rounded, size: 18, color: colors.statusActive),
-          ),
         ),
       ],
     );

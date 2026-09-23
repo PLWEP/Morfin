@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import 'turbine_image_overlay.dart';
+import 'turbine_team_dispatch_bar.dart';
 
 class LobbyTurbineCard extends StatelessWidget {
   const LobbyTurbineCard({super.key});
@@ -112,68 +113,7 @@ class LobbyTurbineCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 const TurbineImageOverlay(),
                 const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 22,
-                          height: 22,
-                          decoration: BoxDecoration(
-                            color: colors.surfaceContainer,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.group_rounded,
-                            size: 14,
-                            color: colors.statusActive,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Field Team 2 Dispatched (ETA 14m)',
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      borderRadius: BorderRadius.circular(6),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Tele-Audit',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: colors.statusActive,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              size: 14,
-                              color: colors.statusActive,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                const TurbineTeamDispatchBar(),
               ],
             ),
           ),

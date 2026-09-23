@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_colors.dart';
+import 'ifs_logo_badge.dart';
 
 class IndustrialTopAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -42,21 +43,8 @@ class IndustrialTopAppBar extends StatelessWidget implements PreferredSizeWidget
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: colors.surfaceBorder),
             ),
-            child: Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.network(
-                  'https://lh3.googleusercontent.com/aida/AEtjO1XE5IqVYas3jIWiElWM7qe6FsSCZV0quXLVZleMrKIMfp7o4ZoKRFpfUxwqXMy90nY7BJvpt3ISnv93YVBV7IzUrUoPWNjYA1nLg3rla7ClDWV7Ocoul7IYxKfRN66_Pfpcm0NsAr3ahe1FG_H1VtiNYen3palwP4YfI0d5h8LYyPZWBUIhGeU1evCsl5mBVraUyZfOafgMlhh-8QZsLzcYBW6GcqTmUpjskomVfOPP1Lp_SLJZsVat8oTs',
-                  width: 22,
-                  height: 22,
-                  fit: BoxFit.contain,
-                  errorBuilder: (ctx, err, stack) => Icon(
-                    Icons.hub_rounded,
-                    size: 18,
-                    color: colors.statusActive,
-                  ),
-                ),
-              ),
+            child: const Center(
+              child: IfsLogoBadge(size: 20),
             ),
           ),
           const SizedBox(width: 10),
@@ -161,21 +149,16 @@ class IndustrialTopAppBar extends StatelessWidget implements PreferredSizeWidget
               height: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                color: colors.surfaceCard,
                 border: Border.all(
                   color: colors.statusActive.withValues(alpha: 0.5),
                   width: 1.5,
                 ),
               ),
-              child: ClipOval(
-                child: Image.network(
-                  'https://lh3.googleusercontent.com/aida/AEtjO1VDYEQItSmUU2UWMZdC0owoXvE2iF4WvVU8NnGHAtEAUOp2lgzWlgW1aBP7HCTiVPSbWvIQG8dy6AQsTY2IDMFzLflU89SWvIN_fBcQPNruFCAfkmsJ33ijpfm2Pkd8ucUE-4DBRK6kAhDLN98plzlySbysVq5nVm-ojWzjuYVMx9gPWrMKI7b8ALW9ucFwxghkV3i58J0XH_nf7g_WZJs8AhMBBSM8Y15LqRl2Zs-3hdmHaY1ftuKdnLt0',
-                  fit: BoxFit.cover,
-                  errorBuilder: (ctx, err, stack) => Icon(
-                    Icons.person_rounded,
-                    size: 20,
-                    color: colors.statusActive,
-                  ),
-                ),
+              child: Icon(
+                Icons.person_rounded,
+                size: 20,
+                color: colors.statusActive,
               ),
             ),
           ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../notifications_contract.dart';
+import 'inventory_replenish_action.dart';
+import 'inventory_stock_progress.dart';
 
 class InventoryAlertCard extends StatelessWidget {
   final NotificationItem item;
@@ -110,76 +112,13 @@ class InventoryAlertCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: item.progress ?? 0.32,
-                            minHeight: 6,
-                            backgroundColor: colors.surfaceContainerHigh,
-                            valueColor: AlwaysStoppedAnimation(colors.statusWarning),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Capacity: 60 Drums',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 9,
-                                color: colors.outline,
-                              ),
-                            ),
-                            Text(
-                              item.progressLabel ?? 'Remaining: 20%',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w600,
-                                color: colors.statusWarning,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    InventoryStockProgress(
+                      progress: item.progress ?? 0.32,
+                      progressLabel: item.progressLabel,
                     ),
                     const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: InkWell(
-                        onTap: onGeneratePO,
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colors.surfaceContainer,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Generate Replenishment PO',
-                                style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: colors.statusWarning,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.arrow_forward_rounded,
-                                size: 14,
-                                color: colors.statusWarning,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    InventoryReplenishAction(
+                      onTap: onGeneratePO,
                     ),
                   ],
                 ),
