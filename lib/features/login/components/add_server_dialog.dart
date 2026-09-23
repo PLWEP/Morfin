@@ -13,10 +13,9 @@ class AddServerDialog extends StatefulWidget {
     BuildContext context, {
     required Function(String alias, String url) onServerAdded,
   }) {
-    return showModalBottomSheet(
+    return showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
       builder: (ctx) => AddServerDialog(onServerAdded: onServerAdded),
     );
   }
@@ -26,16 +25,18 @@ class AddServerDialog extends StatefulWidget {
 }
 
 class _AddServerDialogState extends State<AddServerDialog> {
-  final _aliasController = TextEditingController();
-  final _urlController = TextEditingController();
-  final _realmController = TextEditingController(text: 'PROD-ZONE-01');
+  final _aliasController =
+      TextEditingController(text: 'IFS Cloud Staging EMEA');
+  final _urlController =
+      TextEditingController(text: 'https://cloud-emea.ifs.com');
   final _formKey = GlobalKey<FormState>();
+  String _envType = 'Staging';
+  bool _useSsl = true;
 
   @override
   void dispose() {
     _aliasController.dispose();
     _urlController.dispose();
-    _realmController.dispose();
     super.dispose();
   }
 
@@ -52,100 +53,91 @@ class _AddServerDialogState extends State<AddServerDialog> {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomInset),
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Container(
+        constraints: const BoxConstraints(maxWidth: 420),
         decoration: BoxDecoration(
           color: colors.surfaceCard,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: colors.surfaceBorder, width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: colors.isDark ? 0.6 : 0.15),
-              blurRadius: 24,
-              offset: const Offset(0, -6),
+              color: Colors.black.withValues(alpha: colors.isDark ? 0.6 : 0.2),
+              blurRadius: 32,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: colors.surfaceBorder,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+              AddServerDialogHeader(onClose: () => Navigator.of(context).pop()),
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                child: AddServerFormFields(
+                  aliasController: _aliasController,
+                  urlController: _urlController,
+                  selectedEnvType: _envType,
+                  onEnvTypeChanged: (type) => setState(() => _envType = type),
+                  useSsl: _useSsl,
+                  onSslChanged: (val) => setState(() => _useSsl = val),
                 ),
               ),
-              const AddServerDialogHeader(),
-              const SizedBox(height: 20),
-              AddServerFormFields(
-                aliasController: _aliasController,
-                urlController: _urlController,
-                realmController: _realmController,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerLow.withValues(alpha: 0.6),
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                  border: Border(top: BorderSide(color: colors.surfaceBorder)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: BorderSide(color: colors.surfaceBorder),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
                       child: Text(
                         'Cancel',
                         style: GoogleFonts.inter(
                           fontSize: 14,
+                          fontWeight: FontWeight.w500,
                           color: colors.onSurfaceVariant,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton(
+                    const SizedBox(width: 8),
+                    ElevatedButton(
                       onPressed: _submit,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colors.primary,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.add_link_rounded, size: 18),
-                          const SizedBox(width: 8),
+                          const Icon(Icons.check_rounded, size: 18),
+                          const SizedBox(width: 6),
                           Text(
-                            'Save Environment',
+                            'Save & Connect',
                             style: GoogleFonts.inter(
-                              fontSize: 14,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

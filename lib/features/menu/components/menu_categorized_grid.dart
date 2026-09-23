@@ -23,6 +23,7 @@ class MenuCategorizedGrid extends StatelessWidget {
       (key: 'supply', title: 'Supply Chain & Inventory', color: colors.statusWarning),
       (key: 'fin', title: 'Procurement & Finance', color: colors.statusWarning),
       (key: 'maint', title: 'Maintenance & Field Service', color: colors.statusSuccess),
+      (key: 'workforce', title: 'Workforce & Shifts', color: colors.primary),
     ];
 
     return Column(

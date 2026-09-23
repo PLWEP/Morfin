@@ -11,14 +11,6 @@ class LobbyTacticalActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    final actions = [
-      {'id': 'scan_qr', 'icon': Icons.qr_code_scanner_rounded, 'label': 'Scan QR Barcode', 'color': colors.statusActive},
-      {'id': 'create_wo', 'icon': Icons.add_task_rounded, 'label': 'Create Work Order', 'color': colors.statusActive},
-      {'id': 'approve_pr', 'icon': Icons.task_alt_rounded, 'label': 'Quick PR Approval', 'color': colors.statusWarning},
-      {'id': 'report_incident', 'icon': Icons.report_problem_outlined, 'label': 'Report Incident', 'color': colors.statusCritical},
-      {'id': 'asset_lookup', 'icon': Icons.search_rounded, 'label': 'Asset Lookup', 'color': colors.primary},
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -26,65 +18,121 @@ class LobbyTacticalActions extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'TERMINAL DISPATCH',
+              'Terminal Dispatch',
               style: GoogleFonts.spaceGrotesk(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
                 color: colors.onSurface,
-                letterSpacing: 0.5,
+                letterSpacing: 0.3,
               ),
             ),
             Text(
-              'Tactical Actions',
+              '3 Modules Ready',
               style: GoogleFonts.jetBrainsMono(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
+                fontSize: 11,
                 color: colors.statusActive,
               ),
             ),
           ],
         ),
         const SizedBox(height: 10),
-        SizedBox(
-          height: 48, // 48dp touch target compliance
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: actions.length,
-            separatorBuilder: (ctx, i) => const SizedBox(width: 8),
-            itemBuilder: (ctx, i) {
-              final act = actions[i];
-              return InkWell(
-                onTap: () => onActionTriggered(act['id'] as String),
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 48),
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: colors.surfaceCard,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: colors.surfaceBorder),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(act['icon'] as IconData, size: 18, color: act['color'] as Color),
-                      const SizedBox(width: 8),
-                      Text(
-                        act['label'] as String,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+        Row(
+          children: [
+            // 1. Scan QR
+            Expanded(
+              child: _buildActionButton(
+                context,
+                id: 'scan_qr',
+                icon: Icons.qr_code_scanner_rounded,
+                label: 'Scan QR',
+                isPrimary: false,
+                iconColor: colors.statusActive,
+              ),
+            ),
+            const SizedBox(width: 10),
+            // 2. Create WO (Primary Action)
+            Expanded(
+              child: _buildActionButton(
+                context,
+                id: 'create_wo',
+                icon: Icons.add_task_rounded,
+                label: 'Create WO',
+                isPrimary: true,
+                iconColor: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 10),
+            // 3. Dispatch
+            Expanded(
+              child: _buildActionButton(
+                context,
+                id: 'dispatch',
+                icon: Icons.swap_horiz_rounded,
+                label: 'Dispatch',
+                isPrimary: false,
+                iconColor: colors.statusWarning,
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButton(
+    BuildContext context, {
+    required String id,
+    required IconData icon,
+    required String label,
+    required bool isPrimary,
+    required Color iconColor,
+  }) {
+    final colors = AppColors.of(context);
+
+    return InkWell(
+      onTap: () => onActionTriggered(id),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isPrimary ? colors.primary : colors.surfaceCard,
+          borderRadius: BorderRadius.circular(12),
+          border: isPrimary ? null : Border.all(color: colors.surfaceBorder),
+          boxShadow: isPrimary
+              ? [
+                  BoxShadow(
+                    color: colors.primary.withValues(alpha: 0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: isPrimary
+                    ? Colors.white.withValues(alpha: 0.15)
+                    : colors.surfaceContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, size: 20, color: iconColor),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: isPrimary ? FontWeight.w600 : FontWeight.w500,
+                color: isPrimary ? Colors.white : colors.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

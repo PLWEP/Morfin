@@ -35,7 +35,7 @@ class LobbyGreetingHeader extends StatelessWidget {
               height: 90,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colors.statusActive.withValues(alpha: 0.08),
+                color: colors.statusActive.withValues(alpha: 0.05),
               ),
             ),
           ),
@@ -49,39 +49,51 @@ class LobbyGreetingHeader extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: colors.statusActive.withValues(alpha: 0.12),
+                            color: colors.surfaceContainerHigh,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: colors.statusActive.withValues(alpha: 0.3),
-                            ),
                           ),
                           child: Text(
                             'SHIFT A • PLANT ALPHA 01',
                             style: GoogleFonts.jetBrainsMono(
                               fontSize: 10,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                               color: colors.statusActive,
                               letterSpacing: 0.5,
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          'Today, 24 Oct',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 11,
-                            color: colors.onSurfaceVariant,
-                          ),
+                        Row(
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: colors.statusSuccess,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'ONLINE',
+                              style: GoogleFonts.jetBrainsMono(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: colors.statusSuccess,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Good Morning, Commander Diana',
+                      'Good Morning, Elena',
                       style: GoogleFonts.spaceGrotesk(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: colors.onSurface,
                         letterSpacing: -0.2,
@@ -91,9 +103,9 @@ class LobbyGreetingHeader extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.shield_outlined,
-                          size: 14,
-                          color: colors.statusActive,
+                          Icons.verified_user_rounded,
+                          size: 15,
+                          color: colors.primary,
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -109,16 +121,15 @@ class LobbyGreetingHeader extends StatelessWidget {
                 ),
               ),
               Container(
-                width: 38,
-                height: 38,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: colors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: colors.surfaceBorder),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  Icons.terminal_rounded,
-                  size: 20,
+                  Icons.precision_manufacturing_rounded,
+                  size: 26,
                   color: colors.statusActive,
                 ),
               ),

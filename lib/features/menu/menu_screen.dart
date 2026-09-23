@@ -3,6 +3,7 @@ import '../../core/widgets/industrial_top_app_bar.dart';
 import '../../theme/app_colors.dart';
 import 'components/menu_categorized_grid.dart';
 import 'components/menu_filter_pills.dart';
+import 'components/menu_offline_diagnostics_card.dart';
 import 'components/menu_plant_telemetry_banner.dart';
 import 'components/menu_quick_dispatch.dart';
 import 'components/menu_search_bar.dart';
@@ -80,7 +81,9 @@ class _MenuScreenState extends State<MenuScreen> {
                     _viewModel.dispatch(MenuModuleSelected(id));
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                const MenuOfflineDiagnosticsCard(),
+                const SizedBox(height: 24),
               ],
             ),
           ),

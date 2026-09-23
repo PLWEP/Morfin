@@ -21,8 +21,8 @@ class AppBottomNav extends StatelessWidget {
     final items = [
       const _NavItem(icon: Icons.grid_view_rounded, label: 'Menu'),
       const _NavItem(icon: Icons.dashboard_rounded, label: 'Lobby'),
-      const _NavItem(icon: Icons.notifications_rounded, label: 'Alerts', hasBadge: true),
-      const _NavItem(icon: Icons.settings_rounded, label: 'Settings'),
+      const _NavItem(icon: Icons.notifications_rounded, label: 'Notification', hasBadge: true),
+      const _NavItem(icon: Icons.settings_rounded, label: 'Setting'),
     ];
 
     return Container(
@@ -84,15 +84,8 @@ class AppBottomNav extends StatelessWidget {
                                   width: 6,
                                   height: 6,
                                   decoration: BoxDecoration(
-                                    color: colors.statusActive,
+                                    color: colors.statusCritical,
                                     shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: colors.statusActive,
-                                        blurRadius: 4,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
                                   ),
                                 ),
                               ),
