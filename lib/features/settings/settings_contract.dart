@@ -10,7 +10,7 @@ class SettingsState {
   const SettingsState({
     this.isOfflineModeEnabled = true,
     this.isEscalationAlertsEnabled = true,
-    this.cacheSizeText = '128 MB used • 14 pending manifests',
+    this.cacheSizeText = '128 MB used • 14 pending items',
     this.toastMessage,
   });
 

@@ -53,12 +53,11 @@ class NotificationsHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'HUB LIVE • $unreadCount UNREAD',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                    'Live • $unreadCount unread',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                       color: colors.statusActive,
-                      letterSpacing: 0.6,
                     ),
                   ),
                 ],
@@ -84,10 +83,10 @@ class NotificationsHeader extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'CLEAR ALL',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
+                          'Clear all',
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
                             color: colors.onSurfaceVariant,
                           ),
                         ),
@@ -119,8 +118,8 @@ class NotificationsHeader extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'IFS Notifications',
-          style: GoogleFonts.spaceGrotesk(
+          'Notifications',
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: colors.onSurface,
@@ -137,7 +136,7 @@ class NotificationsHeader extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             Text(
-              'Plant Alpha 01 • Real-Time Telemetry & Dispatch',
+              'Plant Alpha 01 • Real-time updates',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: colors.outline,

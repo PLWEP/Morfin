@@ -86,20 +86,18 @@ class _SplashScreenState extends State<SplashScreen> {
                   children: [
                     Text(
                       'IFS Cloud™',
-                      style: GoogleFonts.spaceGrotesk(
+                      style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        letterSpacing: 0.8,
                         color: colors.onSurface.withValues(alpha: 0.85),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Version 24.2 (Build 8842)',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 10,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
                         color: colors.outline.withValues(alpha: 0.7),
-                        letterSpacing: 0.3,
                       ),
                     ),
                   ],

@@ -35,22 +35,20 @@ class MenuQuickDispatch extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'QUICK DISPATCH / HOTLIST',
-                    style: GoogleFonts.spaceGrotesk(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                      color: colors.onSurfaceVariant,
+                    'Quick Actions',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: colors.onSurface,
                     ),
                   ),
                 ],
               ),
               Text(
-                'FAST ACCESS',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: colors.statusActive,
+                'Shortcuts',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: colors.onSurfaceVariant,
                 ),
               ),
             ],

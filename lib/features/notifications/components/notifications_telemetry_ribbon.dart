@@ -42,17 +42,17 @@ class NotificationsTelemetryRibbon extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'STREAM: ${isWsConnected ? "WS-CONNECTED" : "OFFLINE"}',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 10,
+                    'Status: ${isWsConnected ? "Connected" : "Offline"}',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: colors.onSurface,
                     ),
                   ),
                   Text(
                     latencyText,
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 9,
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
                       color: colors.outline,
                     ),
                   ),
@@ -79,8 +79,8 @@ class NotificationsTelemetryRibbon extends StatelessWidget {
                 const SizedBox(width: 5),
                 Text(
                   shiftName,
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 9,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: colors.onSurfaceVariant,
                   ),

@@ -57,9 +57,9 @@ class TurbineTeamDispatchBar extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Tele-Audit',
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 10,
+                  'Audit Details',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: colors.statusActive,
                   ),

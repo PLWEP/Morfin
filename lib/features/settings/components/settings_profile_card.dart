@@ -48,22 +48,22 @@ class SettingsProfileCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Commander Alex Vance',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: colors.onSurface,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Operations Director • Industrial Sector 4',
+          'Alex Vance',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: GoogleFonts.inter(
-            fontSize: 11,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: colors.onSurface,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          'Operations Manager',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.inter(
+            fontSize: 12,
             color: colors.onSurfaceVariant,
           ),
         ),

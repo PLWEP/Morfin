@@ -29,11 +29,10 @@ class SettingsHardwareStorageSection extends StatelessWidget {
               Icon(Icons.storage_rounded, size: 16, color: colors.statusActive),
               const SizedBox(width: 6),
               Text(
-                'SYSTEM & STORAGE',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.8,
+                'Storage & Data',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                   color: colors.onSurface,
                 ),
               ),
@@ -52,7 +51,7 @@ class SettingsHardwareStorageSection extends StatelessWidget {
               IndustrialSettingTile(
                 icon: Icons.folder_shared_rounded,
                 iconColor: colors.primary,
-                title: 'Cache Storage & Work Orders',
+                title: 'Cache Storage',
                 subtitle: cacheSizeText,
                 trailing: InkWell(
                   onTap: onClearCache,
@@ -74,8 +73,8 @@ class SettingsHardwareStorageSection extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           'Clear',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 11,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: colors.statusWarning,
                           ),
@@ -89,8 +88,8 @@ class SettingsHardwareStorageSection extends StatelessWidget {
               IndustrialSettingTile(
                 icon: Icons.assignment_rounded,
                 iconColor: colors.onSurfaceVariant,
-                title: 'Diagnostic Logs & Telemetry',
-                subtitle: 'Export runtime activity logs',
+                title: 'Activity Logs',
+                subtitle: 'Export app logs for diagnostics',
                 trailing: InkWell(
                   onTap: onExportLogs,
                   borderRadius: BorderRadius.circular(8),
@@ -111,8 +110,8 @@ class SettingsHardwareStorageSection extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           'Export',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 11,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: colors.onSurface,
                           ),

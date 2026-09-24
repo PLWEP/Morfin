@@ -62,10 +62,10 @@ class LobbyTurbineCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            'CRITICAL WO',
-                            style: GoogleFonts.jetBrainsMono(
+                            'Critical',
+                            style: GoogleFonts.inter(
                               fontSize: 10,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                               color: colors.statusCritical,
                             ),
                           ),
@@ -92,7 +92,7 @@ class LobbyTurbineCard extends StatelessWidget {
                       ),
                       child: Text(
                         'Due in 2h',
-                        style: GoogleFonts.jetBrainsMono(
+                        style: GoogleFonts.inter(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                           color: colors.statusCritical,
@@ -104,9 +104,9 @@ class LobbyTurbineCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Turbine Generator Alpha-3 High Vibration',
-                  style: GoogleFonts.spaceGrotesk(
+                  style: GoogleFonts.inter(
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: colors.onSurface,
                   ),
                 ),

@@ -42,7 +42,7 @@ class MenuSearchBar extends StatelessWidget {
                 color: colors.onSurface,
               ),
               decoration: InputDecoration(
-                hintText: 'Search IFS modules, workflows, forms...',
+                hintText: 'Search modules, forms, workflows...',
                 hintStyle: GoogleFonts.inter(
                   fontSize: 13,
                   color: colors.onSurfaceVariant.withValues(alpha: 0.7),
@@ -59,7 +59,7 @@ class MenuSearchBar extends StatelessWidget {
               color: colors.onSurfaceVariant,
               size: 20,
             ),
-            tooltip: 'Voice Command',
+            tooltip: 'Voice search',
             onPressed: onVoiceSearch ?? () {},
           ),
           Padding(

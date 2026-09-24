@@ -56,12 +56,11 @@ class LobbyGreetingHeader extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            'SHIFT A • PLANT ALPHA 01',
-                            style: GoogleFonts.jetBrainsMono(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
+                            'Shift A • Plant 01',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
                               color: colors.statusActive,
-                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
@@ -78,10 +77,10 @@ class LobbyGreetingHeader extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'ONLINE',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
+                              'Online',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
                                 color: colors.statusSuccess,
                               ),
                             ),
@@ -91,12 +90,11 @@ class LobbyGreetingHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Good Morning, Elena',
-                      style: GoogleFonts.spaceGrotesk(
+                      'Good Morning, Alex',
+                      style: GoogleFonts.inter(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: colors.onSurface,
-                        letterSpacing: -0.2,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -109,7 +107,7 @@ class LobbyGreetingHeader extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Operations Director • Industrial Sector 4',
+                          'Operations Manager',
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: colors.onSurfaceVariant,

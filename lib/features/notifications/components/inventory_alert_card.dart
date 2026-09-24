@@ -84,10 +84,10 @@ class InventoryAlertCard extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          'REORDER POINT',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
+                          'Low Stock',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
                             color: colors.statusWarning,
                           ),
                         ),
@@ -96,7 +96,7 @@ class InventoryAlertCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       item.title,
-                      style: GoogleFonts.spaceGrotesk(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: colors.onSurface,

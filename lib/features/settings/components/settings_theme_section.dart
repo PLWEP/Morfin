@@ -31,11 +31,10 @@ class SettingsThemeSection extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'APPEARANCE & THEME',
-                    style: GoogleFonts.spaceGrotesk(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
+                    'Appearance',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
                       color: colors.onSurface,
                     ),
                   ),
@@ -52,10 +51,10 @@ class SettingsThemeSection extends StatelessWidget {
               child: IndustrialSettingTile(
                 icon: isDark ? Icons.nightlight_round : Icons.wb_sunny_rounded,
                 iconColor: isDark ? colors.statusActive : colors.statusWarning,
-                title: 'Dark Theme',
+                title: 'Dark Mode',
                 subtitle: isDark
-                    ? 'High-contrast dark palette'
-                    : 'Clean daylight palette',
+                    ? 'Dark theme enabled'
+                    : 'Light theme enabled',
                 trailing: Switch(
                   value: isDark,
                   onChanged: (val) {

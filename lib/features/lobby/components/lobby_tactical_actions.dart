@@ -18,18 +18,17 @@ class LobbyTacticalActions extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Terminal Dispatch',
-              style: GoogleFonts.spaceGrotesk(
+              'Quick Actions',
+              style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: colors.onSurface,
-                letterSpacing: 0.3,
               ),
             ),
             Text(
-              '3 Modules Ready',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 11,
+              '3 Available',
+              style: GoogleFonts.inter(
+                fontSize: 12,
                 color: colors.statusActive,
               ),
             ),

@@ -51,7 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Expanded(
                 child: Text(
                   msg,
-                  style: GoogleFonts.jetBrainsMono(fontSize: 11),
+                  style: GoogleFonts.inter(fontSize: 13),
                 ),
               ),
             ],

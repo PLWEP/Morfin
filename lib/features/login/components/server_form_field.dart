@@ -32,11 +32,10 @@ class ServerFormField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.jetBrainsMono(
-            fontSize: 11,
+          style: GoogleFonts.inter(
+            fontSize: 12,
             fontWeight: FontWeight.w600,
             color: colors.onSurfaceVariant,
-            letterSpacing: 0.5,
           ),
         ),
         const SizedBox(height: 6),

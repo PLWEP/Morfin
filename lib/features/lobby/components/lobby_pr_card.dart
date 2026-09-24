@@ -42,10 +42,10 @@ class LobbyPrCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      'PR AUTHORIZATION',
-                      style: GoogleFonts.jetBrainsMono(
+                      'Purchase Request',
+                      style: GoogleFonts.inter(
                         fontSize: 10,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: colors.statusWarning,
                       ),
                     ),
@@ -78,17 +78,17 @@ class LobbyPrCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Hydraulic Pump Assembly Replacement',
-            style: GoogleFonts.spaceGrotesk(
+            style: GoogleFonts.inter(
               fontSize: 14,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               color: colors.onSurface,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             r'$18,400.00 USD',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 14,
+            style: GoogleFonts.inter(
+              fontSize: 15,
               fontWeight: FontWeight.w700,
               color: colors.statusWarning,
             ),

@@ -50,12 +50,11 @@ class MenuOfflineDiagnosticsCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'OFFLINE ENGINE: READY',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 11,
+                    'Offline Mode: Ready',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: colors.onSurface,
-                      letterSpacing: 0.5,
                     ),
                   ),
                 ],
@@ -76,12 +75,11 @@ class MenuOfflineDiagnosticsCard extends StatelessWidget {
                           size: 14, color: Colors.white),
                       const SizedBox(width: 4),
                       Text(
-                        'SYNC NOW',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
+                        'Sync Now',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
-                          letterSpacing: 0.4,
                         ),
                       ),
                     ],
@@ -95,21 +93,21 @@ class MenuOfflineDiagnosticsCard extends StatelessWidget {
             children: [
               _buildStatBox(
                 context,
-                title: 'QUEUED TX',
-                value: '0 ITEMS',
+                title: 'Pending Sync',
+                value: '0 items',
                 valueColor: colors.statusActive,
               ),
               const SizedBox(width: 8),
               _buildStatBox(
                 context,
-                title: 'LAST SYNC',
+                title: 'Last Sync',
                 value: '12:44:09',
                 valueColor: colors.onSurface,
               ),
               const SizedBox(width: 8),
               _buildStatBox(
                 context,
-                title: 'LOCAL CACHE',
+                title: 'Cache Size',
                 value: '18.4 MB',
                 valueColor: colors.statusSuccess,
               ),
@@ -140,19 +138,18 @@ class MenuOfflineDiagnosticsCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 9,
+              style: GoogleFonts.inter(
+                fontSize: 10,
                 fontWeight: FontWeight.w500,
                 color: colors.outline,
-                letterSpacing: 0.3,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               value,
-              style: GoogleFonts.spaceGrotesk(
+              style: GoogleFonts.inter(
                 fontSize: 13,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 color: valueColor,
               ),
             ),

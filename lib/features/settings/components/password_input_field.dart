@@ -29,11 +29,10 @@ class PasswordInputField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.jetBrainsMono(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
             color: colors.onSurfaceVariant,
-            letterSpacing: 0.5,
           ),
         ),
         const SizedBox(height: 6),

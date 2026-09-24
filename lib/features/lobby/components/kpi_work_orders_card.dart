@@ -11,7 +11,7 @@ class KpiWorkOrdersCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return KpiContainer(
-      headerTitle: 'WORK ORDERS',
+      headerTitle: 'Work Orders',
       headerIcon: Icons.build_circle_outlined,
       headerIconColor: colors.statusCritical,
       content: Column(
@@ -21,7 +21,7 @@ class KpiWorkOrdersCard extends StatelessWidget {
             children: [
               Text(
                 '24',
-                style: GoogleFonts.spaceGrotesk(
+                style: GoogleFonts.inter(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: colors.onSurface,
@@ -35,10 +35,10 @@ class KpiWorkOrdersCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  '4 CRIT',
-                  style: GoogleFonts.jetBrainsMono(
+                  '4 Urgent',
+                  style: GoogleFonts.inter(
                     fontSize: 10,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: colors.statusCritical,
                   ),
                 ),
@@ -46,9 +46,9 @@ class KpiWorkOrdersCard extends StatelessWidget {
             ],
           ),
           Text(
-            '8 In-Progress • 12 Queue',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 10,
+            '8 active • 12 queued',
+            style: GoogleFonts.inter(
+              fontSize: 11,
               color: colors.onSurfaceVariant,
             ),
           ),
@@ -58,9 +58,9 @@ class KpiWorkOrdersCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Avg MTTR: 42m',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 10,
+            'Avg completion: 42m',
+            style: GoogleFonts.inter(
+              fontSize: 11,
               color: colors.onSurfaceVariant,
             ),
           ),

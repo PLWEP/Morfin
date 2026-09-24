@@ -42,7 +42,7 @@ class ApprovalRequestCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       item.title,
-                      style: GoogleFonts.spaceGrotesk(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: colors.onSurface,
@@ -53,7 +53,7 @@ class ApprovalRequestCard extends StatelessWidget {
                       children: [
                         Text(
                           item.price ?? r'$18,400.00',
-                          style: GoogleFonts.jetBrainsMono(
+                          style: GoogleFonts.inter(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: colors.statusWarning,
@@ -131,8 +131,12 @@ class ApprovalRequestCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
-            'Action Req.',
-            style: GoogleFonts.jetBrainsMono(fontSize: 9, fontWeight: FontWeight.w600, color: colors.statusWarning),
+            'Action Required',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: colors.statusWarning,
+            ),
           ),
         ),
       ],

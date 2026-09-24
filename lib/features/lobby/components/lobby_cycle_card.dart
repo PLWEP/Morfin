@@ -39,7 +39,7 @@ class LobbyCycleCard extends StatelessWidget {
                     ),
                     child: Text(
                       'Continuous Cycle',
-                      style: GoogleFonts.jetBrainsMono(
+                      style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: colors.statusActive,
@@ -49,7 +49,7 @@ class LobbyCycleCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     'Line 4 Cell',
-                    style: GoogleFonts.jetBrainsMono(
+                    style: GoogleFonts.inter(
                       fontSize: 11,
                       color: colors.onSurfaceVariant,
                     ),
@@ -69,7 +69,7 @@ class LobbyCycleCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     'Synchronized',
-                    style: GoogleFonts.jetBrainsMono(
+                    style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: colors.statusSuccess,
@@ -96,7 +96,7 @@ class LobbyCycleCard extends StatelessWidget {
                     ),
                     Text(
                       '88%',
-                      style: GoogleFonts.spaceGrotesk(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: colors.onSurface,
@@ -112,23 +112,23 @@ class LobbyCycleCard extends StatelessWidget {
                   children: [
                     Text(
                       'Nominal Output',
-                      style: GoogleFonts.spaceGrotesk(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: colors.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Current: 1,420 u/h',
-                      style: GoogleFonts.jetBrainsMono(
+                      style: GoogleFonts.inter(
                         fontSize: 11,
                         color: colors.statusActive,
                       ),
                     ),
                     Text(
                       'Target: 1,600 u/h',
-                      style: GoogleFonts.jetBrainsMono(
+                      style: GoogleFonts.inter(
                         fontSize: 11,
                         color: colors.onSurfaceVariant,
                       ),

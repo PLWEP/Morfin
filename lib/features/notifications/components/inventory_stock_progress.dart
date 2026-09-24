@@ -35,15 +35,15 @@ class InventoryStockProgress extends StatelessWidget {
           children: [
             Text(
               capacityLabel,
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 9,
+              style: GoogleFonts.inter(
+                fontSize: 10,
                 color: colors.outline,
               ),
             ),
             Text(
               progressLabel ?? 'Remaining: 20%',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 9,
+              style: GoogleFonts.inter(
+                fontSize: 10,
                 fontWeight: FontWeight.w600,
                 color: colors.statusWarning,
               ),

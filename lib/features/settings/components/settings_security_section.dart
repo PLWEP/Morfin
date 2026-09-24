@@ -25,11 +25,10 @@ class SettingsSecuritySection extends StatelessWidget {
               Icon(Icons.security_rounded, size: 16, color: colors.primary),
               const SizedBox(width: 6),
               Text(
-                'SECURITY & ACCESS',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.8,
+                'Security',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                   color: colors.onSurface,
                 ),
               ),
@@ -47,7 +46,7 @@ class SettingsSecuritySection extends StatelessWidget {
             icon: Icons.lock_reset_rounded,
             iconColor: colors.statusActive,
             title: 'Change Password',
-            subtitle: 'Reset credentials and update password',
+            subtitle: 'Change your account password',
             trailing: Icon(
               Icons.chevron_right_rounded,
               size: 20,

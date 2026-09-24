@@ -28,11 +28,10 @@ class SettingsConnectivitySection extends StatelessWidget {
               Icon(Icons.hub_rounded, size: 16, color: colors.statusActive),
               const SizedBox(width: 6),
               Text(
-                'CONNECTIVITY & NETWORK',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.8,
+                'Network & Sync',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                   color: colors.onSurface,
                 ),
               ),
@@ -49,8 +48,8 @@ class SettingsConnectivitySection extends StatelessWidget {
           child: IndustrialSettingTile(
             icon: Icons.cloud_sync_rounded,
             iconColor: colors.primary,
-            title: 'Offline Mode & Cache',
-            subtitle: 'Auto-sync queue when connection restores',
+            title: 'Offline Mode',
+            subtitle: 'Save data locally and sync when reconnected',
             trailing: Switch(
               value: isOfflineMode,
               activeThumbColor: colors.statusActive,

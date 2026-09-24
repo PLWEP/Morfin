@@ -30,21 +30,20 @@ class NotificationsSectionHeader extends StatelessWidget {
             Icon(icon, size: 16, color: iconColor),
             const SizedBox(width: 6),
             Text(
-              title.toUpperCase(),
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
+              title,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 color: colors.onSurface,
-                letterSpacing: 0.5,
               ),
             ),
           ],
         ),
         Text(
           badgeText,
-          style: GoogleFonts.jetBrainsMono(
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
             color: badgeColor,
           ),
         ),

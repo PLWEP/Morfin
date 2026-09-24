@@ -38,11 +38,10 @@ class KpiContainer extends StatelessWidget {
             children: [
               Text(
                 headerTitle,
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: colors.onSurfaceVariant,
-                  letterSpacing: 0.5,
                 ),
               ),
               Icon(headerIcon, size: 16, color: headerIconColor),

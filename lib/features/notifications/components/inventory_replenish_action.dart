@@ -32,9 +32,9 @@ class InventoryReplenishAction extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Generate Replenishment PO',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
+                'Create Purchase Order',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: colors.statusWarning,
                 ),

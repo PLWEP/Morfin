@@ -14,24 +14,24 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
       case SettingsToggleEscalationAlerts(value: final val):
         value = value.copyWith(
           isEscalationAlertsEnabled: val,
-          toastMessage: 'Escalation Filter: ${val ? "Active" : "Disabled"}',
+          toastMessage: 'Notifications: ${val ? "Enabled" : "Disabled"}',
         );
       case SettingsClearCache():
         value = value.copyWith(
-          cacheSizeText: '0 MB used • Cache purged',
-          toastMessage: 'Local manifest cache cleared (0 MB)',
+          cacheSizeText: '0 MB used • Cache cleared',
+          toastMessage: 'Cache cleared successfully',
         );
       case SettingsExportLogs():
         value = value.copyWith(
-          toastMessage: 'System Telemetry encrypted & exported',
+          toastMessage: 'Logs exported successfully',
         );
       case SettingsLockTerminal():
         value = value.copyWith(
-          toastMessage: 'Locking Terminal Node Sec-04...',
+          toastMessage: 'Logged out successfully',
         );
       case SettingsChangePassword():
         value = value.copyWith(
-          toastMessage: 'Password successfully reset',
+          toastMessage: 'Password updated successfully',
         );
       case SettingsDismissToast():
         value = value.copyWith(clearToast: true);

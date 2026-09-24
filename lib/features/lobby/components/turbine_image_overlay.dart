@@ -61,8 +61,9 @@ class TurbineImageOverlay extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         'Vibration: 7.8 mm/s RMS (Limit 4.5)',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 10,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
                           color: Colors.white,
                         ),
                       ),
@@ -79,8 +80,9 @@ class TurbineImageOverlay extends StatelessWidget {
                     ),
                     child: Text(
                       'Sector 02-B',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 10,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
                         color: colors.statusActive,
                       ),
                     ),

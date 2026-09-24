@@ -32,11 +32,10 @@ class SettingsOperationsSection extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                'NOTIFICATIONS & ALERTS',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.8,
+                'Notifications',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                   color: colors.onSurface,
                 ),
               ),
@@ -53,8 +52,8 @@ class SettingsOperationsSection extends StatelessWidget {
           child: IndustrialSettingTile(
             icon: Icons.notifications_active_rounded,
             iconColor: colors.statusWarning,
-            title: 'Enable Notifications',
-            subtitle: 'Receive alerts for critical updates and assignments',
+            title: 'Push Notifications',
+            subtitle: 'Receive alerts for updates and tasks',
             trailing: Switch(
               value: isEscalationAlerts,
               activeThumbColor: colors.statusActive,

@@ -91,8 +91,8 @@ class WorkOrderNotificationCard extends StatelessWidget {
                             const SizedBox(width: 3),
                             Text(
                               'Closed',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 10,
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: colors.statusSuccess,
                               ),
@@ -104,7 +104,7 @@ class WorkOrderNotificationCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       item.title,
-                      style: GoogleFonts.spaceGrotesk(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: colors.onSurface,
@@ -125,8 +125,8 @@ class WorkOrderNotificationCard extends StatelessWidget {
                       children: [
                         Text(
                           'Shift 1 • 4 Labor Hours',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 10,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
                             color: colors.outline,
                           ),
                         ),
@@ -146,8 +146,8 @@ class WorkOrderNotificationCard extends StatelessWidget {
                               children: [
                                 Text(
                                   'View Work Order',
-                                  style: GoogleFonts.jetBrainsMono(
-                                    fontSize: 10,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                     color: colors.statusActive,
                                   ),

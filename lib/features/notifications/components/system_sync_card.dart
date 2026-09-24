@@ -71,9 +71,9 @@ class SystemSyncCard extends StatelessWidget {
                 ],
               ),
               Text(
-                'VERIFIED',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 9,
+                'Verified',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: colors.outline,
                 ),
@@ -83,7 +83,7 @@ class SystemSyncCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             item.title,
-            style: GoogleFonts.spaceGrotesk(
+            style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: colors.onSurfaceVariant,
@@ -103,9 +103,9 @@ class SystemSyncCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Payload: 248.6 MB • SHA-256 Validated',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 9,
+                'Size: 248.6 MB • Verified',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
                   color: colors.outline,
                 ),
               ),

@@ -75,7 +75,7 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
         ),
         title: Text(
           isEdit ? 'Edit Server' : 'Add Server',
-          style: GoogleFonts.spaceGrotesk(fontSize: 18, fontWeight: FontWeight.w600, color: colors.onSurface),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600, color: colors.onSurface),
         ),
       ),
       body: SafeArea(

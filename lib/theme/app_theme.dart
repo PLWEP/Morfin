@@ -57,9 +57,9 @@ class AppTheme {
           color: palette.onSurfaceVariant.withValues(alpha: 0.5),
           fontSize: 14,
         ),
-        labelStyle: GoogleFonts.jetBrainsMono(
+        labelStyle: GoogleFonts.inter(
           color: palette.onSurfaceVariant,
-          fontSize: 12,
+          fontSize: 13,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -132,9 +132,9 @@ class AppTheme {
           color: palette.onSurfaceVariant.withValues(alpha: 0.6),
           fontSize: 14,
         ),
-        labelStyle: GoogleFonts.jetBrainsMono(
+        labelStyle: GoogleFonts.inter(
           color: palette.onSurfaceVariant,
-          fontSize: 12,
+          fontSize: 13,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(

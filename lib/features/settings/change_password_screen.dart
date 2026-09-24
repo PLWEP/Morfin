@@ -50,7 +50,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ),
         title: Text(
           'Change Password',
-          style: GoogleFonts.spaceGrotesk(
+          style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: colors.onSurface,
@@ -89,19 +89,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'CREDENTIAL RESET',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
+                              'Password Requirements',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
                                 color: colors.primary,
-                                letterSpacing: 0.6,
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Enter new password and confirm to reset credentials.',
+                              'Enter your new password below. It must be at least 6 characters.',
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: colors.onSurfaceVariant,
                               ),
                             ),
@@ -113,7 +112,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
                 const SizedBox(height: 20),
                 PasswordInputField(
-                  label: 'NEW PASSWORD',
+                  label: 'New Password',
                   controller: _newPasswordCtrl,
                   hint: 'Enter new password',
                   obscure: _obscureNew,
@@ -126,7 +125,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
                 const SizedBox(height: 16),
                 PasswordInputField(
-                  label: 'CONFIRM PASSWORD',
+                  label: 'Confirm New Password',
                   controller: _confirmPasswordCtrl,
                   hint: 'Confirm new password',
                   obscure: _obscureConfirm,
@@ -149,7 +148,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     ),
                     icon: const Icon(Icons.lock_reset_rounded, size: 20),
                     label: Text(
-                      'Reset',
+                      'Save Password',
                       style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                   ),

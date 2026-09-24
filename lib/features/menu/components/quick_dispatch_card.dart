@@ -56,9 +56,9 @@ class QuickDispatchCard extends StatelessWidget {
                     ),
                     child: Text(
                       item.badgeText!,
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
                         color: _badgeFgColor(item.badgeType, colors),
                       ),
                     ),

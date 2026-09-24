@@ -54,20 +54,18 @@ class MenuCategorizedGrid extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           cat.title,
-                          style: GoogleFonts.spaceGrotesk(
+                          style: GoogleFonts.inter(
                             fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.4,
+                            fontWeight: FontWeight.w600,
                             color: colors.onSurface,
                           ),
                         ),
                       ],
                     ),
                     Text(
-                      '${catModules.length} NODES',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                      '${catModules.length} items',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
                         color: colors.onSurfaceVariant,
                       ),
                     ),

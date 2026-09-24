@@ -12,7 +12,7 @@ class KpiPlantOeeCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return KpiContainer(
-      headerTitle: 'PLANT OEE',
+      headerTitle: 'Plant OEE',
       headerIcon: Icons.speed_rounded,
       headerIconColor: colors.statusActive,
       content: Row(
@@ -24,7 +24,7 @@ class KpiPlantOeeCard extends StatelessWidget {
             children: [
               Text(
                 '94.2%',
-                style: GoogleFonts.spaceGrotesk(
+                style: GoogleFonts.inter(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: colors.statusActive,
@@ -36,9 +36,9 @@ class KpiPlantOeeCard extends StatelessWidget {
                       size: 13, color: colors.statusSuccess),
                   const SizedBox(width: 3),
                   Text(
-                    '+1.8% target',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 10,
+                    '+1.8% vs target',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: colors.statusSuccess,
                     ),
@@ -61,8 +61,8 @@ class KpiPlantOeeCard extends StatelessWidget {
       ),
       bottomStrip: Text(
         'Availability: 98.4%',
-        style: GoogleFonts.jetBrainsMono(
-          fontSize: 10,
+        style: GoogleFonts.inter(
+          fontSize: 11,
           color: colors.onSurfaceVariant,
         ),
       ),

@@ -99,7 +99,7 @@ class _ManageServersScreenState extends State<ManageServersScreen> {
         ),
         title: Text(
           'Manage Servers',
-          style: GoogleFonts.spaceGrotesk(fontSize: 18, fontWeight: FontWeight.w600, color: colors.onSurface),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600, color: colors.onSurface),
         ),
         actions: [
           IconButton(
@@ -118,12 +118,11 @@ class _ManageServersScreenState extends State<ManageServersScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'CONFIGURED ENDPOINTS (${_servers.length})',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 11,
+                    'Configured Servers (${_servers.length})',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: colors.onSurfaceVariant,
-                      letterSpacing: 0.5,
                     ),
                   ),
                   Text('Tap to select active', style: GoogleFonts.inter(fontSize: 11, color: colors.outline)),

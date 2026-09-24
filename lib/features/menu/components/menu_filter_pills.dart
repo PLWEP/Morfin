@@ -17,7 +17,7 @@ class MenuFilterPills extends StatelessWidget {
     final colors = AppColors.of(context);
 
     final filters = [
-      (key: 'all', label: 'All Nodes', color: colors.statusActive, hasIcon: true),
+      (key: 'all', label: 'All', color: colors.statusActive, hasIcon: true),
       (key: 'ops', label: 'Operations', color: colors.statusActive, hasIcon: false),
       (key: 'supply', label: 'Supply Chain', color: colors.statusWarning, hasIcon: false),
       (key: 'fin', label: 'Finance', color: colors.statusWarning, hasIcon: false),
@@ -75,11 +75,10 @@ class MenuFilterPills extends StatelessWidget {
                         ),
                       ),
                     Text(
-                      filter.label.toUpperCase(),
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 10,
-                        letterSpacing: 0.5,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      filter.label,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                         color: isSelected
                             ? colors.onPrimaryContainer
                             : colors.onSurfaceVariant,

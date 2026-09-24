@@ -125,8 +125,8 @@ class NotificationsFilterPills extends StatelessWidget {
                     ),
                     child: Text(
                       filter.count,
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 9,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: isSelected
                             ? colors.primaryLight

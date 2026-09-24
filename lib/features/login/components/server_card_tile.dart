@@ -69,7 +69,7 @@ class ServerCardTile extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 server.name,
-                                style: GoogleFonts.spaceGrotesk(
+                                style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: colors.onSurface,
@@ -87,10 +87,10 @@ class ServerCardTile extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  'ACTIVE',
-                                  style: GoogleFonts.jetBrainsMono(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w700,
+                                  'Active',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
                                     color: colors.primary,
                                   ),
                                 ),
@@ -100,8 +100,8 @@ class ServerCardTile extends StatelessWidget {
                         const SizedBox(height: 3),
                         Text(
                           server.baseUrl,
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 11,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
                             color: colors.statusActive,
                           ),
                           maxLines: 1,
@@ -152,8 +152,8 @@ class ServerCardTile extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.jetBrainsMono(
-          fontSize: 9,
+        style: GoogleFonts.inter(
+          fontSize: 10,
           color: colors.outline,
         ),
       ),

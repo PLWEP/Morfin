@@ -45,7 +45,7 @@ class CriticalOverheatCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       item.title,
-                      style: GoogleFonts.spaceGrotesk(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: colors.onSurface,

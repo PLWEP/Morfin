@@ -11,7 +11,7 @@ class KpiStockAlertsCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return KpiContainer(
-      headerTitle: 'STOCK ALERTS',
+      headerTitle: 'Stock Alerts',
       headerIcon: Icons.inventory_2_outlined,
       headerIconColor: colors.statusWarning,
       content: Column(
@@ -23,7 +23,7 @@ class KpiStockAlertsCard extends StatelessWidget {
             children: [
               Text(
                 '3',
-                style: GoogleFonts.spaceGrotesk(
+                style: GoogleFonts.inter(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: colors.onSurface,
@@ -41,9 +41,10 @@ class KpiStockAlertsCard extends StatelessWidget {
             ],
           ),
           Text(
-            '1 SKU Depleted',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 10,
+            '1 Item Out of Stock',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               color: colors.statusCritical,
             ),
           ),
@@ -54,8 +55,8 @@ class KpiStockAlertsCard extends StatelessWidget {
         children: [
           Text(
             'Bin 4B-10, 8C-02',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 10,
+            style: GoogleFonts.inter(
+              fontSize: 11,
               color: colors.onSurfaceVariant,
             ),
           ),

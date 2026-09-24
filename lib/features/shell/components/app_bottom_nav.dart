@@ -21,8 +21,8 @@ class AppBottomNav extends StatelessWidget {
     final items = [
       const _NavItem(icon: Icons.grid_view_rounded, label: 'Menu'),
       const _NavItem(icon: Icons.dashboard_rounded, label: 'Lobby'),
-      const _NavItem(icon: Icons.notifications_rounded, label: 'Notification', hasBadge: true),
-      const _NavItem(icon: Icons.settings_rounded, label: 'Setting'),
+      const _NavItem(icon: Icons.notifications_rounded, label: 'Notifications', hasBadge: true),
+      const _NavItem(icon: Icons.settings_rounded, label: 'Settings'),
     ];
 
     return Container(
@@ -95,9 +95,8 @@ class AppBottomNav extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         item.label,
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 10,
-                          letterSpacing: 0.4,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                           color: isSelected ? colors.onSurface : colors.onSurfaceVariant,
                         ),

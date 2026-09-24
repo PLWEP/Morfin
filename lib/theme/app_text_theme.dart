@@ -4,24 +4,24 @@ import 'app_colors.dart';
 
 TextTheme buildAppTextTheme(AppPalette palette) {
   return TextTheme(
-    displayLarge: GoogleFonts.spaceGrotesk(
-      fontSize: 36,
+    displayLarge: GoogleFonts.inter(
+      fontSize: 34,
       fontWeight: FontWeight.w700,
       color: palette.onSurface,
-      letterSpacing: -0.8,
+      letterSpacing: -0.5,
     ),
-    headlineLarge: GoogleFonts.spaceGrotesk(
-      fontSize: 26,
-      fontWeight: FontWeight.w600,
+    headlineLarge: GoogleFonts.inter(
+      fontSize: 24,
+      fontWeight: FontWeight.w700,
       color: palette.onSurface,
-      letterSpacing: -0.4,
+      letterSpacing: -0.3,
     ),
-    headlineMedium: GoogleFonts.spaceGrotesk(
+    headlineMedium: GoogleFonts.inter(
       fontSize: 20,
       fontWeight: FontWeight.w600,
       color: palette.onSurface,
     ),
-    headlineSmall: GoogleFonts.spaceGrotesk(
+    headlineSmall: GoogleFonts.inter(
       fontSize: 18,
       fontWeight: FontWeight.w600,
       color: palette.onSurface,
@@ -56,22 +56,19 @@ TextTheme buildAppTextTheme(AppPalette palette) {
       fontWeight: FontWeight.w400,
       color: palette.onSurfaceVariant,
     ),
-    labelLarge: GoogleFonts.jetBrainsMono(
+    labelLarge: GoogleFonts.inter(
       fontSize: 13,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 0.5,
+      fontWeight: FontWeight.w600,
       color: palette.onSurface,
     ),
-    labelMedium: GoogleFonts.jetBrainsMono(
+    labelMedium: GoogleFonts.inter(
       fontSize: 11,
       fontWeight: FontWeight.w500,
-      letterSpacing: 0.6,
       color: palette.onSurfaceVariant,
     ),
-    labelSmall: GoogleFonts.jetBrainsMono(
+    labelSmall: GoogleFonts.inter(
       fontSize: 10,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0.8,
+      fontWeight: FontWeight.w500,
       color: palette.onSurfaceVariant,
     ),
   );

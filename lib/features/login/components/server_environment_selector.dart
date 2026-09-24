@@ -40,12 +40,11 @@ class ServerEnvironmentSelector extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'SERVER ENVIRONMENT',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 11,
+              'Server Environment',
+              style: GoogleFonts.inter(
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: colors.onSurfaceVariant,
-                letterSpacing: 0.5,
               ),
             ),
             InkWell(

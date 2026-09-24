@@ -33,21 +33,19 @@ class LobbyOperationalStream extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'PRIORITY OPERATIONAL STREAM',
-                  style: GoogleFonts.spaceGrotesk(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                  'Recent Activity',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                     color: colors.onSurface,
-                    letterSpacing: 0.5,
                   ),
                 ),
               ],
             ),
             Text(
-              'LIVE // PRIO-1',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
+              '3 updates',
+              style: GoogleFonts.inter(
+                fontSize: 12,
                 color: colors.onSurfaceVariant,
               ),
             ),

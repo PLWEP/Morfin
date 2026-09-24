@@ -11,7 +11,7 @@ class KpiApprovalsCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return KpiContainer(
-      headerTitle: 'APPROVALS',
+      headerTitle: 'Approvals',
       headerIcon: Icons.fact_check_outlined,
       headerIconColor: colors.statusWarning,
       content: Column(
@@ -23,7 +23,7 @@ class KpiApprovalsCard extends StatelessWidget {
             children: [
               Text(
                 '7',
-                style: GoogleFonts.spaceGrotesk(
+                style: GoogleFonts.inter(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: colors.onSurface,
@@ -31,7 +31,7 @@ class KpiApprovalsCard extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                'Orders',
+                'Pending',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -41,8 +41,8 @@ class KpiApprovalsCard extends StatelessWidget {
             ],
           ),
           Text(
-            r'$142.5K Pending',
-            style: GoogleFonts.jetBrainsMono(
+            r'$142.5K Total',
+            style: GoogleFonts.inter(
               fontSize: 11,
               color: colors.onSurfaceVariant,
             ),
@@ -59,8 +59,9 @@ class KpiApprovalsCard extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 '2 High Priority',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
                   color: colors.statusWarning,
                 ),
               ),

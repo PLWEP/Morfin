@@ -50,12 +50,11 @@ class MenuPlantTelemetryBanner extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      'FACILITY 04',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
+                      'Facility 04',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
                         color: colors.statusActive,
-                        letterSpacing: 0.8,
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -66,10 +65,10 @@ class MenuPlantTelemetryBanner extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        'SYNCHRONIZED',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
+                        'Connected',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
                           color: colors.statusSuccess,
                         ),
                       ),
@@ -81,17 +80,17 @@ class MenuPlantTelemetryBanner extends StatelessWidget {
                   'Complex B • Turbine Array #3',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.spaceGrotesk(
+                  style: GoogleFonts.inter(
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: colors.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '32 Active Sensors • 0 Critical Faults',
+                  '32 Active Sensors • Normal Status',
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: colors.onSurfaceVariant,
                   ),
                 ),

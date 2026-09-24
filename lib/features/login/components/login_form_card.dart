@@ -37,12 +37,11 @@ class LoginFormCard extends StatelessWidget {
           ServerEnvironmentSelector(state: state, onAction: onAction),
           const SizedBox(height: 18),
           Text(
-            'USERNAME',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 11,
+            'Username',
+            style: GoogleFonts.inter(
+              fontSize: 12,
               fontWeight: FontWeight.w600,
               color: colors.onSurfaceVariant,
-              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 8),
@@ -61,12 +60,11 @@ class LoginFormCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            'PASSWORD',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 11,
+            'Password',
+            style: GoogleFonts.inter(
+              fontSize: 12,
               fontWeight: FontWeight.w600,
               color: colors.onSurfaceVariant,
-              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 8),

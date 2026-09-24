@@ -125,9 +125,9 @@ class ModuleListTile extends StatelessWidget {
       ),
       child: Text(
         module.badgeText!,
-        style: GoogleFonts.jetBrainsMono(
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
+        style: GoogleFonts.inter(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
           color: fg,
         ),
       ),

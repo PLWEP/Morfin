@@ -32,8 +32,8 @@ class CriticalTelemetryBox extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'TELEMETRY SENSOR',
-                    style: GoogleFonts.jetBrainsMono(fontSize: 8, color: colors.outline),
+                    'Sensor',
+                    style: GoogleFonts.inter(fontSize: 10, color: colors.outline),
                   ),
                   Text(
                     sensorId,

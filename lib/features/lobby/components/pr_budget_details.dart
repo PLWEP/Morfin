@@ -22,15 +22,15 @@ class PrBudgetDetails extends StatelessWidget {
             children: [
               Text(
                 'Vendor: Rexroth Bosch Ind.',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
                   color: colors.onSurfaceVariant,
                 ),
               ),
               Text(
                 'Lead Time: 48h Expedited',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
                   color: colors.onSurfaceVariant,
                 ),
               ),
@@ -42,15 +42,15 @@ class PrBudgetDetails extends StatelessWidget {
             children: [
               Text(
                 'Cost Center: CC-8902-HYD',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
                   color: colors.onSurfaceVariant,
                 ),
               ),
               Text(
                 'Budget Available',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: colors.statusSuccess,
                 ),
