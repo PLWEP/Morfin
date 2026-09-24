@@ -7,7 +7,9 @@ class IfsAuthInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     options.headers['Accept'] = 'application/json';
-    options.headers['Content-Type'] = 'application/json;charset=utf-8';
+    if (options.contentType == null && !options.headers.containsKey('Content-Type')) {
+      options.headers['Content-Type'] = 'application/json;charset=utf-8';
+    }
 
     if (_config.isAuthenticated) {
       options.headers['Authorization'] = 'Bearer ${_config.accessToken}';
