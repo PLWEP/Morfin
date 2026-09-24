@@ -3,6 +3,7 @@ import '../../features/notifications/notifications_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../metadata/action_metadata.dart';
 import '../metadata/mock_entity_service.dart';
+import '../services/ifs_cloud_service.dart';
 import '../widgets/entity/generic_entity_list_screen.dart';
 
 class AppActionDispatcher {
@@ -39,8 +40,8 @@ class AppActionDispatcher {
       case 'wo_exec':
         targetScreen = GenericEntityListScreen(
           schema: MockEntityService.workOrderSchema,
-          fetchRecords: MockEntityService.fetchLiveWorkOrders,
-          onExecuteAction: MockEntityService.executeWorkOrderAction,
+          fetchRecords: () => IfsCloudService.instance.fetchWorkOrders(),
+          onExecuteAction: (action, data) => IfsCloudService.instance.executeWorkOrderAction(action, data),
         );
         break;
       case '/inventory':
@@ -48,8 +49,8 @@ class AppActionDispatcher {
       case 'inv_part':
         targetScreen = GenericEntityListScreen(
           schema: MockEntityService.inventorySchema,
-          fetchRecords: MockEntityService.fetchLiveInventory,
-          onExecuteAction: MockEntityService.executeInventoryAction,
+          fetchRecords: () => IfsCloudService.instance.fetchInventory(),
+          onExecuteAction: (action, data) => IfsCloudService.instance.executeInventoryAction(action, data),
         );
         break;
       case '/notifications':
