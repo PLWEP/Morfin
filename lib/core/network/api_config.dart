@@ -1,15 +1,15 @@
 import '../../features/login/models/server_config.dart';
 
-class IfsApiConfig {
-  static final IfsApiConfig instance = IfsApiConfig._();
-  IfsApiConfig._();
+class ApiConfig {
+  static final ApiConfig instance = ApiConfig._();
+  ApiConfig._();
 
   ServerConfig activeServer = const ServerConfig(
-    id: 'default_ifs',
+    id: 'default_server',
     name: 'IFS Cloud Primary',
     baseUrl: 'https://cloud.ifs.com',
     realm: 'ifs',
-    clientId: 'IFS_mobile',
+    clientId: 'morfin_mobile',
     clientSecret: '',
   );
 

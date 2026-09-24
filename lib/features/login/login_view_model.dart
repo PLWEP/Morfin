@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../core/network/ifs_api_client.dart';
-import '../../core/network/ifs_api_config.dart';
+import '../../core/network/api_client.dart';
+import '../../core/network/api_config.dart';
 import '../../core/storage/local_storage_service.dart';
 import 'login_contract.dart';
 import 'models/server_config.dart';
@@ -24,17 +24,17 @@ class LoginViewModel extends ValueNotifier<LoginState> {
             : savedServers.first;
 
         value = value.copyWith(servers: savedServers, selectedServer: active);
-        IfsApiConfig.instance.setServer(active);
+        ApiConfig.instance.setServer(active);
       } else {
         storage.saveServers(value.servers);
         storage.saveSelectedServerId(value.selectedServer.id);
-        IfsApiConfig.instance.setServer(value.selectedServer);
+        ApiConfig.instance.setServer(value.selectedServer);
       }
     } catch (_) {}
   }
 
   Future<void> _persist(List<ServerConfig> servers, ServerConfig selected) async {
-    IfsApiConfig.instance.setServer(selected);
+    ApiConfig.instance.setServer(selected);
     try {
       final prefs = await SharedPreferences.getInstance();
       final storage = LocalStorageService(prefs);
@@ -107,7 +107,7 @@ class LoginViewModel extends ValueNotifier<LoginState> {
     final hasRealCreds = username.isNotEmpty && !password.contains('••••');
 
     if (isLiveServer && hasRealCreds) {
-      final success = await IfsApiClient.instance.authenticateOAuth(
+      final success = await ApiClient.instance.authenticateOAuth(
         username: username,
         password: password,
       );

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/widgets/ifs_logo_badge.dart';
+import '../../core/widgets/app_logo_badge.dart';
 import '../../theme/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       ),
                     ],
                   ),
-                  child: const IfsLogoBadge(size: 96),
+                  child: const AppLogoBadge(size: 96),
                 ),
                 const SizedBox(height: 32),
                 SizedBox(

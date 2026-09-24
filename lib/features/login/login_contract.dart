@@ -30,7 +30,7 @@ class LoginState {
         name: 'IFS Cloud Prod (ap-southeast-1)',
         baseUrl: 'https://prod-apse1.ifscloud.com',
         realm: 'ifs',
-        clientId: 'IFS_mobile_prod',
+        clientId: 'morfin_mobile_prod',
         clientSecret: '••••••••',
       ),
       ServerConfig(
@@ -38,7 +38,7 @@ class LoginState {
         name: 'IFS Cloud Prod (eu-central-1)',
         baseUrl: 'https://prod-euc1.ifscloud.com',
         realm: 'ifs',
-        clientId: 'IFS_mobile_prod',
+        clientId: 'morfin_mobile_prod',
         clientSecret: '••••••••',
       ),
       ServerConfig(
@@ -46,7 +46,7 @@ class LoginState {
         name: 'IFS Cloud UAT / Staging',
         baseUrl: 'https://uat.ifscloud.com',
         realm: 'ifs-uat',
-        clientId: 'IFS_mobile_uat',
+        clientId: 'morfin_mobile_uat',
         clientSecret: '••••••••',
       ),
     ];

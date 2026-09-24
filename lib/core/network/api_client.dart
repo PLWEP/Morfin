@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
-import 'ifs_api_config.dart';
-import 'ifs_auth_interceptor.dart';
+import 'api_config.dart';
+import 'auth_interceptor.dart';
 import 'odata_query.dart';
 
-class IfsApiClient {
-  static final IfsApiClient instance = IfsApiClient._();
+class ApiClient {
+  static final ApiClient instance = ApiClient._();
 
   late final Dio _dio;
-  final IfsApiConfig _config = IfsApiConfig.instance;
+  final ApiConfig _config = ApiConfig.instance;
 
-  IfsApiClient._() {
+  ApiClient._() {
     _dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 15),
@@ -17,7 +17,7 @@ class IfsApiClient {
         responseType: ResponseType.json,
       ),
     );
-    _dio.interceptors.add(IfsAuthInterceptor());
+    _dio.interceptors.add(AuthInterceptor());
   }
 
   Future<List<Map<String, dynamic>>> getEntitySet(

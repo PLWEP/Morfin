@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class IfsLogoBadge extends StatelessWidget {
+class AppLogoBadge extends StatelessWidget {
   final double size;
 
-  const IfsLogoBadge({
+  const AppLogoBadge({
     super.key,
     this.size = 96.0,
   });
@@ -15,13 +15,13 @@ class IfsLogoBadge extends StatelessWidget {
       height: size,
       child: CustomPaint(
         size: Size(size, size),
-        painter: _IfsLogoPainter(),
+        painter: _AppLogoPainter(),
       ),
     );
   }
 }
 
-class _IfsLogoPainter extends CustomPainter {
+class _AppLogoPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final scale = size.width / 120.0;

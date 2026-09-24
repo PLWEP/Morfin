@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
 import '../metadata/mock_entity_service.dart';
-import '../network/ifs_api_client.dart';
+import '../network/api_client.dart';
 import '../network/odata_query.dart';
 
-class IfsCloudService {
-  static final IfsCloudService instance = IfsCloudService._();
-  final IfsApiClient _client = IfsApiClient.instance;
+class ErpCloudService {
+  static final ErpCloudService instance = ErpCloudService._();
+  final ApiClient _client = ApiClient.instance;
 
-  IfsCloudService._();
+  ErpCloudService._();
 
   static const String woProjection = 'ActiveSeparateWorkOrdersHandling';
   static const String woEntitySet = 'ActiveSeparateWorkOrderSet';
