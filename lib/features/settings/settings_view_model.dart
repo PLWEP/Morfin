@@ -33,6 +33,10 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
         value = value.copyWith(
           toastMessage: 'Password updated successfully',
         );
+      case SettingsSyncNow():
+        value = value.copyWith(
+          toastMessage: 'All data synchronized successfully',
+        );
       case SettingsDismissToast():
         value = value.copyWith(clearToast: true);
     }

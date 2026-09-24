@@ -3,15 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../theme/app_colors.dart';
 import 'industrial_setting_tile.dart';
+import 'settings_offline_diagnostics_card.dart';
 
 class SettingsConnectivitySection extends StatelessWidget {
   final bool isOfflineMode;
   final ValueChanged<bool> onOfflineModeChanged;
+  final VoidCallback? onSyncNow;
 
   const SettingsConnectivitySection({
     super.key,
     required this.isOfflineMode,
     required this.onOfflineModeChanged,
+    this.onSyncNow,
   });
 
   @override
@@ -56,6 +59,10 @@ class SettingsConnectivitySection extends StatelessWidget {
               onChanged: onOfflineModeChanged,
             ),
           ),
+        ),
+        const SizedBox(height: 10),
+        SettingsOfflineDiagnosticsCard(
+          onSyncNow: onSyncNow,
         ),
       ],
     );

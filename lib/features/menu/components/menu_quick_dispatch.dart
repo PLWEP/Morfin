@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../theme/app_colors.dart';
 import '../menu_contract.dart';
 import 'quick_dispatch_card.dart';
@@ -8,11 +9,7 @@ class MenuQuickDispatch extends StatelessWidget {
   final List<QuickDispatchItem> items;
   final ValueChanged<String>? onItemTap;
 
-  const MenuQuickDispatch({
-    super.key,
-    required this.items,
-    this.onItemTap,
-  });
+  const MenuQuickDispatch({super.key, required this.items, this.onItemTap});
 
   @override
   Widget build(BuildContext context) {

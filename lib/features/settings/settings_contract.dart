@@ -65,3 +65,7 @@ class SettingsChangePassword extends SettingsAction {
   final String newPassword;
   const SettingsChangePassword(this.newPassword);
 }
+
+class SettingsSyncNow extends SettingsAction {
+  const SettingsSyncNow();
+}

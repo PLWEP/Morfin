@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 
-class MenuOfflineDiagnosticsCard extends StatelessWidget {
+class SettingsOfflineDiagnosticsCard extends StatelessWidget {
   final VoidCallback? onSyncNow;
 
-  const MenuOfflineDiagnosticsCard({super.key, this.onSyncNow});
+  const SettingsOfflineDiagnosticsCard({super.key, this.onSyncNow});
 
   @override
   Widget build(BuildContext context) {
@@ -16,15 +16,8 @@ class MenuOfflineDiagnosticsCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colors.surfaceCard,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: colors.surfaceBorder),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: colors.isDark ? 0.25 : 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -52,7 +45,7 @@ class MenuOfflineDiagnosticsCard extends StatelessWidget {
                   Text(
                     'Offline Mode: Ready',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: colors.onSurface,
                     ),
@@ -61,23 +54,23 @@ class MenuOfflineDiagnosticsCard extends StatelessWidget {
               ),
               InkWell(
                 onTap: onSyncNow,
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(8),
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: colors.primary,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
                       const Icon(Icons.sync_rounded,
-                          size: 14, color: Colors.white),
-                      const SizedBox(width: 4),
+                          size: 15, color: Colors.white),
+                      const SizedBox(width: 5),
                       Text(
                         'Sync Now',
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
@@ -88,7 +81,7 @@ class MenuOfflineDiagnosticsCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Row(
             children: [
               _buildStatBox(
@@ -144,7 +137,7 @@ class MenuOfflineDiagnosticsCard extends StatelessWidget {
                 color: colors.outline,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 3),
             Text(
               value,
               style: GoogleFonts.inter(

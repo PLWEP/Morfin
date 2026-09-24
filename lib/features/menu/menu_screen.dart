@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import 'components/menu_categorized_grid.dart';
 import 'components/menu_filter_pills.dart';
-import 'components/menu_offline_diagnostics_card.dart';
-import 'components/menu_plant_telemetry_banner.dart';
-import 'components/menu_quick_dispatch.dart';
 import 'components/menu_search_bar.dart';
 import 'menu_contract.dart';
 import 'menu_view_model.dart';
@@ -61,24 +58,13 @@ class _MenuScreenState extends State<MenuScreen> {
                       _viewModel.dispatch(MenuCategoryChanged(cat));
                     },
                   ),
-                  const SizedBox(height: 18),
-                  MenuQuickDispatch(
-                    items: state.quickDispatches,
-                    onItemTap: (id) {
-                      _viewModel.dispatch(MenuModuleSelected(id));
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  const MenuPlantTelemetryBanner(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   MenuCategorizedGrid(
                     modules: state.filteredModules,
                     onModuleTap: (id) {
                       _viewModel.dispatch(MenuModuleSelected(id));
                     },
                   ),
-                  const SizedBox(height: 12),
-                  const MenuOfflineDiagnosticsCard(),
                   const SizedBox(height: 24),
                 ],
               ),
