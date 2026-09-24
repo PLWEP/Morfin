@@ -3,6 +3,7 @@ import '../../theme/app_colors.dart';
 import 'components/menu_categorized_grid.dart';
 import 'components/menu_filter_pills.dart';
 import 'components/menu_search_bar.dart';
+import '../work_orders/work_order_list_screen.dart';
 import 'menu_contract.dart';
 import 'menu_view_model.dart';
 
@@ -63,6 +64,22 @@ class _MenuScreenState extends State<MenuScreen> {
                     modules: state.filteredModules,
                     onModuleTap: (id) {
                       _viewModel.dispatch(MenuModuleSelected(id));
+                      if (id == 'mod-1') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const WorkOrderListScreen(),
+                          ),
+                        );
+                      } else {
+                        final module = state.modules.firstWhere((m) => m.id == id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${module.title} is coming soon'),
+                            duration: const Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
                     },
                   ),
                   const SizedBox(height: 24),

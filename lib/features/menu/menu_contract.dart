@@ -24,35 +24,15 @@ class ModuleItem {
   });
 }
 
-class QuickDispatchItem {
-  final String id;
-  final String code;
-  final String title;
-  final IconData icon;
-  final String? badgeText;
-  final ModuleBadgeType badgeType;
-
-  const QuickDispatchItem({
-    required this.id,
-    required this.code,
-    required this.title,
-    required this.icon,
-    this.badgeText,
-    this.badgeType = ModuleBadgeType.none,
-  });
-}
-
 @immutable
 class MenuState {
   final String searchQuery;
   final String selectedCategory;
-  final List<QuickDispatchItem> quickDispatches;
   final List<ModuleItem> modules;
 
   const MenuState({
     this.searchQuery = '',
     this.selectedCategory = 'all',
-    this.quickDispatches = const [],
     this.modules = const [],
   });
 
@@ -71,13 +51,11 @@ class MenuState {
   MenuState copyWith({
     String? searchQuery,
     String? selectedCategory,
-    List<QuickDispatchItem>? quickDispatches,
     List<ModuleItem>? modules,
   }) {
     return MenuState(
       searchQuery: searchQuery ?? this.searchQuery,
       selectedCategory: selectedCategory ?? this.selectedCategory,
-      quickDispatches: quickDispatches ?? this.quickDispatches,
       modules: modules ?? this.modules,
     );
   }

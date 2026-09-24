@@ -9,7 +9,6 @@ class MenuViewModel extends ValueNotifier<MenuState> {
 
   void _loadInitialData() {
     value = value.copyWith(
-      quickDispatches: MenuMockData.quickDispatches,
       modules: MenuMockData.modules,
     );
   }
