@@ -14,12 +14,11 @@ class InventoryDetailSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = AppColors.of(context);
     final notifier = ref.read(inventoryProvider.notifier);
-    final item = ref.watch(inventoryProvider.select((s) {
-      try {
-        return s.items.firstWhere((i) => i.id == itemId);
-      } catch (_) {
-        return null;
+    final item = ref.watch(inventoryProvider.select<InventoryItem?>((s) {
+      for (final i in s.items) {
+        if (i.id == itemId) return i;
       }
+      return null;
     }));
 
     if (item == null) {

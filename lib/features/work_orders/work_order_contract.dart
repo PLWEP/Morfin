@@ -32,12 +32,16 @@ class WorkOrderChecklist {
   });
 
   WorkOrderChecklist copyWith({bool? isDone}) {
-    return WorkOrderChecklist(
-      id: id,
-      label: label,
-      isDone: isDone ?? this.isDone,
-    );
+    return WorkOrderChecklist(id: id, label: label, isDone: isDone ?? this.isDone);
   }
+
+  Map<String, dynamic> toJson() => {'id': id, 'label': label, 'isDone': isDone};
+
+  factory WorkOrderChecklist.fromJson(Map<String, dynamic> json) => WorkOrderChecklist(
+        id: json['id'] as String? ?? '',
+        label: json['label'] as String? ?? '',
+        isDone: json['isDone'] as bool? ?? false,
+      );
 }
 
 class WorkOrder {
@@ -69,10 +73,7 @@ class WorkOrder {
 
   int get completedChecklistCount => checklist.where((c) => c.isDone).length;
 
-  WorkOrder copyWith({
-    WorkOrderStatus? status,
-    List<WorkOrderChecklist>? checklist,
-  }) {
+  WorkOrder copyWith({WorkOrderStatus? status, List<WorkOrderChecklist>? checklist}) {
     return WorkOrder(
       id: id,
       code: code,
@@ -87,6 +88,29 @@ class WorkOrder {
       checklist: checklist ?? this.checklist,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id, 'code': code, 'title': title, 'assetName': assetName,
+        'location': location, 'priority': priority.name, 'status': status.name,
+        'assignedTo': assignedTo, 'dueDate': dueDate, 'description': description,
+        'checklist': checklist.map((c) => c.toJson()).toList(),
+      };
+
+  factory WorkOrder.fromJson(Map<String, dynamic> json) => WorkOrder(
+        id: json['id'] as String? ?? '',
+        code: json['code'] as String? ?? '',
+        title: json['title'] as String? ?? '',
+        assetName: json['assetName'] as String? ?? '',
+        location: json['location'] as String? ?? '',
+        priority: WorkOrderPriority.values.firstWhere((p) => p.name == json['priority'], orElse: () => WorkOrderPriority.medium),
+        status: WorkOrderStatus.values.firstWhere((s) => s.name == json['status'], orElse: () => WorkOrderStatus.pending),
+        assignedTo: json['assignedTo'] as String? ?? '',
+        dueDate: json['dueDate'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+        checklist: (json['checklist'] as List<dynamic>? ?? [])
+            .map((c) => WorkOrderChecklist.fromJson(c as Map<String, dynamic>))
+            .toList(),
+      );
 }
 
 @immutable
