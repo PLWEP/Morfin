@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../theme/app_colors.dart';
 import '../../../theme/theme_controller.dart';
 import 'industrial_setting_tile.dart';
@@ -53,8 +54,8 @@ class SettingsThemeSection extends StatelessWidget {
                 iconColor: isDark ? colors.statusActive : colors.statusWarning,
                 title: 'Dark Theme',
                 subtitle: isDark
-                    ? 'Industrial high-contrast dark palette'
-                    : 'Clean daylight operations palette',
+                    ? 'High-contrast dark palette'
+                    : 'Clean daylight palette',
                 trailing: Switch(
                   value: isDark,
                   onChanged: (val) {

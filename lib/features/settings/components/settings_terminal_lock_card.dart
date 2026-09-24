@@ -21,7 +21,7 @@ class SettingsTerminalLockCard extends StatelessWidget {
           child: OutlinedButton.icon(
             onPressed: onLockTerminal,
             icon: Icon(
-              Icons.lock_person_rounded,
+              Icons.logout_rounded,
               size: 20,
               color: colors.statusCritical,
             ),

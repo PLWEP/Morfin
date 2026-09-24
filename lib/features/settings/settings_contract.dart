@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 class SettingsState {
   final bool isOfflineModeEnabled;
   final bool isEscalationAlertsEnabled;
-  final String syncChannel;
   final String cacheSizeText;
   final String? toastMessage;
 
   const SettingsState({
     this.isOfflineModeEnabled = true,
     this.isEscalationAlertsEnabled = true,
-    this.syncChannel = 'Real-time (WS)',
     this.cacheSizeText = '128 MB used • 14 pending manifests',
     this.toastMessage,
   });
@@ -19,7 +17,6 @@ class SettingsState {
   SettingsState copyWith({
     bool? isOfflineModeEnabled,
     bool? isEscalationAlertsEnabled,
-    String? syncChannel,
     String? cacheSizeText,
     String? toastMessage,
     bool clearToast = false,
@@ -28,7 +25,6 @@ class SettingsState {
       isOfflineModeEnabled: isOfflineModeEnabled ?? this.isOfflineModeEnabled,
       isEscalationAlertsEnabled:
           isEscalationAlertsEnabled ?? this.isEscalationAlertsEnabled,
-      syncChannel: syncChannel ?? this.syncChannel,
       cacheSizeText: cacheSizeText ?? this.cacheSizeText,
       toastMessage: clearToast ? null : (toastMessage ?? this.toastMessage),
     );

@@ -25,29 +25,16 @@ class SettingsHardwareStorageSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.storage_rounded, size: 16, color: colors.statusActive),
-                  const SizedBox(width: 6),
-                  Text(
-                    'SYSTEM & STORAGE',
-                    style: GoogleFonts.spaceGrotesk(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                      color: colors.onSurface,
-                    ),
-                  ),
-                ],
-              ),
+              Icon(Icons.storage_rounded, size: 16, color: colors.statusActive),
+              const SizedBox(width: 6),
               Text(
-                'STORAGE READY',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: colors.outline,
+                'SYSTEM & STORAGE',
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.8,
+                  color: colors.onSurface,
                 ),
               ),
             ],
@@ -103,7 +90,7 @@ class SettingsHardwareStorageSection extends StatelessWidget {
                 icon: Icons.assignment_rounded,
                 iconColor: colors.onSurfaceVariant,
                 title: 'Diagnostic Logs & Telemetry',
-                subtitle: 'Full cryptographic runtime journal',
+                subtitle: 'Export runtime activity logs',
                 trailing: InkWell(
                   onTap: onExportLogs,
                   borderRadius: BorderRadius.circular(8),

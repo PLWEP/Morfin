@@ -101,7 +101,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 18),
                   SettingsConnectivitySection(
                     isOfflineMode: state.isOfflineModeEnabled,
-                    syncChannel: state.syncChannel,
                     onOfflineModeChanged: (val) {
                       _viewModel.dispatch(SettingsToggleOfflineMode(val));
                     },
