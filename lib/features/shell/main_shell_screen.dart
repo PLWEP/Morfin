@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../lobby/lobby_screen.dart';
-import '../menu/menu_screen.dart';
+import '../lobby/generic_lobby_screen.dart';
+import '../menu/generic_menu_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../settings/settings_screen.dart';
 import 'components/app_bottom_nav.dart';
@@ -38,8 +38,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          LobbyScreen(showBottomNav: false, onAlertTap: _onNavigateToAlerts),
-          MenuScreen(onAlertTap: _onNavigateToAlerts),
+          GenericLobbyScreen(onAlertTap: _onNavigateToAlerts),
+          GenericMenuScreen(onAlertTap: _onNavigateToAlerts),
           NotificationsScreen(onAlertTap: _onNavigateToAlerts),
           SettingsScreen(onAlertTap: _onNavigateToAlerts),
         ],
