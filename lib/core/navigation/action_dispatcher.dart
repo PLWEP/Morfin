@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../features/inventory/inventory_list_screen.dart';
 import '../../features/notifications/notifications_screen.dart';
 import '../../features/settings/settings_screen.dart';
-import '../../features/work_orders/work_order_list_screen.dart';
 import '../metadata/action_metadata.dart';
+import '../metadata/mock_entity_service.dart';
+import '../widgets/entity/generic_entity_list_screen.dart';
 
 class AppActionDispatcher {
   const AppActionDispatcher._();
@@ -37,12 +37,18 @@ class AppActionDispatcher {
       case '/work_orders':
       case 'work_orders':
       case 'wo_exec':
-        targetScreen = const WorkOrderListScreen();
+        targetScreen = GenericEntityListScreen(
+          schema: MockEntityService.workOrderSchema,
+          fetchRecords: MockEntityService.fetchLiveWorkOrders,
+        );
         break;
       case '/inventory':
       case 'inventory':
       case 'inv_part':
-        targetScreen = const InventoryListScreen();
+        targetScreen = GenericEntityListScreen(
+          schema: MockEntityService.inventorySchema,
+          fetchRecords: MockEntityService.fetchLiveInventory,
+        );
         break;
       case '/notifications':
       case 'notifications':
