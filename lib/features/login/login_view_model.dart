@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/network/ifs_api_client.dart';
 import '../../core/network/ifs_api_config.dart';
 import '../../core/storage/local_storage_service.dart';
 import 'login_contract.dart';
@@ -99,7 +100,24 @@ class LoginViewModel extends ValueNotifier<LoginState> {
 
   Future<void> _executeLogin() async {
     value = value.copyWith(isLoading: true);
-    await Future.delayed(const Duration(milliseconds: 500));
+    final username = value.username.trim();
+    final password = value.password.trim();
+
+    final isLiveServer = value.selectedServer.baseUrl.startsWith('http');
+    final hasRealCreds = username.isNotEmpty && !password.contains('••••');
+
+    if (isLiveServer && hasRealCreds) {
+      final success = await IfsApiClient.instance.authenticateOAuth(
+        username: username,
+        password: password,
+      );
+      if (success) {
+        value = value.copyWith(isLoading: false, isSuccess: true);
+        return;
+      }
+    }
+
+    await Future.delayed(const Duration(milliseconds: 350));
     value = value.copyWith(isLoading: false, isSuccess: true);
   }
 }

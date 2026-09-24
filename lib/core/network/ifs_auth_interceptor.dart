@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'ifs_api_client.dart';
 import 'ifs_api_config.dart';
 
 class IfsAuthInterceptor extends Interceptor {
@@ -19,8 +20,19 @@ class IfsAuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (err.response?.statusCode == 401) {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+    if (err.response?.statusCode == 401 && _config.refreshToken != null) {
+      final success = await IfsApiClient.instance.refreshTokenOAuth();
+      if (success) {
+        final opts = err.requestOptions;
+        opts.headers['Authorization'] = 'Bearer ${_config.accessToken}';
+        try {
+          final res = await Dio().fetch(opts);
+          return handler.resolve(res);
+        } catch (_) {}
+      }
+      _config.clearTokens();
+    } else if (err.response?.statusCode == 401) {
       _config.clearTokens();
     }
     return handler.next(err);

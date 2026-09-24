@@ -114,4 +114,34 @@ class IfsApiClient {
       return false;
     }
   }
+
+  Future<bool> refreshTokenOAuth() async {
+    final refresh = _config.refreshToken;
+    if (refresh == null || refresh.isEmpty) return false;
+
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        _config.tokenEndpoint,
+        data: {
+          'grant_type': 'refresh_token',
+          'client_id': _config.activeServer.clientId,
+          'client_secret': _config.activeServer.clientSecret,
+          'refresh_token': refresh,
+        },
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
+
+      final data = response.data;
+      if (data != null && data['access_token'] != null) {
+        _config.setTokens(
+          access: data['access_token'] as String,
+          refresh: data['refresh_token'] as String? ?? refresh,
+          expiresInSeconds: data['expires_in'] as int?,
+        );
+        return true;
+      }
+    } catch (_) {}
+    _config.clearTokens();
+    return false;
+  }
 }
