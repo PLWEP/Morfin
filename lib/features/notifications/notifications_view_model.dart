@@ -13,30 +13,20 @@ class NotificationsViewModel extends ValueNotifier<NotificationsState> {
       case NotificationsFilterChanged(:final filter):
         value = value.copyWith(activeFilter: filter);
 
+      case NotificationToggledRead(:final id):
+        final updated = value.items.map((i) {
+          if (i.id == id) return i.copyWith(isRead: !i.isRead);
+          return i;
+        }).toList();
+        value = value.copyWith(items: updated);
+
       case NotificationDismissed(:final id):
         final updated = value.items.where((i) => i.id != id).toList();
         value = value.copyWith(items: updated);
 
-      case NotificationAcknowledged(:final id):
-        final updated = value.items.map((i) {
-          if (i.id == id) return i.copyWith(isRead: true);
-          return i;
-        }).toList();
-        value = value.copyWith(items: updated);
-
-      case NotificationApproved(:final id):
-        final updated = value.items.map((i) {
-          if (i.id == id) return i.copyWith(isRead: true);
-          return i;
-        }).toList();
-        value = value.copyWith(items: updated);
-
-      case NotificationRejected(:final id):
-        final updated = value.items.where((i) => i.id != id).toList();
-        value = value.copyWith(items: updated);
-
       case NotificationsMarkAllRead():
-        final updated = value.items.map((i) => i.copyWith(isRead: true)).toList();
+        final updated =
+            value.items.map((i) => i.copyWith(isRead: true)).toList();
         value = value.copyWith(items: updated);
     }
   }

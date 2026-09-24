@@ -4,146 +4,70 @@ import '../../../theme/app_colors.dart';
 
 class NotificationsHeader extends StatelessWidget {
   final int unreadCount;
-  final VoidCallback? onClearAll;
-  final VoidCallback? onTuneFilter;
+  final VoidCallback? onMarkAllRead;
 
   const NotificationsHeader({
     super.key,
     required this.unreadCount,
-    this.onClearAll,
-    this.onTuneFilter,
+    this.onMarkAllRead,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colors.statusActive.withValues(alpha: 0.25),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: colors.statusActive,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: colors.statusActive.withValues(alpha: 0.6),
-                          blurRadius: 6,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Live • $unreadCount unread',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: colors.statusActive,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              children: [
-                InkWell(
-                  onTap: onClearAll,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: colors.surfaceContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.done_all_rounded,
-                          size: 15,
-                          color: colors.primary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Clear all',
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                InkWell(
-                  onTap: onTuneFilter,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: colors.surfaceContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.tune_rounded,
-                      size: 16,
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Notifications',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: colors.onSurface,
-            letterSpacing: -0.3,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Row(
-          children: [
-            Icon(
-              Icons.factory_rounded,
-              size: 14,
-              color: colors.primary,
-            ),
-            const SizedBox(width: 6),
             Text(
-              'Plant Alpha 01 • Real-time updates',
+              'Notifications',
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: colors.onSurface,
+                letterSpacing: -0.4,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              unreadCount > 0
+                  ? '$unreadCount unread notification${unreadCount > 1 ? "s" : ""}'
+                  : 'All notifications caught up',
+              style: GoogleFonts.inter(
+                fontSize: 13,
                 color: colors.outline,
               ),
             ),
           ],
         ),
+        if (unreadCount > 0)
+          TextButton.icon(
+            onPressed: onMarkAllRead,
+            icon: Icon(
+              Icons.done_all_rounded,
+              size: 16,
+              color: colors.primary,
+            ),
+            label: Text(
+              'Mark all read',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: colors.primary,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              backgroundColor: colors.surfaceContainer,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
       ],
     );
   }

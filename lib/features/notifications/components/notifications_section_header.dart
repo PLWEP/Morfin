@@ -4,50 +4,41 @@ import '../../../theme/app_colors.dart';
 
 class NotificationsSectionHeader extends StatelessWidget {
   final String title;
-  final IconData icon;
-  final Color iconColor;
-  final String badgeText;
-  final Color badgeColor;
+  final int? count;
 
   const NotificationsSectionHeader({
     super.key,
     required this.title,
-    required this.icon,
-    required this.iconColor,
-    required this.badgeText,
-    required this.badgeColor,
+    this.count,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 16, color: iconColor),
-            const SizedBox(width: 6),
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+          if (count != null)
             Text(
-              title,
+              '$count',
               style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: colors.onSurface,
+                fontSize: 12,
+                color: colors.outline,
               ),
             ),
-          ],
-        ),
-        Text(
-          badgeText,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: badgeColor,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

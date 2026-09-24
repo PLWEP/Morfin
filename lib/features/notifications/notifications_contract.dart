@@ -1,50 +1,35 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
-enum NotificationCategory {
+enum NotificationFilter {
   all,
-  critical,
-  workOrders,
-  approvals,
-  system,
+  unread,
+  read,
 }
 
-enum NotificationPriority {
-  critical,
-  warning,
-  success,
-  neutral,
+enum NotificationTimeGroup {
+  today,
+  yesterday,
+  older,
 }
 
 @immutable
 class NotificationItem {
   final String id;
-  final NotificationCategory category;
-  final NotificationPriority priority;
-  final String tag;
-  final String timeAgo;
   final String title;
-  final String description;
+  final String message;
+  final String time;
+  final NotificationTimeGroup group;
   final bool isRead;
-  final String? sensorId;
-  final String? price;
-  final String? actionLabel;
-  final double? progress;
-  final String? progressLabel;
+  final IconData? icon;
 
   const NotificationItem({
     required this.id,
-    required this.category,
-    required this.priority,
-    required this.tag,
-    required this.timeAgo,
     required this.title,
-    required this.description,
+    required this.message,
+    required this.time,
+    required this.group,
     this.isRead = false,
-    this.sensorId,
-    this.price,
-    this.actionLabel,
-    this.progress,
-    this.progressLabel,
+    this.icon,
   });
 
   NotificationItem copyWith({
@@ -52,18 +37,12 @@ class NotificationItem {
   }) {
     return NotificationItem(
       id: id,
-      category: category,
-      priority: priority,
-      tag: tag,
-      timeAgo: timeAgo,
       title: title,
-      description: description,
+      message: message,
+      time: time,
+      group: group,
       isRead: isRead ?? this.isRead,
-      sensorId: sensorId,
-      price: price,
-      actionLabel: actionLabel,
-      progress: progress,
-      progressLabel: progressLabel,
+      icon: icon,
     );
   }
 }
@@ -71,39 +50,40 @@ class NotificationItem {
 @immutable
 class NotificationsState {
   final List<NotificationItem> items;
-  final NotificationCategory activeFilter;
-  final bool isWsConnected;
-  final String latencyText;
-  final String shiftName;
+  final NotificationFilter activeFilter;
 
   const NotificationsState({
     this.items = const [],
-    this.activeFilter = NotificationCategory.all,
-    this.isWsConnected = true,
-    this.latencyText = 'Latency: 24ms • Sector 02-B',
-    this.shiftName = 'Shift A • Escalating',
+    this.activeFilter = NotificationFilter.all,
   });
 
   int get unreadCount => items.where((item) => !item.isRead).length;
+  int get readCount => items.where((item) => item.isRead).length;
 
   List<NotificationItem> get filteredItems {
-    if (activeFilter == NotificationCategory.all) return items;
-    return items.where((item) => item.category == activeFilter).toList();
+    return switch (activeFilter) {
+      NotificationFilter.all => items,
+      NotificationFilter.unread => items.where((i) => !i.isRead).toList(),
+      NotificationFilter.read => items.where((i) => i.isRead).toList(),
+    };
   }
+
+  List<NotificationItem> get todayItems =>
+      filteredItems.where((i) => i.group == NotificationTimeGroup.today).toList();
+
+  List<NotificationItem> get yesterdayItems =>
+      filteredItems.where((i) => i.group == NotificationTimeGroup.yesterday).toList();
+
+  List<NotificationItem> get olderItems =>
+      filteredItems.where((i) => i.group == NotificationTimeGroup.older).toList();
 
   NotificationsState copyWith({
     List<NotificationItem>? items,
-    NotificationCategory? activeFilter,
-    bool? isWsConnected,
-    String? latencyText,
-    String? shiftName,
+    NotificationFilter? activeFilter,
   }) {
     return NotificationsState(
       items: items ?? this.items,
       activeFilter: activeFilter ?? this.activeFilter,
-      isWsConnected: isWsConnected ?? this.isWsConnected,
-      latencyText: latencyText ?? this.latencyText,
-      shiftName: shiftName ?? this.shiftName,
     );
   }
 }
@@ -113,28 +93,18 @@ sealed class NotificationsAction {
 }
 
 final class NotificationsFilterChanged extends NotificationsAction {
-  final NotificationCategory filter;
+  final NotificationFilter filter;
   const NotificationsFilterChanged(this.filter);
+}
+
+final class NotificationToggledRead extends NotificationsAction {
+  final String id;
+  const NotificationToggledRead(this.id);
 }
 
 final class NotificationDismissed extends NotificationsAction {
   final String id;
   const NotificationDismissed(this.id);
-}
-
-final class NotificationAcknowledged extends NotificationsAction {
-  final String id;
-  const NotificationAcknowledged(this.id);
-}
-
-final class NotificationApproved extends NotificationsAction {
-  final String id;
-  const NotificationApproved(this.id);
-}
-
-final class NotificationRejected extends NotificationsAction {
-  final String id;
-  const NotificationRejected(this.id);
 }
 
 final class NotificationsMarkAllRead extends NotificationsAction {

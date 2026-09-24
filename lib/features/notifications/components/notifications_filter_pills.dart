@@ -4,12 +4,18 @@ import '../../../theme/app_colors.dart';
 import '../notifications_contract.dart';
 
 class NotificationsFilterPills extends StatelessWidget {
-  final NotificationCategory activeFilter;
-  final ValueChanged<NotificationCategory> onFilterSelected;
+  final NotificationFilter activeFilter;
+  final int totalCount;
+  final int unreadCount;
+  final int readCount;
+  final ValueChanged<NotificationFilter> onFilterSelected;
 
   const NotificationsFilterPills({
     super.key,
     required this.activeFilter,
+    required this.totalCount,
+    required this.unreadCount,
+    required this.readCount,
     required this.onFilterSelected,
   });
 
@@ -18,96 +24,41 @@ class NotificationsFilterPills extends StatelessWidget {
     final colors = AppColors.of(context);
 
     final filters = [
-      (
-        category: NotificationCategory.all,
-        label: 'All',
-        count: '18',
-        icon: null as IconData?,
-        dotColor: null as Color?,
-      ),
-      (
-        category: NotificationCategory.critical,
-        label: 'Critical',
-        count: '3',
-        icon: null,
-        dotColor: colors.statusCritical,
-      ),
-      (
-        category: NotificationCategory.workOrders,
-        label: 'Work Orders',
-        count: '8',
-        icon: Icons.engineering_rounded,
-        dotColor: null,
-      ),
-      (
-        category: NotificationCategory.approvals,
-        label: 'Approvals',
-        count: '5',
-        icon: Icons.verified_rounded,
-        dotColor: null,
-      ),
-      (
-        category: NotificationCategory.system,
-        label: 'System',
-        count: '2',
-        icon: Icons.dns_rounded,
-        dotColor: null,
-      ),
+      (filter: NotificationFilter.all, label: 'All', count: '$totalCount'),
+      (filter: NotificationFilter.unread, label: 'Unread', count: '$unreadCount'),
+      (filter: NotificationFilter.read, label: 'Read', count: '$readCount'),
     ];
 
-    return SizedBox(
-      height: 36,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: filters.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final filter = filters[index];
-          final isSelected = activeFilter == filter.category;
+    return Row(
+      children: filters.map((item) {
+        final isSelected = activeFilter == item.filter;
 
-          return InkWell(
-            onTap: () => onFilterSelected(filter.category),
-            borderRadius: BorderRadius.circular(8),
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: InkWell(
+            onTap: () => onFilterSelected(item.filter),
+            borderRadius: BorderRadius.circular(20),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
-                color: isSelected ? colors.primaryContainer : colors.surfaceCard,
-                borderRadius: BorderRadius.circular(8),
+                color: isSelected
+                    ? colors.primaryContainer
+                    : colors.surfaceCard,
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
-                      ? colors.primaryContainer
-                      : colors.surfaceBorder.withValues(alpha: 0.8),
+                      ? colors.primary.withValues(alpha: 0.5)
+                      : colors.surfaceBorder,
                 ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (filter.dotColor != null) ...[
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: filter.dotColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                  ] else if (filter.icon != null) ...[
-                    Icon(
-                      filter.icon,
-                      size: 13,
-                      color: isSelected
-                          ? colors.onPrimaryContainer
-                          : colors.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 5),
-                  ],
                   Text(
-                    filter.label,
+                    item.label,
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                       color: isSelected
                           ? colors.onPrimaryContainer
@@ -116,20 +67,20 @@ class NotificationsFilterPills extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? colors.surfaceDeep.withValues(alpha: 0.35)
+                          ? colors.primary.withValues(alpha: 0.25)
                           : colors.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      filter.count,
+                      item.count,
                       style: GoogleFonts.inter(
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: isSelected
-                            ? colors.primaryLight
+                            ? colors.onPrimaryContainer
                             : colors.onSurfaceVariant,
                       ),
                     ),
@@ -137,9 +88,9 @@ class NotificationsFilterPills extends StatelessWidget {
                 ],
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

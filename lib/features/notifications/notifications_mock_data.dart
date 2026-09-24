@@ -1,65 +1,75 @@
+import 'package:flutter/material.dart';
 import 'notifications_contract.dart';
 
 abstract final class NotificationsMockData {
   static const initialNotifications = [
+    // Today
     NotificationItem(
       id: 'notif-1',
-      category: NotificationCategory.critical,
-      priority: NotificationPriority.critical,
-      tag: 'CRITICAL #ALM-9942',
-      timeAgo: '4m ago',
-      title: 'Turbine Generator Alpha-3: Overheat Threshold',
-      description:
-          'Core temperature reached 114°C (Nominal ceiling: 95°C). Automatic throttling engaged on Sector 02-B substation bus.',
-      sensorId: 'TG-A3-TH09 • Sector 02-B',
+      title: 'Shift schedule updated',
+      message: 'Your upcoming shift roster for next week has been confirmed by operations.',
+      time: '15m ago',
+      group: NotificationTimeGroup.today,
       isRead: false,
+      icon: Icons.calendar_today_rounded,
     ),
     NotificationItem(
       id: 'notif-2',
-      category: NotificationCategory.approvals,
-      priority: NotificationPriority.warning,
-      tag: 'PR AUTHORIZATION #PR-3310',
-      timeAgo: '28m ago',
-      title: 'Hydraulic Pump Assembly Replacement',
-      price: r'$18,400.00',
-      description:
-          'Supplier: Rexroth Bosch Industrial. Expedited turnaround for scheduled Sector 3 hydraulic overhaul.',
+      title: 'Safety inspection reminder',
+      message: 'Routine inspection for Generator Unit 3 is scheduled today at 2:00 PM.',
+      time: '1h ago',
+      group: NotificationTimeGroup.today,
       isRead: false,
+      icon: Icons.verified_user_outlined,
     ),
     NotificationItem(
       id: 'notif-3',
-      category: NotificationCategory.workOrders,
-      priority: NotificationPriority.success,
-      tag: 'WO STATUS #WO-8940',
-      timeAgo: '2h ago',
-      title: 'Conveyor Line 4 Motor Calibration Completed',
-      description:
-          'Lead Tech M. Rodriguez verified stator clearance and closed package. Performance index logged at 98.4% nominal.',
-      isRead: false,
+      title: 'Daily checklist approved',
+      message: 'Supervisor signed off on the daily equipment pre-check documentation.',
+      time: '3h ago',
+      group: NotificationTimeGroup.today,
+      isRead: true,
+      icon: Icons.assignment_turned_in_outlined,
     ),
+
+    // Yesterday
     NotificationItem(
       id: 'notif-4',
-      category: NotificationCategory.critical,
-      priority: NotificationPriority.warning,
-      tag: 'INVENTORY ALERT',
-      timeAgo: '4h ago',
-      title: 'Low Stock: Synthetic Lubricant ISO VG 220',
-      description:
-          'Available warehouse count: 12 Drums (Minimum threshold: 20 Drums). Located at BIN 4B-10.',
-      progress: 0.32,
-      progressLabel: 'Remaining: 20%',
+      title: 'System update completed',
+      message: 'Scheduled cloud sync and client updates finished successfully with no disruption.',
+      time: 'Yesterday, 4:30 PM',
+      group: NotificationTimeGroup.yesterday,
       isRead: false,
+      icon: Icons.sync_rounded,
     ),
     NotificationItem(
       id: 'notif-5',
-      category: NotificationCategory.system,
-      priority: NotificationPriority.neutral,
-      tag: 'MAINTENANCE WINDOW',
-      timeAgo: '1d ago',
-      title: 'Database Telemetry Backup Synced to US-EAST-01',
-      description:
-          'All pending offline work packages and machine logs synchronized cleanly. Zero packet loss across 1,840 encrypted ledger frames.',
+      title: 'Purchase order sent',
+      message: 'Purchase order #4102 has been received and processed by the vendor.',
+      time: 'Yesterday, 11:15 AM',
+      group: NotificationTimeGroup.yesterday,
       isRead: true,
+      icon: Icons.receipt_long_outlined,
+    ),
+
+    // Older
+    NotificationItem(
+      id: 'notif-6',
+      title: 'Password changed successfully',
+      message: 'Your account password was updated from a recognized device.',
+      time: '3 days ago',
+      group: NotificationTimeGroup.older,
+      isRead: true,
+      icon: Icons.lock_outline_rounded,
+    ),
+    NotificationItem(
+      id: 'notif-7',
+      title: 'Monthly summary ready',
+      message: 'Operational throughput and activity summary for last month is now available.',
+      time: '5 days ago',
+      group: NotificationTimeGroup.older,
+      isRead: true,
+      icon: Icons.insert_chart_outlined_rounded,
     ),
   ];
 }
