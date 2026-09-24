@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../../theme/app_colors.dart';
 
 class AppBottomNav extends StatelessWidget {
@@ -19,9 +20,13 @@ class AppBottomNav extends StatelessWidget {
     final colors = AppColors.of(context);
 
     final items = [
-      const _NavItem(icon: Icons.grid_view_rounded, label: 'Menu'),
       const _NavItem(icon: Icons.dashboard_rounded, label: 'Lobby'),
-      const _NavItem(icon: Icons.notifications_rounded, label: 'Notifications', hasBadge: true),
+      const _NavItem(icon: Icons.grid_view_rounded, label: 'Menu'),
+      const _NavItem(
+        icon: Icons.notifications_rounded,
+        label: 'Notifications',
+        hasBadge: true,
+      ),
       const _NavItem(icon: Icons.settings_rounded, label: 'Settings'),
     ];
 
@@ -61,7 +66,9 @@ class AppBottomNav extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                           border: isSelected
                               ? Border.all(
-                                  color: colors.statusActive.withValues(alpha: 0.45),
+                                  color: colors.statusActive.withValues(
+                                    alpha: 0.45,
+                                  ),
                                   width: 1,
                                 )
                               : null,
@@ -97,8 +104,12 @@ class AppBottomNav extends StatelessWidget {
                         item.label,
                         style: GoogleFonts.inter(
                           fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                          color: isSelected ? colors.onSurface : colors.onSurfaceVariant,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: isSelected
+                              ? colors.onSurface
+                              : colors.onSurfaceVariant,
                         ),
                       ),
                     ],

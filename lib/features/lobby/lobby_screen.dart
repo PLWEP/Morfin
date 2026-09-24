@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../../theme/app_colors.dart';
 import 'components/lobby_bottom_nav.dart';
-import 'components/lobby_greeting_header.dart';
-import 'components/lobby_kpi_grid.dart';
-import 'components/lobby_operational_stream.dart';
-import 'components/lobby_tactical_actions.dart';
+import 'components/lobby_dashboard_header.dart';
+import 'components/lobby_kpi_metrics_grid.dart';
+import 'components/lobby_line_performance_card.dart';
+import 'components/lobby_oee_breakdown_card.dart';
+import 'components/lobby_throughput_chart_card.dart';
 import 'lobby_contract.dart';
 import 'lobby_view_model.dart';
 
@@ -12,11 +14,7 @@ class LobbyScreen extends StatefulWidget {
   final bool showBottomNav;
   final VoidCallback? onAlertTap;
 
-  const LobbyScreen({
-    super.key,
-    this.showBottomNav = false,
-    this.onAlertTap,
-  });
+  const LobbyScreen({super.key, this.showBottomNav = false, this.onAlertTap});
 
   @override
   State<LobbyScreen> createState() => _LobbyScreenState();
@@ -48,21 +46,25 @@ class _LobbyScreenState extends State<LobbyScreen> {
           backgroundColor: colors.surfaceDeep,
           body: SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const LobbyGreetingHeader(),
-                  const SizedBox(height: 16),
-                  LobbyKpiGrid(kpis: state.kpis),
-                  const SizedBox(height: 20),
-                  LobbyTacticalActions(
-                    onActionTriggered: (actionId) {
-                      _viewModel.dispatch(LobbyTriggerTacticalAction(actionId));
+                  LobbyDashboardHeader(
+                    selectedPeriod: state.period,
+                    onPeriodChanged: (period) {
+                      _viewModel.dispatch(LobbyChangePeriodAction(period));
                     },
                   ),
-                  const SizedBox(height: 20),
-                  LobbyOperationalStream(feeds: state.feeds),
+                  const SizedBox(height: 14),
+                  LobbyKpiMetricsGrid(kpis: state.kpis),
+                  const SizedBox(height: 14),
+                  LobbyThroughputChartCard(dataPoints: state.throughputChart),
+                  const SizedBox(height: 14),
+                  LobbyOeeBreakdownCard(factors: state.oeeFactors),
+                  const SizedBox(height: 14),
+                  LobbyLinePerformanceCard(lines: state.linePerformances),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -70,7 +72,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
           ),
           bottomNavigationBar: widget.showBottomNav
               ? LobbyBottomNav(
-                  selectedIndex: 1,
+                  selectedIndex: 0,
                   onDestinationSelected: (index) {},
                 )
               : null,

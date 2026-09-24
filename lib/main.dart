@@ -28,7 +28,7 @@ class IfsCloudMobileApp extends StatelessWidget {
           routes: {
             '/splash': (context) => const SplashScreen(),
             '/login': (context) => const LoginScreen(),
-            '/lobby': (context) => const MainShellScreen(initialIndex: 1),
+            '/lobby': (context) => const MainShellScreen(initialIndex: 0),
           },
         );
       },

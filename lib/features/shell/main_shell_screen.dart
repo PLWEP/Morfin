@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../lobby/lobby_screen.dart';
 import '../menu/menu_screen.dart';
 import '../notifications/notifications_screen.dart';
@@ -8,7 +9,7 @@ import 'components/app_bottom_nav.dart';
 class MainShellScreen extends StatefulWidget {
   final int initialIndex;
 
-  const MainShellScreen({super.key, this.initialIndex = 1});
+  const MainShellScreen({super.key, this.initialIndex = 0});
 
   @override
   State<MainShellScreen> createState() => _MainShellScreenState();
@@ -37,14 +38,9 @@ class _MainShellScreenState extends State<MainShellScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
+          LobbyScreen(showBottomNav: false, onAlertTap: _onNavigateToAlerts),
           MenuScreen(onAlertTap: _onNavigateToAlerts),
-          LobbyScreen(
-            showBottomNav: false,
-            onAlertTap: _onNavigateToAlerts,
-          ),
-          NotificationsScreen(
-            onAlertTap: _onNavigateToAlerts,
-          ),
+          NotificationsScreen(onAlertTap: _onNavigateToAlerts),
           SettingsScreen(onAlertTap: _onNavigateToAlerts),
         ],
       ),
