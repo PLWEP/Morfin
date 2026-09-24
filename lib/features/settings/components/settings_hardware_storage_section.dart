@@ -1,0 +1,130 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_colors.dart';
+import 'industrial_setting_tile.dart';
+
+class SettingsHardwareStorageSection extends StatelessWidget {
+  final String cacheSizeText;
+  final VoidCallback? onClearCache;
+  final VoidCallback? onExportLogs;
+
+  const SettingsHardwareStorageSection({
+    super.key,
+    required this.cacheSizeText,
+    this.onClearCache,
+    this.onExportLogs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          child: Row(
+            children: [
+              Icon(Icons.storage_rounded, size: 16, color: colors.statusActive),
+              const SizedBox(width: 6),
+              Text(
+                'Storage & Data',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: colors.onSurface,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          decoration: BoxDecoration(
+            color: colors.surfaceCard,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: colors.surfaceBorder),
+          ),
+          child: Column(
+            children: [
+              IndustrialSettingTile(
+                icon: Icons.folder_shared_rounded,
+                iconColor: colors.primary,
+                title: 'Cache Storage',
+                subtitle: cacheSizeText,
+                trailing: InkWell(
+                  onTap: onClearCache,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.cleaning_services_rounded,
+                          size: 14,
+                          color: colors.statusWarning,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Clear',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: colors.statusWarning,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Divider(height: 1, color: colors.surfaceBorder.withValues(alpha: 0.5)),
+              IndustrialSettingTile(
+                icon: Icons.assignment_rounded,
+                iconColor: colors.onSurfaceVariant,
+                title: 'Activity Logs',
+                subtitle: 'Export app logs for diagnostics',
+                trailing: InkWell(
+                  onTap: onExportLogs,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.file_download_rounded,
+                          size: 14,
+                          color: colors.statusActive,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Export',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
