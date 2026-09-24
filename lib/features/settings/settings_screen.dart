@@ -109,12 +109,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 18),
                   SettingsOperationsSection(
                     isEscalationAlerts: state.isEscalationAlertsEnabled,
-                    isBiometrics: state.isBiometricsEnabled,
                     onEscalationAlertsChanged: (val) {
                       _viewModel.dispatch(SettingsToggleEscalationAlerts(val));
-                    },
-                    onBiometricsChanged: (val) {
-                      _viewModel.dispatch(SettingsToggleBiometrics(val));
                     },
                   ),
                   const SizedBox(height: 18),

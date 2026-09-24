@@ -16,11 +16,6 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
           isEscalationAlertsEnabled: val,
           toastMessage: 'Escalation Filter: ${val ? "Active" : "Disabled"}',
         );
-      case SettingsToggleBiometrics(value: final val):
-        value = value.copyWith(
-          isBiometricsEnabled: val,
-          toastMessage: 'Biometric Gateway: ${val ? "Armed" : "Disarmed"}',
-        );
       case SettingsClearCache():
         value = value.copyWith(
           cacheSizeText: '0 MB used • Cache purged',

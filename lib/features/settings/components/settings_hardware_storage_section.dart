@@ -29,10 +29,10 @@ class SettingsHardwareStorageSection extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.memory_rounded, size: 16, color: colors.statusActive),
+                  Icon(Icons.storage_rounded, size: 16, color: colors.statusActive),
                   const SizedBox(width: 6),
                   Text(
-                    'SYSTEM & RUGGED HARDWARE',
+                    'SYSTEM & STORAGE',
                     style: GoogleFonts.spaceGrotesk(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -43,7 +43,7 @@ class SettingsHardwareStorageSection extends StatelessWidget {
                 ],
               ),
               Text(
-                'PORT: COM-02',
+                'STORAGE READY',
                 style: GoogleFonts.jetBrainsMono(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -62,33 +62,6 @@ class SettingsHardwareStorageSection extends StatelessWidget {
           ),
           child: Column(
             children: [
-              IndustrialSettingTile(
-                icon: Icons.qr_code_scanner_rounded,
-                iconColor: colors.statusActive,
-                title: 'Barcode & RFID Hardware',
-                titleSuffix: Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: colors.statusSuccess,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                subtitle: 'Built-in Camera & Bluetooth Zebra Scanner',
-                trailing: Container(
-                  padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(
-                    color: colors.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.bluetooth_connected_rounded,
-                    size: 18,
-                    color: colors.statusActive,
-                  ),
-                ),
-              ),
-              Divider(height: 1, color: colors.surfaceBorder.withValues(alpha: 0.5)),
               IndustrialSettingTile(
                 icon: Icons.folder_shared_rounded,
                 iconColor: colors.primary,

@@ -7,14 +7,12 @@ class SettingsConnectivitySection extends StatelessWidget {
   final bool isOfflineMode;
   final String syncChannel;
   final ValueChanged<bool> onOfflineModeChanged;
-  final VoidCallback? onSwitchServer;
 
   const SettingsConnectivitySection({
     super.key,
     required this.isOfflineMode,
     required this.syncChannel,
     required this.onOfflineModeChanged,
-    this.onSwitchServer,
   });
 
   @override
@@ -34,7 +32,7 @@ class SettingsConnectivitySection extends StatelessWidget {
                   Icon(Icons.hub_rounded, size: 16, color: colors.statusActive),
                   const SizedBox(width: 6),
                   Text(
-                    'SERVER & CONNECTIVITY',
+                    'CONNECTIVITY & NETWORK',
                     style: GoogleFonts.spaceGrotesk(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -64,56 +62,6 @@ class SettingsConnectivitySection extends StatelessWidget {
           ),
           child: Column(
             children: [
-              IndustrialSettingTile(
-                icon: Icons.dns_rounded,
-                title: 'IFS Cloud Prod Cluster',
-                titleSuffix: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                  decoration: BoxDecoration(
-                    color: colors.primaryContainer.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'ap-southeast-1',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 9,
-                      color: colors.statusActive,
-                    ),
-                  ),
-                ),
-                subtitle: 'Latency: 24ms (TLS 1.3)',
-                trailing: InkWell(
-                  onTap: onSwitchServer,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: colors.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Switch',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: colors.statusActive,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.swap_vert_rounded,
-                          size: 14,
-                          color: colors.statusActive,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Divider(height: 1, color: colors.surfaceBorder.withValues(alpha: 0.5)),
               IndustrialSettingTile(
                 icon: Icons.cloud_sync_rounded,
                 iconColor: colors.primary,
