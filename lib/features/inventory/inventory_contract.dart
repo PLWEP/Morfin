@@ -49,6 +49,29 @@ class InventoryItem {
       lastRestocked: lastRestocked,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id, 'code': code, 'name': name, 'category': category,
+        'quantity': quantity, 'minThreshold': minThreshold, 'unit': unit,
+        'binLocation': binLocation, 'status': status.name,
+        'lastRestocked': lastRestocked,
+      };
+
+  factory InventoryItem.fromJson(Map<String, dynamic> json) => InventoryItem(
+        id: json['id'] as String? ?? '',
+        code: json['code'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        category: json['category'] as String? ?? '',
+        quantity: json['quantity'] as int? ?? 0,
+        minThreshold: json['minThreshold'] as int? ?? 0,
+        unit: json['unit'] as String? ?? '',
+        binLocation: json['binLocation'] as String? ?? '',
+        status: StockStatus.values.firstWhere(
+          (s) => s.name == json['status'],
+          orElse: () => StockStatus.inStock,
+        ),
+        lastRestocked: json['lastRestocked'] as String? ?? '',
+      );
 }
 
 @immutable

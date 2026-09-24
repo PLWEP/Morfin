@@ -1,10 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/storage/local_storage_service.dart';
 import 'work_order_contract.dart';
 import 'work_order_mock_data.dart';
 
 class WorkOrderNotifier extends Notifier<WorkOrderState> {
   @override
-  WorkOrderState build() => const WorkOrderState(items: WorkOrderMockData.items);
+  WorkOrderState build() {
+    final storage = ref.watch(localStorageServiceProvider);
+    final saved = storage.getWorkOrders();
+    return WorkOrderState(items: saved ?? WorkOrderMockData.items);
+  }
 
   void setFilter(String filter) {
     state = state.copyWith(selectedFilter: filter);
@@ -25,6 +30,7 @@ class WorkOrderNotifier extends Notifier<WorkOrderState> {
     }).toList();
 
     state = state.copyWith(items: updatedItems);
+    ref.read(localStorageServiceProvider).saveWorkOrders(updatedItems);
   }
 
   void updateStatus(String orderId, WorkOrderStatus newStatus) {
@@ -34,6 +40,7 @@ class WorkOrderNotifier extends Notifier<WorkOrderState> {
     }).toList();
 
     state = state.copyWith(items: updatedItems);
+    ref.read(localStorageServiceProvider).saveWorkOrders(updatedItems);
   }
 
   void addWorkOrder({
@@ -62,7 +69,9 @@ class WorkOrderNotifier extends Notifier<WorkOrderState> {
         WorkOrderChecklist(id: 'c3', label: 'Final validation and signoff', isDone: false),
       ],
     );
-    state = state.copyWith(items: [newOrder, ...state.items]);
+    final updated = [newOrder, ...state.items];
+    state = state.copyWith(items: updated);
+    ref.read(localStorageServiceProvider).saveWorkOrders(updated);
   }
 
   WorkOrder? getOrderById(String id) {
