@@ -1,20 +1,21 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'work_order_contract.dart';
 import 'work_order_mock_data.dart';
 
-class WorkOrderViewModel extends ValueNotifier<WorkOrderState> {
-  WorkOrderViewModel() : super(const WorkOrderState(items: WorkOrderMockData.items));
+class WorkOrderNotifier extends Notifier<WorkOrderState> {
+  @override
+  WorkOrderState build() => const WorkOrderState(items: WorkOrderMockData.items);
 
   void setFilter(String filter) {
-    value = value.copyWith(selectedFilter: filter);
+    state = state.copyWith(selectedFilter: filter);
   }
 
   void setSearchQuery(String query) {
-    value = value.copyWith(searchQuery: query);
+    state = state.copyWith(searchQuery: query);
   }
 
   void toggleChecklist(String orderId, String checklistId) {
-    final updatedItems = value.items.map((order) {
+    final updatedItems = state.items.map((order) {
       if (order.id != orderId) return order;
       final updatedChecklist = order.checklist.map((c) {
         if (c.id != checklistId) return c;
@@ -23,16 +24,16 @@ class WorkOrderViewModel extends ValueNotifier<WorkOrderState> {
       return order.copyWith(checklist: updatedChecklist);
     }).toList();
 
-    value = value.copyWith(items: updatedItems);
+    state = state.copyWith(items: updatedItems);
   }
 
   void updateStatus(String orderId, WorkOrderStatus newStatus) {
-    final updatedItems = value.items.map((order) {
+    final updatedItems = state.items.map((order) {
       if (order.id != orderId) return order;
       return order.copyWith(status: newStatus);
     }).toList();
 
-    value = value.copyWith(items: updatedItems);
+    state = state.copyWith(items: updatedItems);
   }
 
   void addWorkOrder({
@@ -43,7 +44,7 @@ class WorkOrderViewModel extends ValueNotifier<WorkOrderState> {
     required String dueDate,
     required String description,
   }) {
-    final nextNum = value.items.length + 1;
+    final nextNum = state.items.length + 1;
     final newOrder = WorkOrder(
       id: 'wo-$nextNum',
       code: 'WO-${8900 + nextNum}',
@@ -61,14 +62,18 @@ class WorkOrderViewModel extends ValueNotifier<WorkOrderState> {
         WorkOrderChecklist(id: 'c3', label: 'Final validation and signoff', isDone: false),
       ],
     );
-    value = value.copyWith(items: [newOrder, ...value.items]);
+    state = state.copyWith(items: [newOrder, ...state.items]);
   }
 
   WorkOrder? getOrderById(String id) {
     try {
-      return value.items.firstWhere((o) => o.id == id);
+      return state.items.firstWhere((o) => o.id == id);
     } catch (_) {
       return null;
     }
   }
 }
+
+final workOrderProvider = NotifierProvider<WorkOrderNotifier, WorkOrderState>(
+  WorkOrderNotifier.new,
+);
