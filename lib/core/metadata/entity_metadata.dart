@@ -1,14 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-enum FieldType {
-  text,
-  number,
-  status,
-  priority,
-  date,
-  boolean,
-  currency,
-}
+enum FieldType { text, number, status, priority, date, boolean, currency }
+enum ActionScope { global, record }
 
 @immutable
 class EntityFieldMetadata {
@@ -16,12 +9,16 @@ class EntityFieldMetadata {
   final String label;
   final FieldType type;
   final bool isKey;
+  final bool isRequired;
+  final List<String> options;
 
   const EntityFieldMetadata({
     required this.key,
     required this.label,
     this.type = FieldType.text,
     this.isKey = false,
+    this.isRequired = false,
+    this.options = const [],
   });
 
   factory EntityFieldMetadata.fromJson(Map<String, dynamic> json) {
@@ -30,12 +27,46 @@ class EntityFieldMetadata {
       (e) => e.name == typeStr,
       orElse: () => FieldType.text,
     );
+    final rawOpts = json['options'] as List<dynamic>? ?? [];
 
     return EntityFieldMetadata(
       key: json['key'] as String? ?? '',
       label: json['label'] as String? ?? '',
       type: fieldType,
       isKey: json['isKey'] as bool? ?? false,
+      isRequired: json['isRequired'] as bool? ?? false,
+      options: rawOpts.map((e) => e.toString()).toList(),
+    );
+  }
+}
+
+@immutable
+class EntityActionMetadata {
+  final String name;
+  final String label;
+  final String? icon;
+  final ActionScope scope;
+  final List<EntityFieldMetadata> formFields;
+
+  const EntityActionMetadata({
+    required this.name,
+    required this.label,
+    this.icon,
+    this.scope = ActionScope.record,
+    this.formFields = const [],
+  });
+
+  factory EntityActionMetadata.fromJson(Map<String, dynamic> json) {
+    final scopeStr = json['scope'] as String? ?? 'record';
+    final rawFields = json['formFields'] as List<dynamic>? ?? [];
+    return EntityActionMetadata(
+      name: json['name'] as String? ?? '',
+      label: json['label'] as String? ?? '',
+      icon: json['icon'] as String?,
+      scope: scopeStr == 'global' ? ActionScope.global : ActionScope.record,
+      formFields: rawFields
+          .map((f) => EntityFieldMetadata.fromJson(f as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -79,6 +110,7 @@ class EntitySchemaMetadata {
   final String title;
   final String icon;
   final List<EntityFieldMetadata> fields;
+  final List<EntityActionMetadata> actions;
   final EntityListCardMetadata listCard;
 
   const EntitySchemaMetadata({
@@ -86,17 +118,22 @@ class EntitySchemaMetadata {
     required this.title,
     this.icon = 'assignment',
     this.fields = const [],
+    this.actions = const [],
     required this.listCard,
   });
 
   factory EntitySchemaMetadata.fromJson(Map<String, dynamic> json) {
     final rawFields = json['fields'] as List<dynamic>? ?? [];
+    final rawActions = json['actions'] as List<dynamic>? ?? [];
     return EntitySchemaMetadata(
       entityName: json['entityName'] as String? ?? '',
       title: json['title'] as String? ?? '',
       icon: json['icon'] as String? ?? 'assignment',
       fields: rawFields
           .map((f) => EntityFieldMetadata.fromJson(f as Map<String, dynamic>))
+          .toList(),
+      actions: rawActions
+          .map((a) => EntityActionMetadata.fromJson(a as Map<String, dynamic>))
           .toList(),
       listCard: EntityListCardMetadata.fromJson(
         json['listCard'] as Map<String, dynamic>? ?? {},

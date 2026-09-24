@@ -1,4 +1,5 @@
 import 'entity_metadata.dart';
+import 'mock_entity_store.dart';
 
 class MockEntityService {
   const MockEntityService._();
@@ -7,6 +8,41 @@ class MockEntityService {
     entityName: 'WorkOrder',
     title: 'Work Orders',
     icon: 'assignment',
+    actions: const [
+      EntityActionMetadata(
+        name: 'create',
+        label: 'New Work Order',
+        icon: 'add',
+        scope: ActionScope.global,
+        formFields: [
+          EntityFieldMetadata(key: 'title', label: 'Directive Title', isRequired: true),
+          EntityFieldMetadata(key: 'assetName', label: 'Equipment Asset', isRequired: true),
+          EntityFieldMetadata(key: 'location', label: 'Plant Location', isRequired: true),
+          EntityFieldMetadata(
+            key: 'priority',
+            label: 'Priority',
+            type: FieldType.priority,
+            options: ['Critical', 'High', 'Medium', 'Low'],
+          ),
+          EntityFieldMetadata(key: 'dueDate', label: 'Due Date', isRequired: true),
+          EntityFieldMetadata(key: 'description', label: 'Scope Description'),
+        ],
+      ),
+      EntityActionMetadata(
+        name: 'change_status',
+        label: 'Change Status',
+        icon: 'swap_horiz',
+        scope: ActionScope.record,
+        formFields: [
+          EntityFieldMetadata(
+            key: 'status',
+            label: 'Execution State',
+            type: FieldType.status,
+            options: ['Pending', 'In Progress', 'Completed', 'Cancelled'],
+          ),
+        ],
+      ),
+    ],
     fields: const [
       EntityFieldMetadata(key: 'code', label: 'Order ID', isKey: true),
       EntityFieldMetadata(key: 'title', label: 'Directive'),
@@ -30,64 +66,39 @@ class MockEntityService {
   );
 
   static Future<List<Map<String, dynamic>>> fetchLiveWorkOrders() async {
-    // Simulates live network roundtrip to backend ERP API
+    await Future.delayed(const Duration(milliseconds: 250));
+    return List<Map<String, dynamic>>.from(MockEntityStore.workOrders);
+  }
+
+  static Future<void> executeWorkOrderAction(String actionName, Map<String, dynamic> data) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return [
-      {
-        'id': 'wo-1',
-        'code': 'WO-8901',
-        'title': 'Hydraulic Pump Seal Replacement',
-        'assetName': 'Pump HP-01',
-        'location': 'Sector 4',
-        'priority': 'Critical',
-        'status': 'In Progress',
-        'assignedTo': 'Budi Santoso',
-        'dueDate': 'Today',
-        'description': 'Replace leaking mechanical seal on primary hydraulic supply unit.',
-      },
-      {
-        'id': 'wo-2',
-        'code': 'WO-8902',
-        'title': 'Conveyor Belt Tension Alignment',
-        'assetName': 'Conveyor CV-03',
-        'location': 'Packaging Line',
-        'priority': 'High',
-        'status': 'Pending',
-        'assignedTo': 'Ahmad Fauzi',
-        'dueDate': 'Tomorrow',
-        'description': 'Calibrate belt tracking tension to eliminate side slippage.',
-      },
-      {
-        'id': 'wo-3',
-        'code': 'WO-8903',
-        'title': 'Monthly Motor Vibration Inspection',
-        'assetName': 'Induction Motor M-12',
-        'location': 'Compressor Room',
-        'priority': 'Medium',
-        'status': 'Completed',
-        'assignedTo': 'Dewi Lestari',
-        'dueDate': '28 Sep',
-        'description': 'Measure harmonic vibration frequencies across drive and non-drive bearings.',
-      },
-      {
-        'id': 'wo-4',
-        'code': 'WO-8904',
-        'title': 'Air Filter Cartridge Renewal',
-        'assetName': 'Pneumatic System AC-02',
-        'location': 'HVAC Deck',
-        'priority': 'Low',
-        'status': 'Pending',
-        'assignedTo': 'You',
-        'dueDate': '30 Sep',
-        'description': 'Routine preventive replacement of coalescing particulate air filters.',
-      },
-    ];
+    if (actionName == 'create') {
+      MockEntityStore.addWorkOrder(data);
+    } else if (actionName == 'change_status') {
+      MockEntityStore.updateOrderStatus(data['code'] ?? '', data['status'] ?? 'Pending');
+    }
   }
 
   static final EntitySchemaMetadata inventorySchema = EntitySchemaMetadata(
     entityName: 'InventoryPart',
     title: 'Spare Parts Inventory',
     icon: 'inventory_2',
+    actions: const [
+      EntityActionMetadata(
+        name: 'adjust_stock',
+        label: 'Adjust Stock',
+        icon: 'add_circle',
+        scope: ActionScope.record,
+        formFields: [
+          EntityFieldMetadata(
+            key: 'delta',
+            label: 'Quantity Delta (e.g. 5 or -2)',
+            type: FieldType.number,
+            isRequired: true,
+          ),
+        ],
+      ),
+    ],
     fields: const [
       EntityFieldMetadata(key: 'code', label: 'Part Number', isKey: true),
       EntityFieldMetadata(key: 'name', label: 'Description'),
@@ -108,38 +119,15 @@ class MockEntityService {
   );
 
   static Future<List<Map<String, dynamic>>> fetchLiveInventory() async {
+    await Future.delayed(const Duration(milliseconds: 250));
+    return List<Map<String, dynamic>>.from(MockEntityStore.inventory);
+  }
+
+  static Future<void> executeInventoryAction(String actionName, Map<String, dynamic> data) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return [
-      {
-        'id': 'inv-1',
-        'code': 'SKF-6205-2RS',
-        'name': 'Deep Groove Ball Bearing 25x52x15mm',
-        'category': 'Mechanical',
-        'quantity': '18 pcs',
-        'binLocation': 'Rack B-03',
-        'status': 'In Stock',
-        'lastRestocked': '2026-09-15',
-      },
-      {
-        'id': 'inv-2',
-        'code': 'FKM-O-75X3',
-        'name': 'Fluorocarbon O-Ring 75x3mm Viton',
-        'category': 'Pneumatic / Seals',
-        'quantity': '4 pcs',
-        'binLocation': 'Drawer C-12',
-        'status': 'Low Stock',
-        'lastRestocked': '2026-08-20',
-      },
-      {
-        'id': 'inv-3',
-        'code': 'SIEM-3RT2015',
-        'name': 'Sirius Power Contactor 24VDC',
-        'category': 'Electrical',
-        'quantity': '0 pcs',
-        'binLocation': 'Cabinet E-01',
-        'status': 'Out of Stock',
-        'lastRestocked': '2026-07-10',
-      },
-    ];
+    if (actionName == 'adjust_stock') {
+      final delta = int.tryParse(data['delta']?.toString() ?? '0') ?? 0;
+      MockEntityStore.updateInventoryStock(data['code'] ?? '', delta);
+    }
   }
 }

@@ -40,6 +40,7 @@ class AppActionDispatcher {
         targetScreen = GenericEntityListScreen(
           schema: MockEntityService.workOrderSchema,
           fetchRecords: MockEntityService.fetchLiveWorkOrders,
+          onExecuteAction: MockEntityService.executeWorkOrderAction,
         );
         break;
       case '/inventory':
@@ -48,6 +49,7 @@ class AppActionDispatcher {
         targetScreen = GenericEntityListScreen(
           schema: MockEntityService.inventorySchema,
           fetchRecords: MockEntityService.fetchLiveInventory,
+          onExecuteAction: MockEntityService.executeInventoryAction,
         );
         break;
       case '/notifications':
