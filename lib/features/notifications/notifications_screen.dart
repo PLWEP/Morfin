@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_colors.dart';
+import '../work_orders/work_order_detail_screen.dart';
+import '../work_orders/work_order_view_model.dart';
 import 'components/notification_card.dart';
 import 'components/notifications_filter_pills.dart';
 import 'components/notifications_header.dart';
@@ -12,11 +14,7 @@ class NotificationsScreen extends StatefulWidget {
   final VoidCallback? onAlertTap;
   final VoidCallback? onProfileTap;
 
-  const NotificationsScreen({
-    super.key,
-    this.onAlertTap,
-    this.onProfileTap,
-  });
+  const NotificationsScreen({super.key, this.onAlertTap, this.onProfileTap});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -37,6 +35,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     super.dispose();
   }
 
+  void _handleTap(NotificationItem item) {
+    if (!item.isRead) {
+      _viewModel.dispatch(NotificationToggledRead(item.id));
+    }
+    if (item.workOrderId != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => WorkOrderDetailScreen(
+            orderId: item.workOrderId!,
+            viewModel: WorkOrderViewModel(),
+          ),
+        ),
+      );
+    }
+  }
+
   Widget _buildEmptyState(AppPalette colors, NotificationFilter filter) {
     final message = switch (filter) {
       NotificationFilter.unread => 'No unread notifications',
@@ -53,32 +67,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             Container(
               width: 56,
               height: 56,
-              decoration: BoxDecoration(
-                color: colors.surfaceContainer,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.notifications_none_rounded,
-                size: 28,
-                color: colors.outline,
-              ),
+              decoration: BoxDecoration(color: colors.surfaceContainer, shape: BoxShape.circle),
+              child: Icon(Icons.notifications_none_rounded, size: 28, color: colors.onSurfaceMuted),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             Text(
               message,
-              style: GoogleFonts.inter(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: colors.onSurface,
-              ),
+              style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: colors.onSurface),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
-              'You are all caught up.',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: colors.outline,
-              ),
+              'Activity alerts and tasks will appear here.',
+              style: GoogleFonts.inter(fontSize: 13, color: colors.outline),
             ),
           ],
         ),
@@ -93,9 +93,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return ValueListenableBuilder<NotificationsState>(
       valueListenable: _viewModel,
       builder: (context, state, _) {
-        final todayItems = state.todayItems;
-        final yesterdayItems = state.yesterdayItems;
-        final olderItems = state.olderItems;
+        final sections = [
+          ('Today', state.todayItems),
+          ('Yesterday', state.yesterdayItems),
+          ('Older', state.olderItems),
+        ];
         final hasAny = state.filteredItems.isNotEmpty;
 
         return Scaffold(
@@ -107,8 +109,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               children: [
                 NotificationsHeader(
                   unreadCount: state.unreadCount,
-                  onMarkAllRead: () =>
-                      _viewModel.dispatch(const NotificationsMarkAllRead()),
+                  onMarkAllRead: () => _viewModel.dispatch(const NotificationsMarkAllRead()),
                 ),
                 const SizedBox(height: 16),
                 NotificationsFilterPills(
@@ -116,59 +117,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   totalCount: state.items.length,
                   unreadCount: state.unreadCount,
                   readCount: state.readCount,
-                  onFilterSelected: (filter) =>
-                      _viewModel.dispatch(NotificationsFilterChanged(filter)),
+                  onFilterSelected: (filter) => _viewModel.dispatch(NotificationsFilterChanged(filter)),
                 ),
                 const SizedBox(height: 8),
                 if (!hasAny)
                   _buildEmptyState(colors, state.activeFilter)
-                else ...[
-                  if (todayItems.isNotEmpty) ...[
-                    NotificationsSectionHeader(
-                      title: 'Today',
-                      count: todayItems.length,
-                    ),
-                    ...todayItems.map((item) => Padding(
+                else
+                  for (final (title, items) in sections)
+                    if (items.isNotEmpty) ...[
+                      NotificationsSectionHeader(title: title, count: items.length),
+                      ...items.map(
+                        (item) => Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: NotificationCard(
                             item: item,
-                            onTap: () => _viewModel.dispatch(
-                              NotificationToggledRead(item.id),
-                            ),
+                            onTap: () => _handleTap(item),
                           ),
-                        )),
-                  ],
-                  if (yesterdayItems.isNotEmpty) ...[
-                    NotificationsSectionHeader(
-                      title: 'Yesterday',
-                      count: yesterdayItems.length,
-                    ),
-                    ...yesterdayItems.map((item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: NotificationCard(
-                            item: item,
-                            onTap: () => _viewModel.dispatch(
-                              NotificationToggledRead(item.id),
-                            ),
-                          ),
-                        )),
-                  ],
-                  if (olderItems.isNotEmpty) ...[
-                    NotificationsSectionHeader(
-                      title: 'Older',
-                      count: olderItems.length,
-                    ),
-                    ...olderItems.map((item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: NotificationCard(
-                            item: item,
-                            onTap: () => _viewModel.dispatch(
-                              NotificationToggledRead(item.id),
-                            ),
-                          ),
-                        )),
-                  ],
-                ],
+                        ),
+                      ),
+                    ],
                 const SizedBox(height: 24),
               ],
             ),

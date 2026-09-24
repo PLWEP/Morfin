@@ -5,8 +5,9 @@ import '../lobby_contract.dart';
 
 class LobbyLinePerformanceCard extends StatelessWidget {
   final List<LinePerformance> lines;
+  final ValueChanged<LinePerformance>? onLineTap;
 
-  const LobbyLinePerformanceCard({super.key, required this.lines});
+  const LobbyLinePerformanceCard({super.key, required this.lines, this.onLineTap});
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +49,11 @@ class LobbyLinePerformanceCard extends StatelessWidget {
     final statusColor =
         isAttention ? colors.statusWarning : colors.statusSuccess;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+    return InkWell(
+      onTap: () => onLineTap?.call(line),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -106,6 +110,7 @@ class LobbyLinePerformanceCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
       ),
     );
   }

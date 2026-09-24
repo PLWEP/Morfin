@@ -35,6 +35,35 @@ class WorkOrderViewModel extends ValueNotifier<WorkOrderState> {
     value = value.copyWith(items: updatedItems);
   }
 
+  void addWorkOrder({
+    required String title,
+    required String assetName,
+    required String location,
+    required WorkOrderPriority priority,
+    required String dueDate,
+    required String description,
+  }) {
+    final nextNum = value.items.length + 1;
+    final newOrder = WorkOrder(
+      id: 'wo-$nextNum',
+      code: 'WO-${8900 + nextNum}',
+      title: title,
+      assetName: assetName,
+      location: location,
+      priority: priority,
+      status: WorkOrderStatus.pending,
+      assignedTo: 'You',
+      dueDate: dueDate,
+      description: description,
+      checklist: const [
+        WorkOrderChecklist(id: 'c1', label: 'Initial site assessment', isDone: false),
+        WorkOrderChecklist(id: 'c2', label: 'Perform diagnostic and maintenance', isDone: false),
+        WorkOrderChecklist(id: 'c3', label: 'Final validation and signoff', isDone: false),
+      ],
+    );
+    value = value.copyWith(items: [newOrder, ...value.items]);
+  }
+
   WorkOrder? getOrderById(String id) {
     try {
       return value.items.firstWhere((o) => o.id == id);

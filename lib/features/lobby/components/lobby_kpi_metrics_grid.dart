@@ -5,8 +5,9 @@ import '../lobby_contract.dart';
 
 class LobbyKpiMetricsGrid extends StatelessWidget {
   final List<AnalyticalKpi> kpis;
+  final ValueChanged<AnalyticalKpi>? onKpiTap;
 
-  const LobbyKpiMetricsGrid({super.key, required this.kpis});
+  const LobbyKpiMetricsGrid({super.key, required this.kpis, this.onKpiTap});
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +30,16 @@ class LobbyKpiMetricsGrid extends StatelessWidget {
   Widget _buildKpiCard(BuildContext context, AnalyticalKpi kpi) {
     final colors = AppColors.of(context);
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colors.surfaceCard,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.surfaceBorder),
-      ),
+    return InkWell(
+      onTap: () => onKpiTap?.call(kpi),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: colors.surfaceCard,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: colors.surfaceBorder),
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,6 +113,7 @@ class LobbyKpiMetricsGrid extends StatelessWidget {
             ],
           ),
         ],
+      ),
       ),
     );
   }

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import 'components/lobby_bottom_nav.dart';
 import 'components/lobby_dashboard_header.dart';
+import 'components/lobby_kpi_drilldown_sheet.dart';
 import 'components/lobby_kpi_metrics_grid.dart';
+import 'components/lobby_line_drilldown_sheet.dart';
 import 'components/lobby_line_performance_card.dart';
 import 'components/lobby_oee_breakdown_card.dart';
 import 'components/lobby_throughput_chart_card.dart';
@@ -58,13 +60,33 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     },
                   ),
                   const SizedBox(height: 14),
-                  LobbyKpiMetricsGrid(kpis: state.kpis),
+                  LobbyKpiMetricsGrid(
+                    kpis: state.kpis,
+                    onKpiTap: (kpi) {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => LobbyKpiDrilldownSheet(kpi: kpi),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 14),
                   LobbyThroughputChartCard(dataPoints: state.throughputChart),
                   const SizedBox(height: 14),
                   LobbyOeeBreakdownCard(factors: state.oeeFactors),
                   const SizedBox(height: 14),
-                  LobbyLinePerformanceCard(lines: state.linePerformances),
+                  LobbyLinePerformanceCard(
+                    lines: state.linePerformances,
+                    onLineTap: (line) {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => LobbyLineDrilldownSheet(line: line),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),

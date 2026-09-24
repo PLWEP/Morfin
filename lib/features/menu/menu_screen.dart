@@ -3,6 +3,7 @@ import '../../theme/app_colors.dart';
 import 'components/menu_categorized_grid.dart';
 import 'components/menu_filter_pills.dart';
 import 'components/menu_search_bar.dart';
+import '../inventory/inventory_list_screen.dart';
 import '../work_orders/work_order_list_screen.dart';
 import 'menu_contract.dart';
 import 'menu_view_model.dart';
@@ -68,6 +69,12 @@ class _MenuScreenState extends State<MenuScreen> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => const WorkOrderListScreen(),
+                          ),
+                        );
+                      } else if (id == 'mod-5') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const InventoryListScreen(),
                           ),
                         );
                       } else {

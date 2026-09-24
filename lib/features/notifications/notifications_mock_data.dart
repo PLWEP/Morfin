@@ -15,21 +15,23 @@ abstract final class NotificationsMockData {
     ),
     NotificationItem(
       id: 'notif-2',
-      title: 'Safety inspection reminder',
-      message: 'Routine inspection for Generator Unit 3 is scheduled today at 2:00 PM.',
+      title: 'Work order assigned (WO-8901)',
+      message: 'You were assigned to Hydraulic Seal Replacement at Sector B.',
       time: '1h ago',
       group: NotificationTimeGroup.today,
       isRead: false,
-      icon: Icons.verified_user_outlined,
+      icon: Icons.assignment_late_outlined,
+      workOrderId: 'wo-1',
     ),
     NotificationItem(
       id: 'notif-3',
-      title: 'Daily checklist approved',
-      message: 'Supervisor signed off on the daily equipment pre-check documentation.',
+      title: 'Work order scheduled (WO-8902)',
+      message: 'Conveyor Motor Calibration is scheduled for today at 17:30.',
       time: '3h ago',
       group: NotificationTimeGroup.today,
       isRead: true,
       icon: Icons.assignment_turned_in_outlined,
+      workOrderId: 'wo-2',
     ),
 
     // Yesterday

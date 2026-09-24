@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_colors.dart';
+import 'components/create_work_order_sheet.dart';
 import 'components/work_order_card.dart';
 import 'components/work_order_filter_chips.dart';
+import 'components/work_order_search_bar.dart';
 import 'work_order_contract.dart';
 import 'work_order_detail_screen.dart';
 import 'work_order_view_model.dart';
@@ -35,12 +37,52 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
     super.dispose();
   }
 
+  void _showCreateSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CreateWorkOrderSheet(
+        onCreated: ({
+          required String title,
+          required String assetName,
+          required String location,
+          required WorkOrderPriority priority,
+          required String dueDate,
+          required String description,
+        }) {
+          _viewModel.addWorkOrder(
+            title: title,
+            assetName: assetName,
+            location: location,
+            priority: priority,
+            dueDate: dueDate,
+            description: description,
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Work order created successfully'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
     return Scaffold(
       backgroundColor: colors.surfaceDeep,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showCreateSheet,
+        backgroundColor: colors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_rounded),
+        label: Text('New Order', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+      ),
       appBar: AppBar(
         backgroundColor: colors.surfaceDeep,
         elevation: 0,
@@ -58,8 +100,8 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.tune_rounded, size: 20, color: colors.onSurface),
-            onPressed: () {},
+            icon: Icon(Icons.add_rounded, size: 24, color: colors.onSurface),
+            onPressed: _showCreateSheet,
           ),
         ],
       ),
@@ -72,34 +114,9 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: colors.surfaceCard,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: colors.surfaceBorder),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (val) => _viewModel.setSearchQuery(val),
-                    style: GoogleFonts.inter(fontSize: 14, color: colors.onSurface),
-                    decoration: InputDecoration(
-                      hintText: 'Search tickets, code, asset...',
-                      hintStyle: GoogleFonts.inter(fontSize: 13, color: colors.onSurfaceVariant),
-                      prefixIcon: Icon(Icons.search_rounded, size: 18, color: colors.onSurfaceVariant),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(Icons.clear_rounded, size: 16, color: colors.onSurfaceVariant),
-                              onPressed: () {
-                                _searchController.clear();
-                                _viewModel.setSearchQuery('');
-                              },
-                            )
-                          : null,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
+                child: WorkOrderSearchBar(
+                  controller: _searchController,
+                  onChanged: _viewModel.setSearchQuery,
                 ),
               ),
               Padding(

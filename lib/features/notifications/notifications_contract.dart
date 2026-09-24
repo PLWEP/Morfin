@@ -21,6 +21,7 @@ class NotificationItem {
   final NotificationTimeGroup group;
   final bool isRead;
   final IconData? icon;
+  final String? workOrderId;
 
   const NotificationItem({
     required this.id,
@@ -30,10 +31,12 @@ class NotificationItem {
     required this.group,
     this.isRead = false,
     this.icon,
+    this.workOrderId,
   });
 
   NotificationItem copyWith({
     bool? isRead,
+    String? workOrderId,
   }) {
     return NotificationItem(
       id: id,
@@ -43,6 +46,7 @@ class NotificationItem {
       group: group,
       isRead: isRead ?? this.isRead,
       icon: icon,
+      workOrderId: workOrderId ?? this.workOrderId,
     );
   }
 }
