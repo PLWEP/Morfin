@@ -1,14 +1,52 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/network/ifs_api_config.dart';
+import '../../core/storage/local_storage_service.dart';
 import 'login_contract.dart';
 import 'models/server_config.dart';
 
 class LoginViewModel extends ValueNotifier<LoginState> {
-  LoginViewModel() : super(LoginState.initial());
+  LoginViewModel() : super(LoginState.initial()) {
+    _loadStoredServers();
+  }
+
+  Future<void> _loadStoredServers() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storage = LocalStorageService(prefs);
+      final savedServers = storage.getServers();
+      final selectedId = storage.getSelectedServerId();
+
+      if (savedServers != null && savedServers.isNotEmpty) {
+        final active = selectedId != null
+            ? savedServers.firstWhere((s) => s.id == selectedId, orElse: () => savedServers.first)
+            : savedServers.first;
+
+        value = value.copyWith(servers: savedServers, selectedServer: active);
+        IfsApiConfig.instance.setServer(active);
+      } else {
+        storage.saveServers(value.servers);
+        storage.saveSelectedServerId(value.selectedServer.id);
+        IfsApiConfig.instance.setServer(value.selectedServer);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _persist(List<ServerConfig> servers, ServerConfig selected) async {
+    IfsApiConfig.instance.setServer(selected);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storage = LocalStorageService(prefs);
+      await storage.saveServers(servers);
+      await storage.saveSelectedServerId(selected.id);
+    } catch (_) {}
+  }
 
   void dispatch(LoginAction action) {
     switch (action) {
       case LoginSelectServerAction(:final server):
         value = value.copyWith(selectedServer: server);
+        _persist(value.servers, server);
 
       case LoginAddServerAction(:final server):
         final updatedServers = [server, ...value.servers];
@@ -17,41 +55,30 @@ class LoginViewModel extends ValueNotifier<LoginState> {
           selectedServer: server,
           notificationMessage: 'Added server: ${server.name}',
         );
+        _persist(updatedServers, server);
 
       case LoginUpdateServerAction(:final server):
-        final updatedServers = value.servers.map((s) {
-          return s.id == server.id ? server : s;
-        }).toList();
-        final updatedSelected =
-            value.selectedServer.id == server.id ? server : value.selectedServer;
+        final updatedServers = value.servers.map((s) => s.id == server.id ? server : s).toList();
+        final updatedSelected = value.selectedServer.id == server.id ? server : value.selectedServer;
         value = value.copyWith(
           servers: updatedServers,
           selectedServer: updatedSelected,
           notificationMessage: 'Updated server: ${server.name}',
         );
+        _persist(updatedServers, updatedSelected);
 
       case LoginDeleteServerAction(:final serverId):
-        final target = value.servers.firstWhere((s) => s.id == serverId,
-            orElse: () => value.selectedServer);
-        final updatedServers =
-            value.servers.where((s) => s.id != serverId).toList();
+        final target = value.servers.firstWhere((s) => s.id == serverId, orElse: () => value.selectedServer);
+        final updatedServers = value.servers.where((s) => s.id != serverId).toList();
         final newSelected = value.selectedServer.id == serverId
-            ? (updatedServers.isNotEmpty
-                ? updatedServers.first
-                : const ServerConfig(
-                    id: 'fallback',
-                    name: 'Default Server',
-                    baseUrl: 'https://cloud.ifs.com',
-                    realm: 'ifs',
-                    clientId: 'IFS_mobile',
-                    clientSecret: '',
-                  ))
+            ? (updatedServers.isNotEmpty ? updatedServers.first : value.selectedServer)
             : value.selectedServer;
         value = value.copyWith(
           servers: updatedServers,
           selectedServer: newSelected,
           notificationMessage: 'Deleted server: ${target.name}',
         );
+        _persist(updatedServers, newSelected);
 
       case LoginUsernameChangedAction(:final username):
         value = value.copyWith(username: username);
