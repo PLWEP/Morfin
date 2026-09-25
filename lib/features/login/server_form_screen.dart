@@ -20,6 +20,7 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
   late final TextEditingController _realmCtrl;
   late final TextEditingController _clientIdCtrl;
   late final TextEditingController _clientSecretCtrl;
+  late final TextEditingController _customHostCtrl;
   bool _obscureSecret = true;
 
   @override
@@ -31,15 +32,14 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
     _realmCtrl = TextEditingController(text: init?.realm ?? '');
     _clientIdCtrl = TextEditingController(text: init?.clientId ?? '');
     _clientSecretCtrl = TextEditingController(text: init?.clientSecret ?? '');
+    _customHostCtrl = TextEditingController(text: init?.customHost ?? '');
   }
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
-    _baseUrlCtrl.dispose();
-    _realmCtrl.dispose();
-    _clientIdCtrl.dispose();
-    _clientSecretCtrl.dispose();
+    for (final c in [_nameCtrl, _baseUrlCtrl, _realmCtrl, _clientIdCtrl, _clientSecretCtrl, _customHostCtrl]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -53,6 +53,7 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
       realm: _realmCtrl.text.trim(),
       clientId: _clientIdCtrl.text.trim(),
       clientSecret: _clientSecretCtrl.text.trim(),
+      customHost: _customHostCtrl.text.trim(),
     );
     Navigator.of(context).pop(config);
   }
@@ -110,6 +111,14 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
                 ),
                 const SizedBox(height: 16),
                 ServerFormField(
+                  label: 'CUSTOM HOST HEADER',
+                  controller: _customHostCtrl,
+                  hint: 'Optional (e.g. isidemocloud.ifssi.co.id)',
+                  icon: Icons.dns_outlined,
+                  isMono: true,
+                ),
+                const SizedBox(height: 16),
+                ServerFormField(
                   label: 'REALM',
                   controller: _realmCtrl,
                   hint: 'ifs',
@@ -129,7 +138,7 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
                 ServerFormField(
                   label: 'CLIENT SECRET',
                   controller: _clientSecretCtrl,
-                  hint: 'Enter client secret',
+                  hint: 'Optional (e.g. for IFS_connect)',
                   icon: Icons.key_rounded,
                   isMono: true,
                   obscure: _obscureSecret,
@@ -141,7 +150,6 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
                     ),
                     onPressed: () => setState(() => _obscureSecret = !_obscureSecret),
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter client secret' : null,
                 ),
                 const SizedBox(height: 28),
                 SizedBox(

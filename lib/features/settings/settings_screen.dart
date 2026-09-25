@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/providers/user_profile_provider.dart';
 import '../../theme/app_colors.dart';
-import 'change_password_screen.dart';
-import 'components/settings_connectivity_section.dart';
 import 'components/settings_hardware_storage_section.dart';
-import 'components/settings_operations_section.dart';
 import 'components/settings_profile_card.dart';
-import 'components/settings_security_section.dart';
 import 'components/settings_terminal_lock_card.dart';
 import 'components/settings_theme_section.dart';
 import 'settings_contract.dart';
 import 'settings_view_model.dart';
 
-class SettingsScreen extends StatefulWidget {
-  final VoidCallback? onAlertTap;
-
-  const SettingsScreen({super.key, this.onAlertTap});
+class SettingsScreen extends ConsumerStatefulWidget {
+  const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late final SettingsViewModel _viewModel;
 
   @override
@@ -85,37 +81,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 18),
                   const SettingsThemeSection(),
                   const SizedBox(height: 18),
-                  SettingsSecuritySection(
-                    onChangePasswordTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ChangePasswordScreen(
-                            onReset: (newPassword) {
-                              _viewModel.dispatch(SettingsChangePassword(newPassword));
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  SettingsConnectivitySection(
-                    isOfflineMode: state.isOfflineModeEnabled,
-                    onOfflineModeChanged: (val) {
-                      _viewModel.dispatch(SettingsToggleOfflineMode(val));
-                    },
-                    onSyncNow: () {
-                      _viewModel.dispatch(const SettingsSyncNow());
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  SettingsOperationsSection(
-                    isEscalationAlerts: state.isEscalationAlertsEnabled,
-                    onEscalationAlertsChanged: (val) {
-                      _viewModel.dispatch(SettingsToggleEscalationAlerts(val));
-                    },
-                  ),
-                  const SizedBox(height: 18),
                   SettingsHardwareStorageSection(
                     cacheSizeText: state.cacheSizeText,
                     onClearCache: () {
@@ -128,6 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 20),
                   SettingsTerminalLockCard(
                     onLockTerminal: () {
+                      ref.read(userProfileProvider.notifier).clear();
                       _viewModel.dispatch(const SettingsLockTerminal());
                       Navigator.pushReplacementNamed(context, '/login');
                     },

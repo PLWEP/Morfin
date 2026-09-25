@@ -8,12 +8,10 @@ import 'components/menu_search_bar.dart';
 
 class MenuScreen extends StatefulWidget {
   final MenuMetadata? initialMetadata;
-  final VoidCallback? onAlertTap;
 
   const MenuScreen({
     super.key,
     this.initialMetadata,
-    this.onAlertTap,
   });
 
   @override

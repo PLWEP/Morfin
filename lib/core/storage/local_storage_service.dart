@@ -16,21 +16,31 @@ class LocalStorageService {
   final SharedPreferences _prefs;
 
   static const _keyTheme = 'app_theme_mode';
-  static const _keyServers = 'app_server_configs';
-  static const _keySelectedServerId = 'app_selected_server_id';
+  static const _keyServers = 'app_user_servers_v2';
+  static const _keySelectedServerId = 'app_user_selected_server_id_v2';
 
   const LocalStorageService(this._prefs);
+
+  void clearLegacyMockData() {
+    _prefs.remove('app_server_configs');
+    _prefs.remove('app_selected_server_id');
+  }
 
   String? getThemeMode() => _prefs.getString(_keyTheme);
 
   Future<bool> saveThemeMode(String mode) => _prefs.setString(_keyTheme, mode);
 
   List<ServerConfig>? getServers() {
+    clearLegacyMockData();
     final raw = _prefs.getString(_keyServers);
     if (raw == null || raw.isEmpty) return null;
     try {
       final list = jsonDecode(raw) as List<dynamic>;
-      return list.map((item) => ServerConfig.fromJson(item as Map<String, dynamic>)).toList();
+      final valid = list
+          .map((item) => ServerConfig.fromJson(item as Map<String, dynamic>))
+          .where((s) => !s.id.startsWith('srv-prod-') && !s.id.startsWith('srv-uat-'))
+          .toList();
+      return valid.isNotEmpty ? valid : null;
     } catch (_) {
       return null;
     }
@@ -56,6 +66,7 @@ class LocalStorageService {
   }
 
   Future<void> clearAll() async {
+    clearLegacyMockData();
     await _prefs.remove(_keyTheme);
     await _prefs.remove(_keyServers);
     await _prefs.remove(_keySelectedServerId);

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../features/notifications/notifications_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../metadata/action_metadata.dart';
 import '../metadata/entity_schema_registry.dart';
@@ -21,7 +20,7 @@ class AppActionDispatcher {
         break;
       case ActionType.openUrl:
       case ActionType.custom:
-        _showNotification(context, 'Action "${action.target}" triggered');
+        _showToast(context, 'Action "${action.target}" triggered');
         break;
     }
   }
@@ -50,10 +49,6 @@ class AppActionDispatcher {
       );
     } else {
       switch (target.toLowerCase()) {
-        case '/notifications':
-        case 'notifications':
-          targetScreen = const NotificationsScreen();
-          break;
         case '/settings':
         case 'settings':
           targetScreen = const SettingsScreen();
@@ -67,7 +62,7 @@ class AppActionDispatcher {
       );
     } else {
       final label = fallbackTitle ?? target;
-      _showNotification(context, '$label is coming soon in IFS Cloud Mobile');
+      _showToast(context, '$label is coming soon in IFS Cloud Mobile');
     }
   }
 
@@ -87,7 +82,7 @@ class AppActionDispatcher {
     );
   }
 
-  static void _showNotification(BuildContext context, String message) {
+  static void _showToast(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),

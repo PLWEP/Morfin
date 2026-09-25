@@ -13,6 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final storage = LocalStorageService(prefs);
+  storage.clearLegacyMockData();
   final activeServer = storage.getActiveServer();
   if (activeServer != null) {
     ApiConfig.instance.setServer(activeServer);

@@ -7,12 +7,10 @@ import '../../theme/app_colors.dart';
 
 class LobbyScreen extends StatefulWidget {
   final LobbyPageMetadata? initialMetadata;
-  final VoidCallback? onAlertTap;
 
   const LobbyScreen({
     super.key,
     this.initialMetadata,
-    this.onAlertTap,
   });
 
   @override
@@ -75,11 +73,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
             icon: const Icon(Icons.refresh_rounded, size: 20),
             onPressed: _isLoading ? null : _refresh,
           ),
-          if (widget.onAlertTap != null)
-            IconButton(
-              icon: const Icon(Icons.notifications_none_rounded, size: 20),
-              onPressed: widget.onAlertTap,
-            ),
         ],
       ),
       body: RefreshIndicator(

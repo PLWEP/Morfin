@@ -27,21 +27,29 @@ class _LoginScreenState extends State<LoginScreen> {
     final state = _viewModel.value;
     if (state.notificationMessage != null && mounted) {
       final colors = AppColors.of(context);
+      final isErr = !state.isSuccess &&
+          !state.notificationMessage!.startsWith('Added') &&
+          !state.notificationMessage!.startsWith('Updated');
+      final iconColor = isErr ? Colors.redAccent : colors.statusActive;
+      final icon = isErr ? Icons.error_outline_rounded : Icons.check_circle_rounded;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: colors.surfaceCard,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
-            side: BorderSide(color: colors.statusActive, width: 1),
+            side: BorderSide(color: iconColor, width: 1),
           ),
           content: Row(
             children: [
-              Icon(Icons.check_circle_rounded, color: colors.statusActive, size: 18),
+              Icon(icon, color: iconColor, size: 18),
               const SizedBox(width: 8),
-              Text(
-                state.notificationMessage!,
-                style: GoogleFonts.inter(fontSize: 13, color: colors.onSurface),
+              Expanded(
+                child: Text(
+                  state.notificationMessage!,
+                  style: GoogleFonts.inter(fontSize: 13, color: colors.onSurface),
+                ),
               ),
             ],
           ),

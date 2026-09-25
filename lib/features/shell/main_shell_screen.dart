@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../lobby/lobby_screen.dart';
 import '../menu/menu_screen.dart';
-import '../notifications/notifications_screen.dart';
 import '../settings/settings_screen.dart';
 import 'components/app_bottom_nav.dart';
 
@@ -24,24 +23,15 @@ class _MainShellScreenState extends State<MainShellScreen> {
     _currentIndex = widget.initialIndex;
   }
 
-  void _onNavigateToAlerts() {
-    if (_currentIndex != 2) {
-      setState(() {
-        _currentIndex = 2;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: [
-          LobbyScreen(onAlertTap: _onNavigateToAlerts),
-          MenuScreen(onAlertTap: _onNavigateToAlerts),
-          NotificationsScreen(onAlertTap: _onNavigateToAlerts),
-          SettingsScreen(onAlertTap: _onNavigateToAlerts),
+        children: const [
+          LobbyScreen(),
+          MenuScreen(),
+          SettingsScreen(),
         ],
       ),
       bottomNavigationBar: AppBottomNav(

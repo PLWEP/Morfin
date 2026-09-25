@@ -48,4 +48,11 @@ app.*.map.json
 .widget_preview/
 
 # Graphify Cache
-graphify-out/cache/
+graphify-out/cache/
+
+# Local Real API Environment Credentials
+test/real_api_config.json
+.env
+.env.*
+!.env.example
+
