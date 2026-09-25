@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/metadata/lobby_metadata.dart';
-import '../../core/metadata/mock_metadata_service.dart';
+import '../../core/metadata/metadata_service.dart';
 import '../../core/widgets/lobby/generic_lobby_grid.dart';
 import '../../theme/app_colors.dart';
 
@@ -26,15 +26,15 @@ class _GenericLobbyScreenState extends State<GenericLobbyScreen> {
   @override
   void initState() {
     super.initState();
-    _metadata = widget.initialMetadata ?? MockMetadataService.defaultLobby;
+    _metadata = widget.initialMetadata ?? AppMetadataService.defaultLobby;
   }
 
   Future<void> _refresh() async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 600));
+    await Future.delayed(const Duration(milliseconds: 300));
     if (mounted) {
       setState(() {
-        _metadata = MockMetadataService.defaultLobby;
+        _metadata = AppMetadataService.defaultLobby;
         _isLoading = false;
       });
     }

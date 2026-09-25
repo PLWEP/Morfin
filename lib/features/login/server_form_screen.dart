@@ -120,7 +120,7 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
                 ServerFormField(
                   label: 'CLIENT ID',
                   controller: _clientIdCtrl,
-                  hint: 'IFS_mobile_app',
+                  hint: 'morfin_mobile_client',
                   icon: Icons.badge_outlined,
                   isMono: true,
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter client ID' : null,

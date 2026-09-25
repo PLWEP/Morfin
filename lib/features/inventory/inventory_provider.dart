@@ -1,14 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/storage/local_storage_service.dart';
 import 'inventory_contract.dart';
-import 'inventory_mock_data.dart';
 
 class InventoryNotifier extends Notifier<InventoryState> {
   @override
   InventoryState build() {
     final storage = ref.watch(localStorageServiceProvider);
     final saved = storage.getInventoryItems();
-    return InventoryState(items: saved ?? InventoryMockData.items);
+    return InventoryState(items: saved ?? const []);
   }
 
   void setFilter(String filter) {

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../features/notifications/notifications_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../metadata/action_metadata.dart';
-import '../metadata/mock_entity_service.dart';
+import '../metadata/entity_schema_registry.dart';
+import '../services/erp_cloud_service.dart';
 import '../widgets/entity/generic_entity_list_screen.dart';
 
 class AppActionDispatcher {
@@ -38,18 +39,18 @@ class AppActionDispatcher {
       case 'work_orders':
       case 'wo_exec':
         targetScreen = GenericEntityListScreen(
-          schema: MockEntityService.workOrderSchema,
-          fetchRecords: MockEntityService.fetchLiveWorkOrders,
-          onExecuteAction: MockEntityService.executeWorkOrderAction,
+          schema: EntitySchemaRegistry.workOrderSchema,
+          fetchRecords: () => ErpCloudService.instance.fetchWorkOrders(),
+          onExecuteAction: (action, data) => ErpCloudService.instance.executeWorkOrderAction(action, data),
         );
         break;
       case '/inventory':
       case 'inventory':
       case 'inv_part':
         targetScreen = GenericEntityListScreen(
-          schema: MockEntityService.inventorySchema,
-          fetchRecords: MockEntityService.fetchLiveInventory,
-          onExecuteAction: MockEntityService.executeInventoryAction,
+          schema: EntitySchemaRegistry.inventorySchema,
+          fetchRecords: () => ErpCloudService.instance.fetchInventory(),
+          onExecuteAction: (action, data) => ErpCloudService.instance.executeInventoryAction(action, data),
         );
         break;
       case '/notifications':

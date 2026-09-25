@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'core/network/api_config.dart';
 import 'core/storage/local_storage_service.dart';
 import 'features/login/login_screen.dart';
 import 'features/shell/main_shell_screen.dart';
@@ -11,18 +12,24 @@ import 'theme/theme_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+  final storage = LocalStorageService(prefs);
+  final activeServer = storage.getActiveServer();
+  if (activeServer != null) {
+    ApiConfig.instance.setServer(activeServer);
+  }
+
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
-      child: const IfsCloudMobileApp(),
+      child: const MorfinApp(),
     ),
   );
 }
 
-class IfsCloudMobileApp extends ConsumerWidget {
-  const IfsCloudMobileApp({super.key});
+class MorfinApp extends ConsumerWidget {
+  const MorfinApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

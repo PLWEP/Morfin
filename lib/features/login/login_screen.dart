@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/widgets/ifs_logo_badge.dart';
+import '../../core/widgets/app_logo_badge.dart';
 import '../../theme/app_colors.dart';
 import 'components/login_form_card.dart';
 import 'login_contract.dart';
@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    child: const IfsLogoBadge(size: 80),
+                    child: const AppLogoBadge(size: 80),
                   ),
                   const SizedBox(height: 16),
 

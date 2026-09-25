@@ -1,12 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'menu_contract.dart';
-import 'menu_mock_data.dart';
 
 class MenuNotifier extends Notifier<MenuState> {
   @override
   MenuState build() {
-    return const MenuState(modules: MenuMockData.modules);
+    return const MenuState(modules: []);
   }
 
   void dispatch(MenuAction action) {

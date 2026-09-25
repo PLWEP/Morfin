@@ -107,6 +107,15 @@ class LobbyState {
     required this.insights,
   });
 
+  factory LobbyState.empty() => const LobbyState(
+        period: DashboardPeriod.today,
+        kpis: [],
+        throughputChart: [],
+        oeeFactors: [],
+        linePerformances: [],
+        insights: [],
+      );
+
   LobbyState copyWith({
     DashboardPeriod? period,
     List<AnalyticalKpi>? kpis,

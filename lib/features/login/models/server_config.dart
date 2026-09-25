@@ -36,6 +36,24 @@ class ServerConfig {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'baseUrl': baseUrl,
+        'realm': realm,
+        'clientId': clientId,
+        'clientSecret': clientSecret,
+      };
+
+  factory ServerConfig.fromJson(Map<String, dynamic> json) => ServerConfig(
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        baseUrl: json['baseUrl'] as String? ?? '',
+        realm: json['realm'] as String? ?? '',
+        clientId: json['clientId'] as String? ?? '',
+        clientSecret: json['clientSecret'] as String? ?? '',
+      );
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
