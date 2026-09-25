@@ -1,0 +1,12 @@
+{
+  "name": "IFS Cloud Test Server",
+  "baseUrl": "https://your-ifs-host.corp",
+  "realm": "ifs",
+  "clientId": "IFS_aurena",
+  "clientSecret": "",
+  "username": "DEMO_USER",
+  "password": "DEMO_PASSWORD",
+  "projection": "ActiveWorkOrderHandling",
+  "entitySet": "ActiveSeparateSet",
+  "trustSelfSignedCert": true
+}

@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:flutter/foundation.dart';
 import 'api_config.dart';
 import 'auth_interceptor.dart';
 import 'odata_query.dart';
@@ -18,6 +21,16 @@ class ApiClient {
       ),
     );
     _dio.interceptors.add(AuthInterceptor());
+  }
+
+  void enableSelfSignedCertificates() {
+    if (_dio.httpClientAdapter is IOHttpClientAdapter) {
+      (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
+        client.badCertificateCallback = (cert, host, port) => true;
+        return client;
+      };
+    }
   }
 
   Future<List<Map<String, dynamic>>> getEntitySet(
@@ -85,18 +98,24 @@ class ApiClient {
   Future<bool> authenticateOAuth({
     required String username,
     required String password,
+    String scope = 'openid',
+    String? responseType = 'id_token',
   }) async {
     final tokenUrl = _config.tokenEndpoint;
     try {
+      final payload = <String, dynamic>{
+        'grant_type': 'password',
+        'client_id': _config.activeServer.clientId,
+        'client_secret': _config.activeServer.clientSecret,
+        'username': username,
+        'password': password,
+        if (scope.isNotEmpty) 'scope': scope,
+        if (responseType != null && responseType.isNotEmpty) 'response_type': responseType,
+      };
+
       final response = await _dio.post<Map<String, dynamic>>(
         tokenUrl,
-        data: {
-          'grant_type': 'password',
-          'client_id': _config.activeServer.clientId,
-          'client_secret': _config.activeServer.clientSecret,
-          'username': username,
-          'password': password,
-        },
+        data: payload,
         options: Options(contentType: Headers.formUrlEncodedContentType),
       );
 
@@ -110,24 +129,33 @@ class ApiClient {
         return true;
       }
       return false;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('ApiClient.authenticateOAuth error: $e');
       return false;
     }
   }
 
-  Future<bool> refreshTokenOAuth() async {
+  Future<bool> refreshTokenOAuth({
+    String grantType = 'refresh_token',
+    String scope = 'openid',
+    String? responseType = 'id_token',
+  }) async {
     final refresh = _config.refreshToken;
     if (refresh == null || refresh.isEmpty) return false;
 
     try {
+      final payload = <String, dynamic>{
+        'grant_type': grantType,
+        'client_id': _config.activeServer.clientId,
+        'client_secret': _config.activeServer.clientSecret,
+        'refresh_token': refresh,
+        if (scope.isNotEmpty) 'scope': scope,
+        if (responseType != null && responseType.isNotEmpty) 'response_type': responseType,
+      };
+
       final response = await _dio.post<Map<String, dynamic>>(
         _config.tokenEndpoint,
-        data: {
-          'grant_type': 'refresh_token',
-          'client_id': _config.activeServer.clientId,
-          'client_secret': _config.activeServer.clientSecret,
-          'refresh_token': refresh,
-        },
+        data: payload,
         options: Options(contentType: Headers.formUrlEncodedContentType),
       );
 
@@ -140,7 +168,9 @@ class ApiClient {
         );
         return true;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('ApiClient.refreshTokenOAuth error: $e');
+    }
     _config.clearTokens();
     return false;
   }
