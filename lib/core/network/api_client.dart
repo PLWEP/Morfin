@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
+import 'activity_log_interceptor.dart';
 import 'api_config.dart';
 import 'auth_interceptor.dart';
 import 'odata_query.dart';
@@ -22,6 +23,7 @@ class ApiClient {
       ),
     );
     _dio.interceptors.add(AuthInterceptor());
+    _dio.interceptors.add(ActivityLogInterceptor());
     enableSelfSignedCertificates();
   }
 
