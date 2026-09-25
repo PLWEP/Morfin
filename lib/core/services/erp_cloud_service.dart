@@ -47,4 +47,12 @@ class ErpCloudService {
   }) async {
     return _client.callAction(projection, actionName, parameters);
   }
+
+  Future<Map<String, dynamic>> executeFunction({
+    required String projection,
+    required String functionName,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    return _client.callFunction(projection, functionName, query: queryParameters);
+  }
 }

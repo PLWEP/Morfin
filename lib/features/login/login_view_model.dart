@@ -128,6 +128,9 @@ class LoginViewModel extends ValueNotifier<LoginState> {
     );
 
     if (success) {
+      try {
+        await ApiClient.instance.getCurrentUserInformation();
+      } catch (_) {}
       value = value.copyWith(isLoading: false, isSuccess: true);
     } else {
       value = value.copyWith(

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../core/models/user_profile.dart';
+import '../../../core/providers/user_profile_provider.dart';
 import '../../../theme/app_colors.dart';
 import 'settings_profile_avatar.dart';
 
-class SettingsProfileCard extends StatelessWidget {
+class SettingsProfileCard extends ConsumerWidget {
   const SettingsProfileCard({super.key});
 
-  static const _avatarUrl =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDTqF9zKpoaA3XGEBT8aJBGarxPsl8BgSzCITflfjVNwmDJW904Q3mHHxKok3bgcaVweA-SGywOLrGHzMHbRxA3Sa0SUue4fYOf7Frb9F_oaOf5AT-wjXcMOEPGBxgngSK6J_cx7cAvY3cMPhJF8CVpxT6ClTGEOJGkPoBGckopCtRxl7-Eu4BMTqmDxFxTWsdBi4Y-AyUHCm83-XZgf5jvi3TR2BQsCx-dmQNn5wM3xpP_xGQHl5B7Cg';
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = AppColors.of(context);
+    final userAsync = ref.watch(userProfileProvider);
 
     return Container(
       decoration: BoxDecoration(
@@ -30,41 +31,65 @@ class SettingsProfileCard extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SettingsProfileAvatar(imageUrl: _avatarUrl),
-            const SizedBox(width: 14),
-            Expanded(child: _buildDetails(colors)),
-          ],
+        child: userAsync.when(
+          data: (profile) => _buildContent(colors, profile),
+          loading: () => _buildContent(colors, null, isLoading: true),
+          error: (err, stack) => _buildContent(colors, null),
         ),
       ),
     );
   }
 
-  Widget _buildDetails(AppPalette colors) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+  Widget _buildContent(AppPalette colors, UserProfile? profile, {bool isLoading = false}) {
+    final name = isLoading ? 'Loading profile...' : (profile?.displayName ?? 'IFS User');
+    final subtitle = profile?.jobTitle ?? (profile?.personId != null ? 'Person ID: ${profile?.personId}' : 'IFS Cloud User');
+    final initials = profile?.initials ?? 'U';
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'Alex Vance',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: colors.onSurface,
-          ),
+        SettingsProfileAvatar(
+          initials: initials,
         ),
-        const SizedBox(height: 3),
-        Text(
-          'Operations Manager',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: colors.onSurfaceVariant,
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: colors.onSurface,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              if (profile?.email != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  profile!.email!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: colors.primary,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
       ],

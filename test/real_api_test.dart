@@ -94,4 +94,12 @@ void main() {
     // ignore: avoid_print
     print('SUCCESS: Successfully refreshed Access Token: $preview');
   });
+
+  test('Real API 04: Fetch Current User Information', () async {
+    final userInfo = await ApiClient.instance.getCurrentUserInformation();
+    expect(userInfo, isNotNull);
+    expect(userInfo!['UserId'], isNotNull);
+    // ignore: avoid_print
+    print('SUCCESS: Current User: ${userInfo['Name']} (${userInfo['UserId']})');
+  });
 }

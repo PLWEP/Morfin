@@ -46,37 +46,29 @@ class ApiClient {
     return (val is List) ? val.map((i) => Map<String, dynamic>.from(i as Map)).toList() : [];
   }
 
-  Future<Map<String, dynamic>> getEntity(String projection, String entitySet, String key) async {
-    final url = '${_config.projectionBaseUrl}/$projection.svc/$entitySet($key)';
-    return (await _dio.get<Map<String, dynamic>>(url)).data ?? {};
-  }
+  Future<Map<String, dynamic>> getEntity(String proj, String entitySet, String key) async =>
+      (await _dio.get<Map<String, dynamic>>('${_config.projectionBaseUrl}/$proj.svc/$entitySet($key)')).data ?? {};
 
-  Future<Map<String, dynamic>> postEntity(
-    String projection,
-    String entitySet,
-    Map<String, dynamic> data,
-  ) async {
-    final url = '${_config.projectionBaseUrl}/$projection.svc/$entitySet';
-    return (await _dio.post<Map<String, dynamic>>(url, data: data)).data ?? {};
-  }
+  Future<Map<String, dynamic>> postEntity(String proj, String entitySet, Map<String, dynamic> data) async =>
+      (await _dio.post<Map<String, dynamic>>('${_config.projectionBaseUrl}/$proj.svc/$entitySet', data: data)).data ?? {};
 
-  Future<Map<String, dynamic>> patchEntity(
-    String projection,
-    String entitySet,
-    String key,
-    Map<String, dynamic> data,
-  ) async {
-    final url = '${_config.projectionBaseUrl}/$projection.svc/$entitySet($key)';
-    return (await _dio.patch<Map<String, dynamic>>(url, data: data)).data ?? {};
-  }
+  Future<Map<String, dynamic>> patchEntity(String proj, String entitySet, String key, Map<String, dynamic> data) async =>
+      (await _dio.patch<Map<String, dynamic>>('${_config.projectionBaseUrl}/$proj.svc/$entitySet($key)', data: data)).data ?? {};
 
-  Future<Map<String, dynamic>> callAction(
-    String projection,
-    String actionName,
-    Map<String, dynamic> params,
-  ) async {
-    final url = '${_config.projectionBaseUrl}/$projection.svc/$actionName';
-    return (await _dio.post<Map<String, dynamic>>(url, data: params)).data ?? {};
+  Future<Map<String, dynamic>> callAction(String proj, String actionName, Map<String, dynamic> params) async =>
+      (await _dio.post<Map<String, dynamic>>('${_config.projectionBaseUrl}/$proj.svc/$actionName', data: params)).data ?? {};
+
+  Future<Map<String, dynamic>> callFunction(String proj, String funcName, {Map<String, dynamic>? query}) async =>
+      (await _dio.get<Map<String, dynamic>>('${_config.projectionBaseUrl}/$proj.svc/$funcName', queryParameters: query)).data ?? {};
+
+  Future<Map<String, dynamic>?> getCurrentUserInformation() async {
+    try {
+      final res = await callFunction('FrameworkServices', 'GetCurrentUserInformation()');
+      return res.isNotEmpty ? res : null;
+    } catch (e) {
+      debugPrint('ApiClient.getCurrentUserInformation error: $e');
+      return null;
+    }
   }
 
   Future<bool> authenticateOAuth({
