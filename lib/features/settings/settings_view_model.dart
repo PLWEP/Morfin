@@ -7,11 +7,6 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
 
   void dispatch(SettingsAction action) {
     switch (action) {
-      case SettingsToggleEscalationAlerts(value: final val):
-        value = value.copyWith(
-          isEscalationAlertsEnabled: val,
-          toastMessage: 'Notifications: ${val ? "Enabled" : "Disabled"}',
-        );
       case SettingsClearCache():
         value = value.copyWith(
           cacheSizeText: '0 KB used • Cache cleared',

@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/providers/user_profile_provider.dart';
 import '../../theme/app_colors.dart';
 import 'components/settings_hardware_storage_section.dart';
-import 'components/settings_operations_section.dart';
 import 'components/settings_profile_card.dart';
 import 'components/settings_terminal_lock_card.dart';
 import 'components/settings_theme_section.dart';
@@ -12,9 +11,7 @@ import 'settings_contract.dart';
 import 'settings_view_model.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
-  final VoidCallback? onAlertTap;
-
-  const SettingsScreen({super.key, this.onAlertTap});
+  const SettingsScreen({super.key});
 
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
@@ -83,13 +80,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SettingsProfileCard(),
                   const SizedBox(height: 18),
                   const SettingsThemeSection(),
-                  const SizedBox(height: 18),
-                  SettingsOperationsSection(
-                    isEscalationAlerts: state.isEscalationAlertsEnabled,
-                    onEscalationAlertsChanged: (val) {
-                      _viewModel.dispatch(SettingsToggleEscalationAlerts(val));
-                    },
-                  ),
                   const SizedBox(height: 18),
                   SettingsHardwareStorageSection(
                     cacheSizeText: state.cacheSizeText,
