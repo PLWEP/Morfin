@@ -1,25 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../core/metadata/menu_metadata.dart';
+import '../../core/metadata/metadata_service.dart';
+import '../../core/widgets/menu/menu_section_card.dart';
 import '../../theme/app_colors.dart';
-import '../inventory/inventory_list_screen.dart';
-import '../work_orders/work_order_list_screen.dart';
-import 'components/menu_categorized_grid.dart';
 import 'components/menu_filter_pills.dart';
 import 'components/menu_search_bar.dart';
-import 'menu_contract.dart';
-import 'menu_provider.dart';
 
-class MenuScreen extends ConsumerWidget {
+class MenuScreen extends StatefulWidget {
+  final MenuMetadata? initialMetadata;
   final VoidCallback? onAlertTap;
 
-  const MenuScreen({super.key, this.onAlertTap});
+  const MenuScreen({
+    super.key,
+    this.initialMetadata,
+    this.onAlertTap,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  late MenuMetadata _metadata;
+  String _searchQuery = '';
+  String _selectedCategory = 'all';
+
+  @override
+  void initState() {
+    super.initState();
+    _metadata = widget.initialMetadata ?? AppMetadataService.defaultMenu;
+  }
+
+  List<MenuGroupMetadata> get _filteredGroups {
+    return _metadata.groups.map((group) {
+      if (_selectedCategory != 'all' && group.id != _selectedCategory) {
+        return MenuGroupMetadata(id: group.id, title: group.title, icon: group.icon, items: const []);
+      }
+
+      final filteredItems = group.items.where((item) {
+        if (_searchQuery.isEmpty) return true;
+        final q = _searchQuery.toLowerCase();
+        return item.title.toLowerCase().contains(q) ||
+            item.subtitle.toLowerCase().contains(q) ||
+            item.code.toLowerCase().contains(q);
+      }).toList();
+
+      return MenuGroupMetadata(
+        id: group.id,
+        title: group.title,
+        icon: group.icon,
+        items: filteredItems,
+      );
+    }).where((group) => group.items.isNotEmpty).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-    final state = ref.watch(menuProvider);
-    final notifier = ref.read(menuProvider.notifier);
+    final displayedGroups = _filteredGroups;
 
     return Scaffold(
       backgroundColor: colors.surfaceDeep,
@@ -31,46 +69,26 @@ class MenuScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MenuSearchBar(
-                onQueryChanged: (query) {
-                  notifier.dispatch(MenuSearchQueryChanged(query));
-                },
+                onQueryChanged: (query) => setState(() => _searchQuery = query),
               ),
               const SizedBox(height: 12),
               MenuFilterPills(
-                selectedCategory: state.selectedCategory,
-                onCategorySelected: (cat) {
-                  notifier.dispatch(MenuCategoryChanged(cat));
-                },
+                selectedCategory: _selectedCategory,
+                onCategorySelected: (cat) => setState(() => _selectedCategory = cat),
               ),
               const SizedBox(height: 16),
-              MenuCategorizedGrid(
-                modules: state.filteredModules,
-                onModuleTap: (id) {
-                  notifier.dispatch(MenuModuleSelected(id));
-                  if (id == 'mod-1') {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const WorkOrderListScreen(),
-                      ),
-                    );
-                  } else if (id == 'mod-5') {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const InventoryListScreen(),
-                      ),
-                    );
-                  } else {
-                    final module = state.modules.firstWhere((m) => m.id == id);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${module.title} is coming soon'),
-                        duration: const Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                },
-              ),
+              if (displayedGroups.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Center(
+                    child: Text(
+                      'No matching modules found',
+                      style: TextStyle(color: colors.outline, fontSize: 13),
+                    ),
+                  ),
+                )
+              else
+                ...displayedGroups.map((group) => MenuSectionCard(group: group)),
               const SizedBox(height: 24),
             ],
           ),

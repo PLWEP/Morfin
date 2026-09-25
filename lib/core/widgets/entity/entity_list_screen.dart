@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
-import 'generic_entity_card.dart';
-import 'generic_entity_detail_screen.dart';
-import 'generic_form_sheet.dart';
+import 'entity_action_sheet.dart';
+import 'entity_card.dart';
+import 'entity_detail_screen.dart';
 
-class GenericEntityListScreen extends StatefulWidget {
+class EntityListScreen extends StatefulWidget {
   final EntitySchemaMetadata schema;
   final Future<List<Map<String, dynamic>>> Function() fetchRecords;
   final Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
 
-  const GenericEntityListScreen({
+  const EntityListScreen({
     super.key,
     required this.schema,
     required this.fetchRecords,
@@ -19,10 +19,10 @@ class GenericEntityListScreen extends StatefulWidget {
   });
 
   @override
-  State<GenericEntityListScreen> createState() => _GenericEntityListScreenState();
+  State<EntityListScreen> createState() => _EntityListScreenState();
 }
 
-class _GenericEntityListScreenState extends State<GenericEntityListScreen> {
+class _EntityListScreenState extends State<EntityListScreen> {
   List<Map<String, dynamic>> _records = [];
   bool _isLoading = true;
   String? _error;
@@ -57,14 +57,16 @@ class _GenericEntityListScreenState extends State<GenericEntityListScreen> {
   }
 
   void _openCreateSheet(EntityActionMetadata action) {
-    GenericFormSheet.show(
+    EntityActionSheet.show(
       context,
       title: action.label,
       actionLabel: 'Save',
       fields: action.formFields,
       onSubmit: (values) async {
-        await widget.onExecuteAction!(action.name, values);
-        await _loadLiveRecords();
+        if (widget.onExecuteAction != null) {
+          await widget.onExecuteAction!(action.name, values);
+          await _loadLiveRecords();
+        }
       },
     );
   }
@@ -148,13 +150,13 @@ class _GenericEntityListScreenState extends State<GenericEntityListScreen> {
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
         itemCount: displayed.length,
         separatorBuilder: (_, _) => const SizedBox(height: 10),
-        itemBuilder: (context, index) => GenericEntityCard(
+        itemBuilder: (context, index) => EntityCard(
           schema: widget.schema,
           record: displayed[index],
           onTap: () async {
             await Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => GenericEntityDetailScreen(
+                builder: (_) => EntityDetailScreen(
                   schema: widget.schema,
                   record: displayed[index],
                   onExecuteAction: widget.onExecuteAction,

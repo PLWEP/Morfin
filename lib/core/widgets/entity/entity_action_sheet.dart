@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
-import 'generic_form_field.dart';
+import 'entity_form_field.dart';
 
-class GenericFormSheet extends StatefulWidget {
+class EntityActionSheet extends StatefulWidget {
   final String title;
   final String actionLabel;
   final List<EntityFieldMetadata> fields;
   final Map<String, dynamic> initialValues;
   final Future<void> Function(Map<String, dynamic> values) onSubmit;
 
-  const GenericFormSheet({
+  const EntityActionSheet({
     super.key,
     required this.title,
     this.actionLabel = 'Submit',
@@ -32,7 +32,7 @@ class GenericFormSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => GenericFormSheet(
+      builder: (_) => EntityActionSheet(
         title: title,
         actionLabel: actionLabel,
         fields: fields,
@@ -43,10 +43,10 @@ class GenericFormSheet extends StatefulWidget {
   }
 
   @override
-  State<GenericFormSheet> createState() => _GenericFormSheetState();
+  State<EntityActionSheet> createState() => _EntityActionSheetState();
 }
 
-class _GenericFormSheetState extends State<GenericFormSheet> {
+class _EntityActionSheetState extends State<EntityActionSheet> {
   final _formKey = GlobalKey<FormState>();
   late final Map<String, dynamic> _values;
   bool _isSubmitting = false;
@@ -120,7 +120,7 @@ class _GenericFormSheetState extends State<GenericFormSheet> {
               ),
               const SizedBox(height: 16),
               ...widget.fields.map(
-                (f) => GenericFormField(
+                (f) => EntityFormField(
                   field: f,
                   initialValue: _values[f.key],
                   onChanged: (val) => _values[f.key] = val,

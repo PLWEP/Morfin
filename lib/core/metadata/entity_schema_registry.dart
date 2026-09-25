@@ -7,6 +7,8 @@ class EntitySchemaRegistry {
     entityName: 'WorkOrder',
     title: 'Work Orders',
     icon: 'assignment',
+    projection: 'ActiveSeparateWorkOrdersHandling',
+    entitySet: 'ActiveSeparateWorkOrderSet',
     actions: const [
       EntityActionMetadata(
         name: 'create',
@@ -14,17 +16,16 @@ class EntitySchemaRegistry {
         icon: 'add',
         scope: ActionScope.global,
         formFields: [
-          EntityFieldMetadata(key: 'title', label: 'Directive Title', isRequired: true),
-          EntityFieldMetadata(key: 'assetName', label: 'Equipment Asset', isRequired: true),
-          EntityFieldMetadata(key: 'location', label: 'Plant Location', isRequired: true),
+          EntityFieldMetadata(key: 'ErrDescr', label: 'Directive Title', isRequired: true),
+          EntityFieldMetadata(key: 'MchCode', label: 'Equipment Asset', isRequired: true),
+          EntityFieldMetadata(key: 'Contract', label: 'Plant Site', isRequired: true),
           EntityFieldMetadata(
-            key: 'priority',
+            key: 'Priority',
             label: 'Priority',
             type: FieldType.priority,
             options: ['Critical', 'High', 'Medium', 'Low'],
           ),
-          EntityFieldMetadata(key: 'dueDate', label: 'Due Date', isRequired: true),
-          EntityFieldMetadata(key: 'description', label: 'Scope Description'),
+          EntityFieldMetadata(key: 'PlanSDate', label: 'Planned Start Date', isRequired: true),
         ],
       ),
       EntityActionMetadata(
@@ -34,7 +35,7 @@ class EntitySchemaRegistry {
         scope: ActionScope.record,
         formFields: [
           EntityFieldMetadata(
-            key: 'status',
+            key: 'Objstate',
             label: 'Execution State',
             type: FieldType.status,
             options: ['Pending', 'In Progress', 'Completed', 'Cancelled'],
@@ -43,24 +44,24 @@ class EntitySchemaRegistry {
       ),
     ],
     fields: const [
-      EntityFieldMetadata(key: 'code', label: 'Order ID', isKey: true),
-      EntityFieldMetadata(key: 'title', label: 'Directive'),
-      EntityFieldMetadata(key: 'assetName', label: 'Equipment Asset'),
-      EntityFieldMetadata(key: 'location', label: 'Plant Location'),
-      EntityFieldMetadata(key: 'priority', label: 'Priority', type: FieldType.priority),
-      EntityFieldMetadata(key: 'status', label: 'Execution State', type: FieldType.status),
-      EntityFieldMetadata(key: 'assignedTo', label: 'Assigned Engineer'),
-      EntityFieldMetadata(key: 'dueDate', label: 'Due Date', type: FieldType.date),
-      EntityFieldMetadata(key: 'description', label: 'Work Scope'),
+      EntityFieldMetadata(key: 'OrderNo', label: 'Order ID', isKey: true),
+      EntityFieldMetadata(key: 'ErrDescr', label: 'Directive'),
+      EntityFieldMetadata(key: 'MchCode', label: 'Equipment Asset'),
+      EntityFieldMetadata(key: 'Contract', label: 'Plant Site'),
+      EntityFieldMetadata(key: 'Priority', label: 'Priority', type: FieldType.priority),
+      EntityFieldMetadata(key: 'Objstate', label: 'Execution State', type: FieldType.status),
+      EntityFieldMetadata(key: 'WorkLeaderSign', label: 'Assigned Engineer'),
+      EntityFieldMetadata(key: 'PlanSDate', label: 'Due Date', type: FieldType.date),
+      EntityFieldMetadata(key: 'WorkDescr', label: 'Work Scope'),
     ],
     listCard: const EntityListCardMetadata(
-      codeField: 'code',
-      primaryField: 'title',
-      secondaryField: 'assetName',
-      tertiaryField: 'location',
-      statusField: 'status',
-      priorityField: 'priority',
-      metricField: 'dueDate',
+      codeField: 'OrderNo',
+      primaryField: 'ErrDescr',
+      secondaryField: 'MchCode',
+      tertiaryField: 'Contract',
+      statusField: 'Objstate',
+      priorityField: 'Priority',
+      metricField: 'PlanSDate',
     ),
   );
 
@@ -68,15 +69,17 @@ class EntitySchemaRegistry {
     entityName: 'InventoryPart',
     title: 'Spare Parts Inventory',
     icon: 'inventory_2',
+    projection: 'InventoryPartsHandling',
+    entitySet: 'InventoryPartSet',
     actions: const [
       EntityActionMetadata(
-        name: 'adjust_stock',
-        label: 'Adjust Stock',
+        name: 'AdjustPartQuantity',
+        label: 'Adjust Stock Quantity',
         icon: 'add_circle',
         scope: ActionScope.record,
         formFields: [
           EntityFieldMetadata(
-            key: 'delta',
+            key: 'Delta',
             label: 'Quantity Delta (e.g. 5 or -2)',
             type: FieldType.number,
             isRequired: true,
@@ -85,21 +88,38 @@ class EntitySchemaRegistry {
       ),
     ],
     fields: const [
-      EntityFieldMetadata(key: 'code', label: 'Part Number', isKey: true),
-      EntityFieldMetadata(key: 'name', label: 'Description'),
-      EntityFieldMetadata(key: 'category', label: 'Classification'),
-      EntityFieldMetadata(key: 'quantity', label: 'Available Stock', type: FieldType.number),
-      EntityFieldMetadata(key: 'binLocation', label: 'Warehouse Bin'),
-      EntityFieldMetadata(key: 'status', label: 'Inventory State', type: FieldType.status),
-      EntityFieldMetadata(key: 'lastRestocked', label: 'Last Restock Date', type: FieldType.date),
+      EntityFieldMetadata(key: 'PartNo', label: 'Part Number', isKey: true),
+      EntityFieldMetadata(key: 'Description', label: 'Description'),
+      EntityFieldMetadata(key: 'PartProductFamily', label: 'Classification'),
+      EntityFieldMetadata(key: 'QtyOnHand', label: 'Available Stock', type: FieldType.number),
+      EntityFieldMetadata(key: 'Contract', label: 'Warehouse Site'),
+      EntityFieldMetadata(key: 'UnitMeas', label: 'Unit'),
     ],
     listCard: const EntityListCardMetadata(
-      codeField: 'code',
-      primaryField: 'name',
-      secondaryField: 'category',
-      tertiaryField: 'binLocation',
-      statusField: 'status',
-      metricField: 'quantity',
+      codeField: 'PartNo',
+      primaryField: 'Description',
+      secondaryField: 'PartProductFamily',
+      tertiaryField: 'Contract',
+      statusField: 'UnitMeas',
+      metricField: 'QtyOnHand',
     ),
   );
+
+  static EntitySchemaMetadata? findByTarget(String target) {
+    final clean = target.replaceAll('/', '').toLowerCase();
+    switch (clean) {
+      case 'work_orders':
+      case 'wo_exec':
+      case 'workorders':
+      case 'activeseparateworkordershandling':
+        return workOrderSchema;
+      case 'inventory':
+      case 'inv_part':
+      case 'inventoryparts':
+      case 'inventorypartshandling':
+        return inventorySchema;
+      default:
+        return null;
+    }
+  }
 }

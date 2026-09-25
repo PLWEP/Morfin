@@ -6,10 +6,10 @@ import '../../navigation/action_dispatcher.dart';
 import '../../utils/color_resolver.dart';
 import '../../utils/icon_resolver.dart';
 
-class GenericIndicatorElement extends StatelessWidget {
+class LobbyIndicatorTile extends StatelessWidget {
   final LobbyElementMetadata metadata;
 
-  const GenericIndicatorElement({super.key, required this.metadata});
+  const LobbyIndicatorTile({super.key, required this.metadata});
 
   @override
   Widget build(BuildContext context) {

@@ -4,7 +4,7 @@ import '../../features/settings/settings_screen.dart';
 import '../metadata/action_metadata.dart';
 import '../metadata/entity_schema_registry.dart';
 import '../services/erp_cloud_service.dart';
-import '../widgets/entity/generic_entity_list_screen.dart';
+import '../widgets/entity/entity_list_screen.dart';
 
 class AppActionDispatcher {
   const AppActionDispatcher._();
@@ -34,33 +34,31 @@ class AppActionDispatcher {
   ) {
     Widget? targetScreen;
 
-    switch (target.toLowerCase()) {
-      case '/work_orders':
-      case 'work_orders':
-      case 'wo_exec':
-        targetScreen = GenericEntityListScreen(
-          schema: EntitySchemaRegistry.workOrderSchema,
-          fetchRecords: () => ErpCloudService.instance.fetchWorkOrders(),
-          onExecuteAction: (action, data) => ErpCloudService.instance.executeWorkOrderAction(action, data),
-        );
-        break;
-      case '/inventory':
-      case 'inventory':
-      case 'inv_part':
-        targetScreen = GenericEntityListScreen(
-          schema: EntitySchemaRegistry.inventorySchema,
-          fetchRecords: () => ErpCloudService.instance.fetchInventory(),
-          onExecuteAction: (action, data) => ErpCloudService.instance.executeInventoryAction(action, data),
-        );
-        break;
-      case '/notifications':
-      case 'notifications':
-        targetScreen = const NotificationsScreen();
-        break;
-      case '/settings':
-      case 'settings':
-        targetScreen = const SettingsScreen();
-        break;
+    final schema = EntitySchemaRegistry.findByTarget(target);
+    if (schema != null) {
+      targetScreen = EntityListScreen(
+        schema: schema,
+        fetchRecords: () => ErpCloudService.instance.fetchEntitySet(
+          projection: schema.projection,
+          entitySet: schema.entitySet,
+        ),
+        onExecuteAction: (action, data) => ErpCloudService.instance.executeAction(
+          projection: schema.projection,
+          actionName: action,
+          parameters: data,
+        ),
+      );
+    } else {
+      switch (target.toLowerCase()) {
+        case '/notifications':
+        case 'notifications':
+          targetScreen = const NotificationsScreen();
+          break;
+        case '/settings':
+        case 'settings':
+          targetScreen = const SettingsScreen();
+          break;
+      }
     }
 
     if (targetScreen != null) {

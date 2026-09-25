@@ -5,11 +5,11 @@ import '../../metadata/menu_metadata.dart';
 import '../../navigation/action_dispatcher.dart';
 import '../../utils/icon_resolver.dart';
 
-class GenericMenuTile extends StatelessWidget {
+class MenuItemTile extends StatelessWidget {
   final MenuItemMetadata item;
   final VoidCallback? onTap;
 
-  const GenericMenuTile({super.key, required this.item, this.onTap});
+  const MenuItemTile({super.key, required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {

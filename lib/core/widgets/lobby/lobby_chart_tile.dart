@@ -7,10 +7,10 @@ import '../../navigation/action_dispatcher.dart';
 import '../../utils/color_resolver.dart';
 import '../../utils/icon_resolver.dart';
 
-class GenericChartElement extends StatelessWidget {
+class LobbyChartTile extends StatelessWidget {
   final LobbyElementMetadata metadata;
 
-  const GenericChartElement({super.key, required this.metadata});
+  const LobbyChartTile({super.key, required this.metadata});
 
   @override
   Widget build(BuildContext context) {

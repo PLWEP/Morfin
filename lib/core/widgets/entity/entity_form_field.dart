@@ -3,13 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 
-class GenericFormField extends StatelessWidget {
+class EntityFormField extends StatelessWidget {
   final EntityFieldMetadata field;
   final dynamic initialValue;
   final ValueChanged<dynamic> onChanged;
   final FormFieldSetter<String> onSaved;
 
-  const GenericFormField({
+  const EntityFormField({
     super.key,
     required this.field,
     this.initialValue,

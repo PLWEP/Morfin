@@ -3,14 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../utils/icon_resolver.dart';
-import 'generic_form_sheet.dart';
+import 'entity_action_sheet.dart';
 
-class GenericEntityDetailScreen extends StatefulWidget {
+class EntityDetailScreen extends StatefulWidget {
   final EntitySchemaMetadata schema;
   final Map<String, dynamic> record;
   final Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
 
-  const GenericEntityDetailScreen({
+  const EntityDetailScreen({
     super.key,
     required this.schema,
     required this.record,
@@ -18,10 +18,10 @@ class GenericEntityDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<GenericEntityDetailScreen> createState() => _GenericEntityDetailScreenState();
+  State<EntityDetailScreen> createState() => _EntityDetailScreenState();
 }
 
-class _GenericEntityDetailScreenState extends State<GenericEntityDetailScreen> {
+class _EntityDetailScreenState extends State<EntityDetailScreen> {
   late Map<String, dynamic> _record;
 
   @override
@@ -31,7 +31,7 @@ class _GenericEntityDetailScreenState extends State<GenericEntityDetailScreen> {
   }
 
   void _triggerAction(EntityActionMetadata action) {
-    GenericFormSheet.show(
+    EntityActionSheet.show(
       context,
       title: action.label,
       actionLabel: 'Confirm',
