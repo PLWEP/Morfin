@@ -52,4 +52,16 @@ void main() {
     expect(active!.id, equals('srv-2'));
     expect(active.baseUrl, equals('https://ifs.dev.corp'));
   });
+
+  test('LocalStorageService persists custom client logo', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final storage = LocalStorageService(prefs);
+
+    expect(storage.getCustomLogo(), isNull);
+    await storage.saveCustomLogo('https://client.corp/logo.png');
+    expect(storage.getCustomLogo(), equals('https://client.corp/logo.png'));
+    await storage.clearCustomLogo();
+    expect(storage.getCustomLogo(), isNull);
+  });
 }

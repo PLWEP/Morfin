@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/providers/user_profile_provider.dart';
 import '../../theme/app_colors.dart';
 import 'components/activity_logs_sheet.dart';
+import 'components/settings_branding_section.dart';
 import 'components/settings_hardware_storage_section.dart';
 import 'components/settings_profile_card.dart';
 import 'components/settings_terminal_lock_card.dart';
@@ -81,6 +82,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SettingsProfileCard(),
                   const SizedBox(height: 18),
                   const SettingsThemeSection(),
+                  const SizedBox(height: 18),
+                  const SettingsBrandingSection(),
                   const SizedBox(height: 18),
                   SettingsHardwareStorageSection(
                     cacheSizeText: state.cacheSizeText,

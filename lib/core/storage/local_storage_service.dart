@@ -18,6 +18,7 @@ class LocalStorageService {
   static const _keyTheme = 'app_theme_mode';
   static const _keyServers = 'app_user_servers_v2';
   static const _keySelectedServerId = 'app_user_selected_server_id_v2';
+  static const _keyCustomLogo = 'app_custom_logo';
 
   const LocalStorageService(this._prefs);
 
@@ -65,10 +66,17 @@ class LocalStorageService {
     return servers.first;
   }
 
+  String? getCustomLogo() => _prefs.getString(_keyCustomLogo);
+
+  Future<bool> saveCustomLogo(String logoData) => _prefs.setString(_keyCustomLogo, logoData);
+
+  Future<bool> clearCustomLogo() => _prefs.remove(_keyCustomLogo);
+
   Future<void> clearAll() async {
     clearLegacyMockData();
     await _prefs.remove(_keyTheme);
     await _prefs.remove(_keyServers);
     await _prefs.remove(_keySelectedServerId);
+    await _prefs.remove(_keyCustomLogo);
   }
 }
