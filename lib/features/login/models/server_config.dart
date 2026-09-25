@@ -8,6 +8,7 @@ class ServerConfig {
   final String realm;
   final String clientId;
   final String clientSecret;
+  final String customHost;
 
   const ServerConfig({
     required this.id,
@@ -16,6 +17,7 @@ class ServerConfig {
     required this.realm,
     required this.clientId,
     required this.clientSecret,
+    this.customHost = '',
   });
 
   ServerConfig copyWith({
@@ -25,6 +27,7 @@ class ServerConfig {
     String? realm,
     String? clientId,
     String? clientSecret,
+    String? customHost,
   }) {
     return ServerConfig(
       id: id ?? this.id,
@@ -33,6 +36,7 @@ class ServerConfig {
       realm: realm ?? this.realm,
       clientId: clientId ?? this.clientId,
       clientSecret: clientSecret ?? this.clientSecret,
+      customHost: customHost ?? this.customHost,
     );
   }
 
@@ -43,6 +47,7 @@ class ServerConfig {
         'realm': realm,
         'clientId': clientId,
         'clientSecret': clientSecret,
+        'customHost': customHost,
       };
 
   factory ServerConfig.fromJson(Map<String, dynamic> json) => ServerConfig(
@@ -52,6 +57,7 @@ class ServerConfig {
         realm: json['realm'] as String? ?? '',
         clientId: json['clientId'] as String? ?? '',
         clientSecret: json['clientSecret'] as String? ?? '',
+        customHost: json['customHost'] as String? ?? '',
       );
 
   @override

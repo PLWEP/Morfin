@@ -12,6 +12,11 @@ class AuthInterceptor extends Interceptor {
       options.headers['Content-Type'] = 'application/json;charset=utf-8';
     }
 
+    final customHost = _config.activeServer.customHost;
+    if (customHost.isNotEmpty) {
+      options.headers['Host'] = customHost;
+    }
+
     if (_config.isAuthenticated) {
       options.headers['Authorization'] = 'Bearer ${_config.accessToken}';
     }
