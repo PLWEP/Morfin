@@ -35,6 +35,8 @@ class ApiClient {
     }
   }
 
+  void logout() => _config.clearTokens();
+
   Future<List<Map<String, dynamic>>> getEntitySet(
     String projection,
     String entitySet, {

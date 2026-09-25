@@ -24,6 +24,10 @@ class UserProfileNotifier extends AsyncNotifier<UserProfile?> {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(_fetchProfile);
   }
+
+  void clear() {
+    state = const AsyncValue.data(null);
+  }
 }
 
 final userProfileProvider = AsyncNotifierProvider<UserProfileNotifier, UserProfile?>(

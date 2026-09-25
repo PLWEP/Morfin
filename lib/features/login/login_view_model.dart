@@ -48,6 +48,7 @@ class LoginViewModel extends ValueNotifier<LoginState> {
   void dispatch(LoginAction action) {
     switch (action) {
       case LoginSelectServerAction(:final server):
+        ApiClient.instance.logout();
         value = value.copyWith(selectedServer: server);
         _persist(value.servers, server);
 

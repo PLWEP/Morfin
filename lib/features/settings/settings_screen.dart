@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/providers/user_profile_provider.dart';
 import '../../theme/app_colors.dart';
 import 'change_password_screen.dart';
 import 'components/settings_connectivity_section.dart';
@@ -12,16 +14,16 @@ import 'components/settings_theme_section.dart';
 import 'settings_contract.dart';
 import 'settings_view_model.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   final VoidCallback? onAlertTap;
 
   const SettingsScreen({super.key, this.onAlertTap});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late final SettingsViewModel _viewModel;
 
   @override
@@ -128,6 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 20),
                   SettingsTerminalLockCard(
                     onLockTerminal: () {
+                      ref.read(userProfileProvider.notifier).clear();
                       _viewModel.dispatch(const SettingsLockTerminal());
                       Navigator.pushReplacementNamed(context, '/login');
                     },

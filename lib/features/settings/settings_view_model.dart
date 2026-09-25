@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/network/api_client.dart';
 import 'settings_contract.dart';
 
 class SettingsViewModel extends ValueNotifier<SettingsState> {
@@ -26,6 +27,7 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
           toastMessage: 'Logs exported successfully',
         );
       case SettingsLockTerminal():
+        ApiClient.instance.logout();
         value = value.copyWith(
           toastMessage: 'Logged out successfully',
         );
