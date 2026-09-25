@@ -3,11 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/providers/user_profile_provider.dart';
 import '../../theme/app_colors.dart';
-import 'change_password_screen.dart';
 import 'components/settings_hardware_storage_section.dart';
 import 'components/settings_operations_section.dart';
 import 'components/settings_profile_card.dart';
-import 'components/settings_security_section.dart';
 import 'components/settings_terminal_lock_card.dart';
 import 'components/settings_theme_section.dart';
 import 'settings_contract.dart';
@@ -85,20 +83,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SettingsProfileCard(),
                   const SizedBox(height: 18),
                   const SettingsThemeSection(),
-                  const SizedBox(height: 18),
-                  SettingsSecuritySection(
-                    onChangePasswordTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ChangePasswordScreen(
-                            onReset: (newPassword) {
-                              _viewModel.dispatch(SettingsChangePassword(newPassword));
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
                   const SizedBox(height: 18),
                   SettingsOperationsSection(
                     isEscalationAlerts: state.isEscalationAlertsEnabled,

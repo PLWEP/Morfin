@@ -26,10 +26,6 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
         value = value.copyWith(
           toastMessage: 'Logged out successfully',
         );
-      case SettingsChangePassword():
-        value = value.copyWith(
-          toastMessage: 'Password updated successfully',
-        );
       case SettingsDismissToast():
         value = value.copyWith(clearToast: true);
     }
