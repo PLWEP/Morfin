@@ -4,7 +4,7 @@ import 'models/server_config.dart';
 @immutable
 class LoginState {
   final List<ServerConfig> servers;
-  final ServerConfig selectedServer;
+  final ServerConfig? selectedServer;
   final String username;
   final String password;
   final bool isObscurePassword;
@@ -14,7 +14,7 @@ class LoginState {
 
   const LoginState({
     required this.servers,
-    required this.selectedServer,
+    this.selectedServer,
     required this.username,
     required this.password,
     required this.isObscurePassword,
@@ -24,35 +24,9 @@ class LoginState {
   });
 
   factory LoginState.initial() {
-    const defaultServers = [
-      ServerConfig(
-        id: 'srv-prod-apse1',
-        name: 'IFS Cloud Prod (ap-southeast-1)',
-        baseUrl: 'https://prod-apse1.ifscloud.com',
-        realm: 'ifs',
-        clientId: 'morfin_mobile_prod',
-        clientSecret: '••••••••',
-      ),
-      ServerConfig(
-        id: 'srv-prod-euc1',
-        name: 'IFS Cloud Prod (eu-central-1)',
-        baseUrl: 'https://prod-euc1.ifscloud.com',
-        realm: 'ifs',
-        clientId: 'morfin_mobile_prod',
-        clientSecret: '••••••••',
-      ),
-      ServerConfig(
-        id: 'srv-uat-emea',
-        name: 'IFS Cloud UAT / Staging',
-        baseUrl: 'https://uat.ifscloud.com',
-        realm: 'ifs-uat',
-        clientId: 'morfin_mobile_uat',
-        clientSecret: '••••••••',
-      ),
-    ];
-    return LoginState(
-      servers: defaultServers,
-      selectedServer: defaultServers.first,
+    return const LoginState(
+      servers: [],
+      selectedServer: null,
       username: '',
       password: '',
       isObscurePassword: true,
@@ -65,6 +39,7 @@ class LoginState {
   LoginState copyWith({
     List<ServerConfig>? servers,
     ServerConfig? selectedServer,
+    bool clearSelectedServer = false,
     String? username,
     String? password,
     bool? isObscurePassword,
@@ -75,7 +50,7 @@ class LoginState {
   }) {
     return LoginState(
       servers: servers ?? this.servers,
-      selectedServer: selectedServer ?? this.selectedServer,
+      selectedServer: clearSelectedServer ? null : (selectedServer ?? this.selectedServer),
       username: username ?? this.username,
       password: password ?? this.password,
       isObscurePassword: isObscurePassword ?? this.isObscurePassword,

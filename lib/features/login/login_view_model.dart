@@ -26,20 +26,22 @@ class LoginViewModel extends ValueNotifier<LoginState> {
         value = value.copyWith(servers: savedServers, selectedServer: active);
         ApiConfig.instance.setServer(active);
       } else {
-        storage.saveServers(value.servers);
-        storage.saveSelectedServerId(value.selectedServer.id);
-        ApiConfig.instance.setServer(value.selectedServer);
+        value = value.copyWith(servers: [], clearSelectedServer: true);
       }
     } catch (_) {}
   }
 
-  Future<void> _persist(List<ServerConfig> servers, ServerConfig selected) async {
-    ApiConfig.instance.setServer(selected);
+  Future<void> _persist(List<ServerConfig> servers, ServerConfig? selected) async {
+    if (selected != null) {
+      ApiConfig.instance.setServer(selected);
+    }
     try {
       final prefs = await SharedPreferences.getInstance();
       final storage = LocalStorageService(prefs);
       await storage.saveServers(servers);
-      await storage.saveSelectedServerId(selected.id);
+      if (selected != null) {
+        await storage.saveSelectedServerId(selected.id);
+      }
     } catch (_) {}
   }
 
@@ -60,7 +62,7 @@ class LoginViewModel extends ValueNotifier<LoginState> {
 
       case LoginUpdateServerAction(:final server):
         final updatedServers = value.servers.map((s) => s.id == server.id ? server : s).toList();
-        final updatedSelected = value.selectedServer.id == server.id ? server : value.selectedServer;
+        final updatedSelected = value.selectedServer?.id == server.id ? server : value.selectedServer;
         value = value.copyWith(
           servers: updatedServers,
           selectedServer: updatedSelected,
@@ -69,15 +71,16 @@ class LoginViewModel extends ValueNotifier<LoginState> {
         _persist(updatedServers, updatedSelected);
 
       case LoginDeleteServerAction(:final serverId):
-        final target = value.servers.firstWhere((s) => s.id == serverId, orElse: () => value.selectedServer);
+        final target = value.servers.where((s) => s.id == serverId).firstOrNull;
         final updatedServers = value.servers.where((s) => s.id != serverId).toList();
-        final newSelected = value.selectedServer.id == serverId
-            ? (updatedServers.isNotEmpty ? updatedServers.first : value.selectedServer)
+        final newSelected = value.selectedServer?.id == serverId
+            ? (updatedServers.isNotEmpty ? updatedServers.first : null)
             : value.selectedServer;
         value = value.copyWith(
           servers: updatedServers,
           selectedServer: newSelected,
-          notificationMessage: 'Deleted server: ${target.name}',
+          clearSelectedServer: newSelected == null,
+          notificationMessage: target != null ? 'Deleted server: ${target.name}' : 'Server deleted',
         );
         _persist(updatedServers, newSelected);
 
@@ -99,6 +102,14 @@ class LoginViewModel extends ValueNotifier<LoginState> {
   }
 
   Future<void> _executeLogin() async {
+    if (value.selectedServer == null || value.servers.isEmpty) {
+      value = value.copyWith(
+        isLoading: false,
+        notificationMessage: 'Please add and select a server environment first.',
+      );
+      return;
+    }
+
     final username = value.username.trim();
     final password = value.password.trim();
 

@@ -66,17 +66,11 @@ class _ManageServersScreenState extends State<ManageServersScreen> {
   }
 
   void _confirmDelete(ServerConfig server) {
-    if (_servers.length <= 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('At least one server configuration is required.')),
-      );
-      return;
-    }
     setState(() {
       _servers.removeWhere((s) => s.id == server.id);
-      if (_selectedServerId == server.id && _servers.isNotEmpty) {
-        _selectedServerId = _servers.first.id;
-        widget.onSelect(_servers.first);
+      if (_selectedServerId == server.id) {
+        _selectedServerId = _servers.isNotEmpty ? _servers.first.id : '';
+        if (_servers.isNotEmpty) widget.onSelect(_servers.first);
       }
     });
     widget.onDelete(server.id);
@@ -119,34 +113,43 @@ class _ManageServersScreenState extends State<ManageServersScreen> {
                 children: [
                   Text(
                     'Configured Servers (${_servers.length})',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: colors.onSurfaceVariant,
-                    ),
+                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: colors.onSurfaceVariant),
                   ),
                   Text('Tap to select active', style: GoogleFonts.inter(fontSize: 11, color: colors.outline)),
                 ],
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: _servers.length,
-                itemBuilder: (context, index) {
-                  final server = _servers[index];
-                  return ServerCardTile(
-                    server: server,
-                    isSelected: server.id == _selectedServerId,
-                    onSelect: () {
-                      setState(() => _selectedServerId = server.id);
-                      widget.onSelect(server);
-                    },
-                    onEdit: () => _navigateToEdit(server),
-                    onDelete: () => _confirmDelete(server),
-                  );
-                },
-              ),
+              child: _servers.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.dns_outlined, size: 40, color: colors.outline),
+                          const SizedBox(height: 8),
+                          Text('No servers configured yet', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colors.onSurface)),
+                          const SizedBox(height: 4),
+                          Text('Tap below to add your IFS server.', style: GoogleFonts.inter(fontSize: 12, color: colors.onSurfaceVariant)),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      itemCount: _servers.length,
+                      itemBuilder: (context, index) {
+                        final server = _servers[index];
+                        return ServerCardTile(
+                          server: server,
+                          isSelected: server.id == _selectedServerId,
+                          onSelect: () {
+                            setState(() => _selectedServerId = server.id);
+                            widget.onSelect(server);
+                          },
+                          onEdit: () => _navigateToEdit(server),
+                          onDelete: () => _confirmDelete(server),
+                        );
+                      },
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.all(16),

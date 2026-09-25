@@ -19,7 +19,7 @@ class ServerEnvironmentSelector extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => ManageServersScreen(
           servers: state.servers,
-          selectedServerId: state.selectedServer.id,
+          selectedServerId: state.selectedServer?.id ?? '',
           onSelect: (server) => onAction(LoginSelectServerAction(server)),
           onAdd: (server) => onAction(LoginAddServerAction(server)),
           onUpdate: (server) => onAction(LoginUpdateServerAction(server)),
@@ -75,50 +75,74 @@ class ServerEnvironmentSelector extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          key: ValueKey(state.selectedServer.id),
-          initialValue: state.selectedServer.id,
-          isExpanded: true,
-          dropdownColor: colors.surfaceCard,
-          icon: Icon(
-            Icons.expand_more_rounded,
-            color: colors.onSurfaceVariant,
-          ),
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: colors.onSurface,
-          ),
-          decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.dns_outlined,
-              size: 19,
+        if (state.servers.isEmpty || state.selectedServer == null)
+          InkWell(
+            onTap: () => _openManageServers(context),
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: colors.surfaceDeep,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colors.surfaceBorder, width: 1),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.add_circle_outline_rounded, size: 19, color: colors.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'No server added. Tap to configure.',
+                      style: GoogleFonts.inter(fontSize: 13, color: colors.primary, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, size: 18, color: colors.outline),
+                ],
+              ),
+            ),
+          )
+        else
+          DropdownButtonFormField<String>(
+            key: ValueKey(state.selectedServer!.id),
+            initialValue: state.selectedServer!.id,
+            isExpanded: true,
+            dropdownColor: colors.surfaceCard,
+            icon: Icon(
+              Icons.expand_more_rounded,
               color: colors.onSurfaceVariant,
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: colors.onSurface,
             ),
-          ),
-          items: state.servers.map((srv) {
-            return DropdownMenuItem<String>(
-              value: srv.id,
-              child: Text(
-                srv.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+            decoration: InputDecoration(
+              prefixIcon: Icon(
+                Icons.dns_outlined,
+                size: 19,
+                color: colors.onSurfaceVariant,
               ),
-            );
-          }).toList(),
-          onChanged: (selectedId) {
-            if (selectedId != null) {
-              final chosen = state.servers.firstWhere(
-                (s) => s.id == selectedId,
-                orElse: () => state.selectedServer,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+            ),
+            items: state.servers.map((srv) {
+              return DropdownMenuItem<String>(
+                value: srv.id,
+                child: Text(
+                  srv.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               );
-              onAction(LoginSelectServerAction(chosen));
-            }
-          },
-        ),
+            }).toList(),
+            onChanged: (selectedId) {
+              if (selectedId != null) {
+                final chosen = state.servers.where((s) => s.id == selectedId).firstOrNull;
+                if (chosen != null) onAction(LoginSelectServerAction(chosen));
+              }
+            },
+          ),
       ],
     );
   }

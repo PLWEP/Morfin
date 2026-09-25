@@ -5,13 +5,15 @@ class ApiConfig {
   ApiConfig._();
 
   ServerConfig activeServer = const ServerConfig(
-    id: 'default_server',
-    name: 'IFS Cloud Primary',
-    baseUrl: 'https://cloud.ifs.com',
+    id: '',
+    name: '',
+    baseUrl: '',
     realm: 'ifs',
-    clientId: 'morfin_mobile',
+    clientId: '',
     clientSecret: '',
   );
+
+  bool get isServerConfigured => activeServer.baseUrl.isNotEmpty;
 
   String? accessToken;
   String? refreshToken;
