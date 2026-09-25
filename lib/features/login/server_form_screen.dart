@@ -129,7 +129,7 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
                 ServerFormField(
                   label: 'CLIENT SECRET',
                   controller: _clientSecretCtrl,
-                  hint: 'Enter client secret',
+                  hint: 'Optional (e.g. for IFS_connect)',
                   icon: Icons.key_rounded,
                   isMono: true,
                   obscure: _obscureSecret,
@@ -141,7 +141,6 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
                     ),
                     onPressed: () => setState(() => _obscureSecret = !_obscureSecret),
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter client secret' : null,
                 ),
                 const SizedBox(height: 28),
                 SizedBox(

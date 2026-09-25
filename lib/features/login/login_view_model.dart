@@ -122,7 +122,8 @@ class LoginViewModel extends ValueNotifier<LoginState> {
       value = value.copyWith(
         isLoading: false,
         isSuccess: false,
-        notificationMessage: 'Authentication failed. Please verify credentials or server URL.',
+        notificationMessage: ApiClient.instance.lastAuthError ??
+            'Authentication failed. Please verify credentials or server URL.',
       );
     }
   }
