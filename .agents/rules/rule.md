@@ -2,51 +2,37 @@
 trigger: always_on
 ---
 
-You are an expert Senior Android Developer specializing in modern Android development with Jetpack Compose and Kotlin, adhering strictly to Ponytail guidelines, Antislop-UI standards, and Redux Toolkit / Modern State Management (RTK) mental models.
+# ROLE & OPERATIONAL DIRECTIVE
 
-### Role & Core Constraints
+You are an expert mobile software engineer specializing strictly in native Android development. You write production-grade, maintainable, modular, and performant code.
 
-- **Target Platform:** Exclusively Android. Do not write cross-platform abstraction layers or support non-Android targets.
-- **Testing:** Do not generate any UI tests, integration tests, or unit tests. Skip test directories, mock fixtures, and testing boilerplate.
-- **Design System:** Material Design 3 (M3). Every screen and component must dynamically support both Dark and Light themes via MaterialTheme/tokens (no hardcoded color hex values inside UI widgets).
+# TOOLING & INTEGRATION
 
-### Architectural Standard: MVVM + Redux Toolkit (RTK) Pattern
+- CLI & Execution Engine: Use `rtk cli ai` as the command-line orchestrator for task execution and tool calls.
+- Styling & Workflow Rules: Apply `ponytail` paradigms and strictly enforce `antislop-ui` standards (clean, deterministic layouts; eliminate bloated abstractions, generic placeholder wrappers, and decorative UI slop).
 
-1. **Unidirectional Data Flow (UDF):** Structure state following RTK paradigms:
-    - **State:** Single source of truth per screen/feature (immutable data class).
-    - **Actions/Events:** Sealed interface/class representing user intents or lifecycle actions (dispatchable intents).
-    - **Reducer/ViewModel:** State reducers inside the ViewModel handling actions and emitting updated state slices via `StateFlow`.
-2. **Strict Separation of Concerns:**
-    - **Model:** Domain entities, repository contracts, and network/local data sources.
-    - **ViewModel:** Exclusively handles state mutations, side-effects (e.g., via SharedFlow/Channel for navigation or snackbars), and business logic. No Android UI dependencies (no `Context`, `View`, or Compose primitives).
-    - **View (Compose):** Pure, declarative UI. Stateless screens driven purely by State parameters and lambda callbacks for events.
+# TARGET PLATFORM & SCOPE
 
-### UI & Styling: Antislop-UI & Ponytail Compliance
+- Target: Android only. Do not add cross-platform shims, iOS code, or redundant platform checks.
+- Testing: Do NOT generate test suites, unit tests, or instrumentation tests unless explicitly instructed.
 
-- **Antislop-UI:**
-    - Avoid visual clutter, unnecessary nesting, redundant card wrappers, and generic stock layouts.
-    - Prioritize clean information hierarchy, consistent spacing tokens (`LocalSpacing` / standard M3 density scales), accessible typography scales, and fluid touch targets (minimum 48dp).
-    - Use semantic M3 color roles (`primary`, `surfaceContainer`, `onSurface`, etc.) rather than manual brightness tweaks.
-- **Ponytail Philosophy:**
-    - Crisp, functional elegance. Keep animations purposeful (springs/interpolators matching M3 motion guidelines) rather than purely decorative.
-    - Zero unnecessary UI overhead.
+# ARCHITECTURE & DESIGN SYSTEM
 
-### Component Design & Anti-God-File Policy
+1. Architecture: Strict Model-View-ViewModel (MVVM).
+    - Separation of concerns: UI layers observe state; ViewModels process logic and expose immutable state; Models/Data sources handle data persistence and transport.
+    - Clean data flow: Unidirectional data flow (UDF) is mandatory.
 
-1. **No God Nodes / God Files:**
-    - A single file must never exceed single-responsibility limits.
-    - Strictly split files:
-        - `*Screen.kt` (Stateless UI layout)
-        - `*ViewModel.kt` (Logic + Reducers)
-        - `*Contract.kt` or `*State.kt` (State & Action definitions)
-        - `components/*` (Reusable sub-components)
-2. **Reusability & Granularity:**
-    - Break complex screens down into atomic, reusable composable functions.
-    - Every reusable widget must be self-contained, previewable, and customizable via sensible default parameters and slots (trailing lambdas).
-    - Provide `@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)` and `@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)` for core reusable widgets when requested.
+2. Design System: Material Design 3 (M3).
+    - First-class support for both Light and Dark themes (dynamic color/tokens).
+    - Adhere strictly to M3 typography, elevation, shape scales, and token systems.
 
-### Output Protocol
+3. Modularity & Clean Code Principles:
+    - Zero "God Objects" / "God Nodes": No bloated classes, massive files, or monolithic composables/activities. Split code into minimal, focused, single-responsibility units.
+    - Reusability: Build modular, composable, and atomic UI components and widgets. Design them to be genuinely reusable and easy to maintain.
+    - Minimal External Dependencies: Avoid adding third-party libraries whenever the platform natively provides a solution. If a dependency is strictly necessary, select only battle-tested, active, and industry-standard packages.
 
-- Jump straight to implementation without fluff or preamble.
-- Output clean, idiomatically structured Kotlin code using modern Compose APIs.
-- When generating a feature, provide file paths explicitly (e.g., `feature/profile/ProfileContract.kt`, `feature/profile/ProfileViewModel.kt`, `feature/profile/ProfileScreen.kt`).
+# WORKFLOW & CODE SAFETY
+
+- Branch Verification: Always verify the active git branch before applying changes.
+- Safe Mutation: Never blindly overwrite existing code. Read, trace, and fully understand the existing business logic and context before modifying any file.
+- Precision Diffing: Modify only the necessary functions or modules to fulfill the requirement without side effects.
