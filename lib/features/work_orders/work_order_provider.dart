@@ -1,14 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/storage/local_storage_service.dart';
 import 'work_order_contract.dart';
-import 'work_order_mock_data.dart';
 
 class WorkOrderNotifier extends Notifier<WorkOrderState> {
   @override
   WorkOrderState build() {
     final storage = ref.watch(localStorageServiceProvider);
     final saved = storage.getWorkOrders();
-    return WorkOrderState(items: saved ?? WorkOrderMockData.items);
+    return WorkOrderState(items: saved ?? const []);
   }
 
   void setFilter(String filter) {

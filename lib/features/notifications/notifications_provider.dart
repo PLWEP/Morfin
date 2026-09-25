@@ -1,12 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'notifications_contract.dart';
-import 'notifications_mock_data.dart';
 
 class NotificationsNotifier extends Notifier<NotificationsState> {
   @override
   NotificationsState build() {
     return const NotificationsState(
-      items: NotificationsMockData.initialNotifications,
+      items: [],
     );
   }
 

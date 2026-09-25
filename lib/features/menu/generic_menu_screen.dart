@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/metadata/menu_metadata.dart';
-import '../../core/metadata/mock_metadata_service.dart';
+import '../../core/metadata/metadata_service.dart';
 import '../../core/widgets/menu/generic_menu_section.dart';
 import '../../theme/app_colors.dart';
 import 'components/menu_filter_pills.dart';
@@ -28,7 +28,7 @@ class _GenericMenuScreenState extends State<GenericMenuScreen> {
   @override
   void initState() {
     super.initState();
-    _metadata = widget.initialMetadata ?? MockMetadataService.defaultMenu;
+    _metadata = widget.initialMetadata ?? AppMetadataService.defaultMenu;
   }
 
   List<MenuGroupMetadata> get _filteredGroups {

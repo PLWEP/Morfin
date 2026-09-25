@@ -1,13 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'lobby_analytical_mock_data.dart';
 import 'lobby_contract.dart';
 
 class LobbyNotifier extends Notifier<LobbyState> {
   @override
-  LobbyState build() => LobbyAnalyticalMockData.stateForPeriod(DashboardPeriod.today);
+  LobbyState build() => LobbyState.empty();
 
   void changePeriod(DashboardPeriod period) {
-    state = LobbyAnalyticalMockData.stateForPeriod(period);
+    state = state.copyWith(period: period);
   }
 }
 

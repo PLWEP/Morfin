@@ -99,25 +99,31 @@ class LoginViewModel extends ValueNotifier<LoginState> {
   }
 
   Future<void> _executeLogin() async {
-    value = value.copyWith(isLoading: true);
     final username = value.username.trim();
     final password = value.password.trim();
 
-    final isLiveServer = value.selectedServer.baseUrl.startsWith('http');
-    final hasRealCreds = username.isNotEmpty && !password.contains('••••');
-
-    if (isLiveServer && hasRealCreds) {
-      final success = await ApiClient.instance.authenticateOAuth(
-        username: username,
-        password: password,
+    if (username.isEmpty || password.isEmpty) {
+      value = value.copyWith(
+        isLoading: false,
+        notificationMessage: 'Please enter both username and password.',
       );
-      if (success) {
-        value = value.copyWith(isLoading: false, isSuccess: true);
-        return;
-      }
+      return;
     }
 
-    await Future.delayed(const Duration(milliseconds: 350));
-    value = value.copyWith(isLoading: false, isSuccess: true);
+    value = value.copyWith(isLoading: true);
+    final success = await ApiClient.instance.authenticateOAuth(
+      username: username,
+      password: password,
+    );
+
+    if (success) {
+      value = value.copyWith(isLoading: false, isSuccess: true);
+    } else {
+      value = value.copyWith(
+        isLoading: false,
+        isSuccess: false,
+        notificationMessage: 'Authentication failed. Please verify credentials or server URL.',
+      );
+    }
   }
 }

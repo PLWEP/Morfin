@@ -1,8 +1,7 @@
 import 'entity_metadata.dart';
-import 'mock_entity_store.dart';
 
-class MockEntityService {
-  const MockEntityService._();
+class EntitySchemaRegistry {
+  const EntitySchemaRegistry._();
 
   static final EntitySchemaMetadata workOrderSchema = EntitySchemaMetadata(
     entityName: 'WorkOrder',
@@ -65,20 +64,6 @@ class MockEntityService {
     ),
   );
 
-  static Future<List<Map<String, dynamic>>> fetchLiveWorkOrders() async {
-    await Future.delayed(const Duration(milliseconds: 250));
-    return List<Map<String, dynamic>>.from(MockEntityStore.workOrders);
-  }
-
-  static Future<void> executeWorkOrderAction(String actionName, Map<String, dynamic> data) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (actionName == 'create') {
-      MockEntityStore.addWorkOrder(data);
-    } else if (actionName == 'change_status') {
-      MockEntityStore.updateOrderStatus(data['code'] ?? '', data['status'] ?? 'Pending');
-    }
-  }
-
   static final EntitySchemaMetadata inventorySchema = EntitySchemaMetadata(
     entityName: 'InventoryPart',
     title: 'Spare Parts Inventory',
@@ -117,17 +102,4 @@ class MockEntityService {
       metricField: 'quantity',
     ),
   );
-
-  static Future<List<Map<String, dynamic>>> fetchLiveInventory() async {
-    await Future.delayed(const Duration(milliseconds: 250));
-    return List<Map<String, dynamic>>.from(MockEntityStore.inventory);
-  }
-
-  static Future<void> executeInventoryAction(String actionName, Map<String, dynamic> data) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (actionName == 'adjust_stock') {
-      final delta = int.tryParse(data['delta']?.toString() ?? '0') ?? 0;
-      MockEntityStore.updateInventoryStock(data['code'] ?? '', delta);
-    }
-  }
 }

@@ -53,8 +53,8 @@ class LoginState {
     return LoginState(
       servers: defaultServers,
       selectedServer: defaultServers.first,
-      username: 'diana.prince@operations.ifs',
-      password: '••••••••••••',
+      username: '',
+      password: '',
       isObscurePassword: true,
       isLoading: false,
       isSuccess: false,

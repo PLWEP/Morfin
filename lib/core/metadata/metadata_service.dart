@@ -1,8 +1,8 @@
 import 'lobby_metadata.dart';
 import 'menu_metadata.dart';
 
-class MockMetadataService {
-  const MockMetadataService._();
+class AppMetadataService {
+  const AppMetadataService._();
 
   static MenuMetadata get defaultMenu => MenuMetadata.fromJson({
         'version': '1.0.0',
@@ -19,7 +19,7 @@ class MockMetadataService {
                 'subtitle': 'Execution & Maintenance Jobs',
                 'icon': 'assignment',
                 'category': 'operations',
-                'badgeText': '6 Pending',
+                'badgeText': 'Live Sync',
                 'badgeType': 'warning',
                 'action': {'type': 'navigate', 'target': '/work_orders'}
               },
@@ -30,7 +30,7 @@ class MockMetadataService {
                 'subtitle': 'Spares & Consumables',
                 'icon': 'inventory_2',
                 'category': 'operations',
-                'badgeText': '3 Low Stock',
+                'badgeText': 'Live Sync',
                 'badgeType': 'critical',
                 'action': {'type': 'navigate', 'target': '/inventory'}
               }
@@ -48,7 +48,7 @@ class MockMetadataService {
                 'subtitle': 'Telemetry & Active Status',
                 'icon': 'precision_manufacturing',
                 'category': 'equipment',
-                'badgeText': 'Operational',
+                'badgeText': 'Active',
                 'badgeType': 'active',
                 'action': {'type': 'navigate', 'target': '/lobby'}
               },
@@ -56,7 +56,7 @@ class MockMetadataService {
                 'id': 'scan_qr',
                 'code': 'ASSET_SCAN',
                 'title': 'Scan Equipment Tag',
-                'subtitle': 'Quick Barcode/NFC lookup',
+                'subtitle': 'Barcode & NFC Scanner',
                 'icon': 'qr_code_scanner',
                 'category': 'equipment',
                 'badgeType': 'hardware',
@@ -77,11 +77,11 @@ class MockMetadataService {
             'type': 'counter',
             'title': 'Active Work Orders',
             'icon': 'assignment',
-            'value': '6',
+            'value': 'Live',
             'unit': 'jobs',
-            'change': '+2 today',
-            'isPositive': false,
-            'benchmark': 'Target: < 5',
+            'change': 'Tap to view',
+            'isPositive': true,
+            'benchmark': 'OData Projections',
             'colorToken': 'warning',
             'span': {'col': 1, 'row': 1},
             'action': {'type': 'navigate', 'target': '/work_orders'}
@@ -89,50 +89,22 @@ class MockMetadataService {
           {
             'id': 'elem_critical_spares',
             'type': 'counter',
-            'title': 'Low Spares',
+            'title': 'Warehouse Parts',
             'icon': 'inventory_2',
-            'value': '3',
+            'value': 'Live',
             'unit': 'items',
-            'change': 'Restock needed',
-            'isPositive': false,
-            'benchmark': 'Threshold: 5',
-            'colorToken': 'critical',
+            'change': 'Tap to view',
+            'isPositive': true,
+            'benchmark': 'OData Projections',
+            'colorToken': 'primary',
             'span': {'col': 1, 'row': 1},
             'action': {'type': 'navigate', 'target': '/inventory'}
           },
           {
-            'id': 'elem_overall_oee',
-            'type': 'indicator',
-            'title': 'Plant OEE Performance',
-            'icon': 'speed',
-            'percentage': 89.2,
-            'target': 85.0,
-            'subtitle': 'Overall Equipment Effectiveness',
-            'colorToken': 'success',
-            'span': {'col': 2, 'row': 1},
-            'action': {'type': 'navigate', 'target': '/lobby'}
-          },
-          {
-            'id': 'elem_line_output',
-            'type': 'bar_chart',
-            'title': 'Output by Production Line (Units/h)',
-            'icon': 'precision_manufacturing',
-            'subtitle': 'Hourly telemetry',
-            'colorToken': 'primary',
-            'span': {'col': 2, 'row': 2},
-            'chartPoints': [
-              {'label': 'Line 1', 'value': 450},
-              {'label': 'Line 2', 'value': 380},
-              {'label': 'Line 3', 'value': 510},
-              {'label': 'Line 4', 'value': 290}
-            ],
-            'action': {'type': 'navigate', 'target': '/lobby'}
-          },
-          {
             'id': 'elem_link_wo',
             'type': 'link_tile',
-            'title': 'Open Maintenance Work Orders',
-            'subtitle': 'View scheduled preventive and corrective tasks',
+            'title': 'Open Work Orders',
+            'subtitle': 'View scheduled preventive and corrective maintenance tasks',
             'icon': 'assignment',
             'colorToken': 'warning',
             'span': {'col': 2, 'row': 1},
