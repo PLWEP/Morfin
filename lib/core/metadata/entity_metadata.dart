@@ -109,6 +109,8 @@ class EntitySchemaMetadata {
   final String entityName;
   final String title;
   final String icon;
+  final String projection;
+  final String entitySet;
   final List<EntityFieldMetadata> fields;
   final List<EntityActionMetadata> actions;
   final EntityListCardMetadata listCard;
@@ -117,6 +119,8 @@ class EntitySchemaMetadata {
     required this.entityName,
     required this.title,
     this.icon = 'assignment',
+    this.projection = '',
+    this.entitySet = '',
     this.fields = const [],
     this.actions = const [],
     required this.listCard,
@@ -129,6 +133,8 @@ class EntitySchemaMetadata {
       entityName: json['entityName'] as String? ?? '',
       title: json['title'] as String? ?? '',
       icon: json['icon'] as String? ?? 'assignment',
+      projection: json['projection'] as String? ?? '',
+      entitySet: json['entitySet'] as String? ?? '',
       fields: rawFields
           .map((f) => EntityFieldMetadata.fromJson(f as Map<String, dynamic>))
           .toList(),
@@ -141,3 +147,4 @@ class EntitySchemaMetadata {
     );
   }
 }
+

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../metadata/lobby_metadata.dart';
-import 'generic_lobby_element.dart';
+import 'lobby_element_tile.dart';
 
-class GenericLobbyGrid extends StatelessWidget {
+class LobbyGrid extends StatelessWidget {
   final List<LobbyElementMetadata> elements;
 
-  const GenericLobbyGrid({super.key, required this.elements});
+  const LobbyGrid({super.key, required this.elements});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class GenericLobbyGrid extends StatelessWidget {
 
       // If full width (col span >= 2 or charts/indicators by default)
       if (current.span.col >= 2 || current.type == LobbyElementType.barChart || current.type == LobbyElementType.lineChart) {
-        widgets.add(GenericLobbyElement(metadata: current));
+        widgets.add(LobbyElementTile(metadata: current));
         widgets.add(const SizedBox(height: 10));
         i++;
       } else {
@@ -29,9 +29,9 @@ class GenericLobbyGrid extends StatelessWidget {
           widgets.add(
             Row(
               children: [
-                Expanded(child: GenericLobbyElement(metadata: current)),
+                Expanded(child: LobbyElementTile(metadata: current)),
                 const SizedBox(width: 10),
-                Expanded(child: GenericLobbyElement(metadata: next)),
+                Expanded(child: LobbyElementTile(metadata: next)),
               ],
             ),
           );
@@ -39,7 +39,7 @@ class GenericLobbyGrid extends StatelessWidget {
           i += 2;
         } else {
           // Single element in row
-          widgets.add(GenericLobbyElement(metadata: current));
+          widgets.add(LobbyElementTile(metadata: current));
           widgets.add(const SizedBox(height: 10));
           i++;
         }

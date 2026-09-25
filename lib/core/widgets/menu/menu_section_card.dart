@@ -3,13 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/menu_metadata.dart';
 import '../../utils/icon_resolver.dart';
-import 'generic_menu_tile.dart';
+import 'menu_item_tile.dart';
 
-class GenericMenuSection extends StatelessWidget {
+class MenuSectionCard extends StatelessWidget {
   final MenuGroupMetadata group;
   final ValueChanged<MenuItemMetadata>? onItemTap;
 
-  const GenericMenuSection({
+  const MenuSectionCard({
     super.key,
     required this.group,
     this.onItemTap,
@@ -68,7 +68,7 @@ class GenericMenuSection extends StatelessWidget {
           separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             final item = group.items[index];
-            return GenericMenuTile(
+            return MenuItemTile(
               item: item,
               onTap: onItemTap != null ? () => onItemTap!(item) : null,
             );

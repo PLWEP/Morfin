@@ -3,12 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 
-class GenericEntityCard extends StatelessWidget {
+class EntityCard extends StatelessWidget {
   final EntitySchemaMetadata schema;
   final Map<String, dynamic> record;
   final VoidCallback? onTap;
 
-  const GenericEntityCard({
+  const EntityCard({
     super.key,
     required this.schema,
     required this.record,

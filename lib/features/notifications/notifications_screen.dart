@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/metadata/action_metadata.dart';
+import '../../core/navigation/action_dispatcher.dart';
 import '../../theme/app_colors.dart';
-import '../work_orders/work_order_detail_screen.dart';
 import 'components/notification_card.dart';
 import 'components/notifications_filter_pills.dart';
 import 'components/notifications_header.dart';
@@ -20,11 +21,10 @@ class NotificationsScreen extends ConsumerWidget {
     if (!item.isRead) {
       ref.read(notificationsProvider.notifier).dispatch(NotificationToggledRead(item.id));
     }
-    if (item.workOrderId != null) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => WorkOrderDetailScreen(orderId: item.workOrderId!),
-        ),
+    if (item.targetRoute != null) {
+      AppActionDispatcher.dispatch(
+        context,
+        ActionMetadata(type: ActionType.navigate, target: item.targetRoute!),
       );
     }
   }

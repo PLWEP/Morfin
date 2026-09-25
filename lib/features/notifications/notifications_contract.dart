@@ -21,7 +21,7 @@ class NotificationItem {
   final NotificationTimeGroup group;
   final bool isRead;
   final IconData? icon;
-  final String? workOrderId;
+  final String? targetRoute;
 
   const NotificationItem({
     required this.id,
@@ -31,12 +31,12 @@ class NotificationItem {
     required this.group,
     this.isRead = false,
     this.icon,
-    this.workOrderId,
+    this.targetRoute,
   });
 
   NotificationItem copyWith({
     bool? isRead,
-    String? workOrderId,
+    String? targetRoute,
   }) {
     return NotificationItem(
       id: id,
@@ -46,7 +46,7 @@ class NotificationItem {
       group: group,
       isRead: isRead ?? this.isRead,
       icon: icon,
-      workOrderId: workOrderId ?? this.workOrderId,
+      targetRoute: targetRoute ?? this.targetRoute,
     );
   }
 }
