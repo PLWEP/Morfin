@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,6 +22,8 @@ class _BrandingScreenState extends ConsumerState<BrandingScreen> {
   String? _previewLogo;
   bool _isUploading = false;
 
+  static const _sampleUrl = 'https://picsum.photos/512';
+
   @override
   void initState() {
     super.initState();
@@ -28,9 +31,7 @@ class _BrandingScreenState extends ConsumerState<BrandingScreen> {
     _controller = TextEditingController(text: current ?? '');
     _previewLogo = current;
     _controller.addListener(() {
-      setState(() {
-        _previewLogo = _controller.text.trim().isNotEmpty ? _controller.text.trim() : null;
-      });
+      setState(() => _previewLogo = _controller.text.trim().isNotEmpty ? _controller.text.trim() : null);
     });
   }
 
@@ -44,12 +45,7 @@ class _BrandingScreenState extends ConsumerState<BrandingScreen> {
     try {
       setState(() => _isUploading = true);
       final picker = ImagePicker();
-      final picked = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 92,
-      );
+      final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1024, maxHeight: 1024, imageQuality: 92);
       if (picked != null) {
         final bytes = await picked.readAsBytes();
         final ext = picked.path.split('.').last.toLowerCase();
@@ -58,6 +54,12 @@ class _BrandingScreenState extends ConsumerState<BrandingScreen> {
         _controller.text = base64Data;
         setState(() => _previewLogo = base64Data);
         _showFeedback('Logo berhasil dimuat ke preview');
+      }
+    } on PlatformException catch (e) {
+      if (e.code == 'channel-error') {
+        _showFeedback('Perlu Stop & Run ulang aplikasi dari IDE agar plugin native aktif.');
+      } else {
+        _showFeedback('Akses galeri ditolak: ${e.message}');
       }
     } catch (e) {
       _showFeedback('Gagal memuat gambar: $e');
@@ -83,7 +85,7 @@ class _BrandingScreenState extends ConsumerState<BrandingScreen> {
 
   void _showFeedback(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg, style: GoogleFonts.inter(fontSize: 13)), duration: const Duration(seconds: 2), behavior: SnackBarBehavior.floating),
+      SnackBar(content: Text(msg, style: GoogleFonts.inter(fontSize: 13)), duration: const Duration(seconds: 3), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -132,6 +134,7 @@ class _BrandingScreenState extends ConsumerState<BrandingScreen> {
               const SizedBox(height: 8),
               TextField(
                 controller: _controller,
+                onChanged: (val) => setState(() => _previewLogo = val.trim().isNotEmpty ? val.trim() : null),
                 style: GoogleFonts.inter(fontSize: 13, color: colors.onSurface),
                 decoration: InputDecoration(
                   hintText: 'https://perusahaan.com/logo.png',
@@ -144,7 +147,17 @@ class _BrandingScreenState extends ConsumerState<BrandingScreen> {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 6),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => _controller.text = _sampleUrl,
+                  icon: const Icon(Icons.auto_fix_high_rounded, size: 14),
+                  label: const Text('Gunakan Contoh URL Valid (PNG)', style: TextStyle(fontSize: 11)),
+                  style: TextButton.styleFrom(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero),
+                ),
+              ),
+              const SizedBox(height: 12),
               const BrandingQualityGuideCard(),
               const SizedBox(height: 20),
               Row(

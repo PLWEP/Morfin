@@ -34,7 +34,7 @@ class CustomLogoView extends StatelessWidget {
             ),
           );
         },
-        errorBuilder: (_, _, _) => _buildFallback(),
+        errorBuilder: (_, _, _) => _buildFallback(reason: 'URL bukan gambar/gagal'),
       );
     }
 
@@ -48,10 +48,10 @@ class CustomLogoView extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.contain,
-          errorBuilder: (_, _, _) => _buildFallback(),
+          errorBuilder: (_, _, _) => _buildFallback(reason: 'Base64 tidak valid'),
         );
       } catch (_) {
-        return _buildFallback();
+        return _buildFallback(reason: 'Base64 rusak');
       }
     }
 
@@ -63,20 +63,38 @@ class CustomLogoView extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.contain,
-          errorBuilder: (_, _, _) => _buildFallback(),
+          errorBuilder: (_, _, _) => _buildFallback(reason: 'Format file tidak didukung'),
         );
       }
     } catch (_) {}
 
-    return _buildFallback();
+    return _buildFallback(reason: 'Sumber tidak ditemukan');
   }
 
-  Widget _buildFallback() {
-    return fallback ??
-        Icon(
-          Icons.business_rounded,
-          size: size * 0.5,
-          color: Colors.white70,
-        );
+  Widget _buildFallback({String? reason}) {
+    if (fallback != null) return fallback!;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.broken_image_rounded,
+            size: size * 0.45,
+            color: const Color(0xFFEF4444),
+          ),
+          if (size >= 64) ...[
+            const SizedBox(height: 2),
+            Text(
+              reason ?? 'Gagal memuat',
+              style: const TextStyle(fontSize: 8.5, color: Color(0xFFEF4444), fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }

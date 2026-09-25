@@ -35,12 +35,10 @@ class AppLogoBadge extends ConsumerWidget {
         ),
         clipBehavior: Clip.antiAlias,
         padding: EdgeInsets.all(size * 0.16),
-        child: CustomLogoView(
-          source: customLogo,
-          size: size * 0.68,
-          fallback: CustomPaint(
-            size: Size(size, size),
-            painter: _AppLogoPainter(),
+        child: Center(
+          child: CustomLogoView(
+            source: customLogo,
+            size: size * 0.68,
           ),
         ),
       );

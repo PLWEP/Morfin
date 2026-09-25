@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,8 +10,17 @@ import 'features/splash/splash_screen.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_provider.dart';
 
+class _AppHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (cert, host, port) => true;
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = _AppHttpOverrides();
   final prefs = await SharedPreferences.getInstance();
   final storage = LocalStorageService(prefs);
   storage.clearLegacyMockData();
