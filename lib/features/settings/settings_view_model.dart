@@ -7,11 +7,6 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
 
   void dispatch(SettingsAction action) {
     switch (action) {
-      case SettingsToggleOfflineMode(value: final val):
-        value = value.copyWith(
-          isOfflineModeEnabled: val,
-          toastMessage: 'Offline Mode: ${val ? "Enabled" : "Disabled"}',
-        );
       case SettingsToggleEscalationAlerts(value: final val):
         value = value.copyWith(
           isEscalationAlertsEnabled: val,
@@ -19,7 +14,7 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
         );
       case SettingsClearCache():
         value = value.copyWith(
-          cacheSizeText: '0 MB used • Cache cleared',
+          cacheSizeText: '0 KB used • Cache cleared',
           toastMessage: 'Cache cleared successfully',
         );
       case SettingsExportLogs():
@@ -34,10 +29,6 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
       case SettingsChangePassword():
         value = value.copyWith(
           toastMessage: 'Password updated successfully',
-        );
-      case SettingsSyncNow():
-        value = value.copyWith(
-          toastMessage: 'All data synchronized successfully',
         );
       case SettingsDismissToast():
         value = value.copyWith(clearToast: true);

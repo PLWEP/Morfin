@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/providers/user_profile_provider.dart';
 import '../../theme/app_colors.dart';
 import 'change_password_screen.dart';
-import 'components/settings_connectivity_section.dart';
 import 'components/settings_hardware_storage_section.dart';
 import 'components/settings_operations_section.dart';
 import 'components/settings_profile_card.dart';
@@ -98,16 +97,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                       );
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  SettingsConnectivitySection(
-                    isOfflineMode: state.isOfflineModeEnabled,
-                    onOfflineModeChanged: (val) {
-                      _viewModel.dispatch(SettingsToggleOfflineMode(val));
-                    },
-                    onSyncNow: () {
-                      _viewModel.dispatch(const SettingsSyncNow());
                     },
                   ),
                   const SizedBox(height: 18),
