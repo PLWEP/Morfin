@@ -77,7 +77,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Syncing IFS Navigator...',
+            'Syncing Navigator...',
             style: TextStyle(color: colors.outline, fontSize: 13, fontWeight: FontWeight.w500),
           ),
         ],
@@ -92,7 +92,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_rounded, size: 44, color: colors.statusCritical),
+            Icon(Icons.wifi_off_rounded, size: 44, color: colors.statusCritical),
             const SizedBox(height: 12),
             Text(
               'Failed to sync Navigator',

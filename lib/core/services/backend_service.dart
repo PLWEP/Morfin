@@ -1,11 +1,11 @@
 import '../network/api_client.dart';
 import '../network/odata_query.dart';
 
-class ErpCloudService {
-  static final ErpCloudService instance = ErpCloudService._();
+class BackendService {
+  static final BackendService instance = BackendService._();
   final ApiClient _client = ApiClient.instance;
 
-  ErpCloudService._();
+  BackendService._();
 
   Future<List<Map<String, dynamic>>> fetchEntitySet({
     required String projection,

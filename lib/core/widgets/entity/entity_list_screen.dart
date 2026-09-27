@@ -132,7 +132,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.cloud_off_rounded, size: 36, color: colors.statusCritical),
+            Icon(Icons.wifi_off_rounded, size: 36, color: colors.statusCritical),
             const SizedBox(height: 8),
             Text('Failed to sync live data', style: TextStyle(color: colors.onSurface)),
             TextButton(onPressed: _loadLiveRecords, child: const Text('Retry')),

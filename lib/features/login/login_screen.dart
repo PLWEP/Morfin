@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Header Titles
                   Text(
-                    'IFS Cloud Mobile',
+                    'Morfin',
                     style: GoogleFonts.inter(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
@@ -114,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Enterprise Resource & Field Operations',
+                    'Field Operations & Management',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: colors.onSurfaceVariant,
@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Legal Footer
                   Text(
-                    'IFS Cloud™',
+                    'Morfin',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

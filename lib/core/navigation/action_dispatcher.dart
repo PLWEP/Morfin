@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../features/settings/settings_screen.dart';
 import '../metadata/action_metadata.dart';
 import '../metadata/entity_schema_registry.dart';
-import '../services/erp_cloud_service.dart';
+import '../services/backend_service.dart';
 import '../widgets/entity/entity_list_screen.dart';
 
 class AppActionDispatcher {
@@ -37,11 +37,11 @@ class AppActionDispatcher {
     if (schema != null) {
       targetScreen = EntityListScreen(
         schema: schema,
-        fetchRecords: () => ErpCloudService.instance.fetchEntitySet(
+        fetchRecords: () => BackendService.instance.fetchEntitySet(
           projection: schema.projection,
           entitySet: schema.entitySet,
         ),
-        onExecuteAction: (action, data) => ErpCloudService.instance.executeAction(
+        onExecuteAction: (action, data) => BackendService.instance.executeAction(
           projection: schema.projection,
           actionName: action,
           parameters: data,
@@ -62,7 +62,7 @@ class AppActionDispatcher {
       );
     } else {
       final label = fallbackTitle ?? target;
-      _showToast(context, '$label is coming soon in IFS Cloud Mobile');
+      _showToast(context, '$label is coming soon');
     }
   }
 

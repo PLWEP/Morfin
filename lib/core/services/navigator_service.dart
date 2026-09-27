@@ -3,7 +3,7 @@ import '../metadata/action_metadata.dart';
 import '../metadata/menu_metadata.dart';
 import '../metadata/metadata_service.dart';
 import '../network/api_config.dart';
-import 'erp_cloud_service.dart';
+import 'backend_service.dart';
 
 class NavigatorService {
   static final NavigatorService instance = NavigatorService._();
@@ -25,7 +25,7 @@ class NavigatorService {
     }
 
     try {
-      final nodes = await ErpCloudService.instance.fetchNavigatorNodes();
+      final nodes = await BackendService.instance.fetchNavigatorNodes();
       if (nodes.isEmpty) {
         return _cachedMenu ?? AppMetadataService.defaultMenu;
       }
@@ -119,7 +119,7 @@ class NavigatorService {
       }
     }
 
-    return MenuMetadata(version: 'live-ifs', groups: groups);
+    return MenuMetadata(version: 'live', groups: groups);
   }
 
   String _resolveIcon(String label, String? projection) {

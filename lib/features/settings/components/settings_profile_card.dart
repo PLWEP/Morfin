@@ -41,8 +41,8 @@ class SettingsProfileCard extends ConsumerWidget {
   }
 
   Widget _buildContent(AppPalette colors, UserProfile? profile, {bool isLoading = false}) {
-    final name = isLoading ? 'Loading profile...' : (profile?.displayName ?? 'IFS User');
-    final subtitle = profile?.jobTitle ?? (profile?.personId != null ? 'Person ID: ${profile?.personId}' : 'IFS Cloud User');
+    final name = isLoading ? 'Loading profile...' : (profile?.displayName ?? 'Standard User');
+    final subtitle = profile?.jobTitle ?? (profile?.personId != null ? 'Person ID: ${profile?.personId}' : 'Active User');
     final initials = profile?.initials ?? 'U';
 
     return Row(

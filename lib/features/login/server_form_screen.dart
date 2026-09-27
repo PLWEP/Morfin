@@ -113,7 +113,7 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
                 ServerFormField(
                   label: 'CUSTOM HOST HEADER',
                   controller: _customHostCtrl,
-                  hint: 'Optional (e.g. isidemocloud.ifssi.co.id)',
+                  hint: 'Optional (e.g. api.example.com)',
                   icon: Icons.dns_outlined,
                   isMono: true,
                 ),
@@ -121,7 +121,7 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
                 ServerFormField(
                   label: 'REALM',
                   controller: _realmCtrl,
-                  hint: 'ifs',
+                  hint: 'e.g. main or default',
                   icon: Icons.security_rounded,
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter realm' : null,
                 ),
@@ -138,7 +138,7 @@ class _ServerFormScreenState extends State<ServerFormScreen> {
                 ServerFormField(
                   label: 'CLIENT SECRET',
                   controller: _clientSecretCtrl,
-                  hint: 'Optional (e.g. for IFS_connect)',
+                  hint: 'Optional (OAuth client secret)',
                   icon: Icons.key_rounded,
                   isMono: true,
                   obscure: _obscureSecret,
