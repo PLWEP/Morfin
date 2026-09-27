@@ -8,11 +8,15 @@ import 'menu_item_tile.dart';
 class MenuSectionCard extends StatelessWidget {
   final MenuGroupMetadata group;
   final ValueChanged<MenuItemMetadata>? onItemTap;
+  final Set<String> favoriteIds;
+  final ValueChanged<MenuItemMetadata>? onToggleFavorite;
 
   const MenuSectionCard({
     super.key,
     required this.group,
     this.onItemTap,
+    this.favoriteIds = const {},
+    this.onToggleFavorite,
   });
 
   @override
@@ -71,6 +75,9 @@ class MenuSectionCard extends StatelessWidget {
             return MenuItemTile(
               item: item,
               onTap: onItemTap != null ? () => onItemTap!(item) : null,
+              isFavorite: favoriteIds.contains(item.id),
+              onToggleFavorite:
+                  onToggleFavorite != null ? () => onToggleFavorite!(item) : null,
             );
           },
         ),

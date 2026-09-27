@@ -8,8 +8,16 @@ import '../../utils/icon_resolver.dart';
 class MenuItemTile extends StatelessWidget {
   final MenuItemMetadata item;
   final VoidCallback? onTap;
+  final bool isFavorite;
+  final VoidCallback? onToggleFavorite;
 
-  const MenuItemTile({super.key, required this.item, this.onTap});
+  const MenuItemTile({
+    super.key,
+    required this.item,
+    this.onTap,
+    this.isFavorite = false,
+    this.onToggleFavorite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +28,7 @@ class MenuItemTile extends StatelessWidget {
     return InkWell(
       onTap: onTap ??
           () => AppActionDispatcher.dispatch(context, item.action, fallbackTitle: item.title),
+      onLongPress: onToggleFavorite,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -98,6 +107,19 @@ class MenuItemTile extends StatelessWidget {
                     color: badgeFg,
                   ),
                 ),
+              ),
+            ],
+            if (onToggleFavorite != null) ...[
+              const SizedBox(width: 4),
+              IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+                  size: 19,
+                  color: isFavorite ? colors.statusWarning : colors.outlineVariant,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                onPressed: onToggleFavorite,
               ),
             ],
             const SizedBox(width: 4),

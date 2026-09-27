@@ -20,8 +20,19 @@ class EntityCard extends StatelessWidget {
     final colors = AppColors.of(context);
     final cardMeta = schema.listCard;
 
-    final code = record[cardMeta.codeField]?.toString() ?? '';
-    final title = record[cardMeta.primaryField]?.toString() ?? '';
+    final code = (record[cardMeta.codeField] ??
+            record['OrderNo'] ??
+            record['PartNo'] ??
+            record['Id'] ??
+            (record.isNotEmpty ? record.values.first : ''))
+        .toString();
+    final title = (record[cardMeta.primaryField] ??
+            record['Description'] ??
+            record['Title'] ??
+            record['Name'] ??
+            record['ErrDescr'] ??
+            (record.length > 1 ? record.values.elementAt(1) : code))
+        .toString();
     final secondary = cardMeta.secondaryField != null ? record[cardMeta.secondaryField]?.toString() : null;
     final tertiary = cardMeta.tertiaryField != null ? record[cardMeta.tertiaryField]?.toString() : null;
     final status = cardMeta.statusField != null ? record[cardMeta.statusField]?.toString() : null;

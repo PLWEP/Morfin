@@ -122,4 +122,27 @@ class EntitySchemaRegistry {
         return null;
     }
   }
+
+  static EntitySchemaMetadata createDynamic(String projection, {String? title}) {
+    String entitySet;
+    if (projection.endsWith('Handling')) {
+      entitySet = '${projection.substring(0, projection.length - 8)}Set';
+    } else {
+      entitySet = '${projection}Set';
+    }
+
+    return EntitySchemaMetadata(
+      entityName: projection,
+      title: title ?? projection,
+      icon: 'layers',
+      projection: projection,
+      entitySet: entitySet,
+      fields: const [],
+      listCard: const EntityListCardMetadata(
+        codeField: 'OrderNo',
+        primaryField: 'Description',
+        secondaryField: 'Status',
+      ),
+    );
+  }
 }

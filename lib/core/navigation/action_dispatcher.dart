@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../features/menu/sub_menu_screen.dart';
 import '../../features/settings/settings_screen.dart';
+import '../../features/shell/main_shell_screen.dart';
 import '../metadata/action_metadata.dart';
 import '../metadata/entity_schema_registry.dart';
 import '../services/backend_service.dart';
@@ -33,26 +35,34 @@ class AppActionDispatcher {
   ) {
     Widget? targetScreen;
 
-    final schema = EntitySchemaRegistry.findByTarget(target);
-    if (schema != null) {
-      targetScreen = EntityListScreen(
-        schema: schema,
-        fetchRecords: () => BackendService.instance.fetchEntitySet(
-          projection: schema.projection,
-          entitySet: schema.entitySet,
-        ),
-        onExecuteAction: (action, data) => BackendService.instance.executeAction(
-          projection: schema.projection,
-          actionName: action,
-          parameters: data,
-        ),
-      );
+    final lower = target.toLowerCase();
+    if (lower == '/submenu') {
+      final nodeId = params['nodeId'] as int? ?? 0;
+      final title = (params['title'] as String?) ?? fallbackTitle ?? 'Module';
+      targetScreen = SubMenuScreen(parentId: nodeId, title: title);
+    } else if (lower == '/lobby' || lower == 'lobby') {
+      targetScreen = const MainShellScreen(initialIndex: 0);
+    } else if (lower == '/settings' || lower == 'settings') {
+      targetScreen = const SettingsScreen();
     } else {
-      switch (target.toLowerCase()) {
-        case '/settings':
-        case 'settings':
-          targetScreen = const SettingsScreen();
-          break;
+      final schema = EntitySchemaRegistry.findByTarget(target) ??
+          (_isValidProjection(target)
+              ? EntitySchemaRegistry.createDynamic(target, title: fallbackTitle)
+              : null);
+
+      if (schema != null) {
+        targetScreen = EntityListScreen(
+          schema: schema,
+          fetchRecords: () => BackendService.instance.fetchEntitySet(
+            projection: schema.projection,
+            entitySet: schema.entitySet,
+          ),
+          onExecuteAction: (action, data) => BackendService.instance.executeAction(
+            projection: schema.projection,
+            actionName: action,
+            parameters: data,
+          ),
+        );
       }
     }
 
@@ -64,6 +74,13 @@ class AppActionDispatcher {
       final label = fallbackTitle ?? target;
       _showToast(context, '$label is coming soon');
     }
+  }
+
+  static bool _isValidProjection(String target) {
+    if (target.startsWith('/') || target.contains(' ') || target.length < 3) {
+      return false;
+    }
+    return RegExp(r'^[A-Za-z0-9_]+$').hasMatch(target);
   }
 
   static void _handleDialog(BuildContext context, String target, Map<String, dynamic> params) {
