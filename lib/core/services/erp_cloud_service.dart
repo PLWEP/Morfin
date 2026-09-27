@@ -55,4 +55,13 @@ class ErpCloudService {
   }) async {
     return _client.callFunction(projection, functionName, query: queryParameters);
   }
+
+  Future<List<Map<String, dynamic>>> fetchNavigatorNodes({String scopeId = 'global'}) async {
+    final res = await executeFunction(
+      projection: 'ClientNavigator',
+      functionName: "LoadNavigatorMain(ScopeId='$scopeId')",
+    );
+    final val = res['value'];
+    return (val is List) ? val.map((i) => Map<String, dynamic>.from(i as Map)).toList() : [];
+  }
 }

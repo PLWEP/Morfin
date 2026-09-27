@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/api_config.dart';
+import '../../core/services/navigator_service.dart';
 import '../../core/storage/local_storage_service.dart';
 import 'login_contract.dart';
 import 'models/server_config.dart';
@@ -49,6 +50,7 @@ class LoginViewModel extends ValueNotifier<LoginState> {
     switch (action) {
       case LoginSelectServerAction(:final server):
         ApiClient.instance.logout();
+        NavigatorService.instance.clearCache();
         value = value.copyWith(selectedServer: server);
         _persist(value.servers, server);
 
