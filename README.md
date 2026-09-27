@@ -40,9 +40,9 @@ Any engineer or AI agent contributing to this codebase must adhere strictly to t
 ## 2. Knowledge Graph & Architecture Hubs (Graphify)
 
 The codebase is indexed via **Graphify AST extraction** to provide full topological traceability:
-- **Total Nodes**: 811
-- **Total Edges**: 1,155
-- **Communities**: 56
+- **Total Nodes**: 803
+- **Total Edges**: 1,077
+- **Communities**: 70
 - **Visual Artifacts**:
   - Interactive D3 Component Hierarchy: `graphify-out/GRAPH_TREE.html`
   - Interactive Mermaid Call-Flow & Sequence: `graphify-out/morfin-callflow.html`
@@ -51,15 +51,15 @@ The codebase is indexed via **Graphify AST extraction** to provide full topologi
 | Rank | Architectural Node | Type | Connected Edges | Role |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | `LoginAction` | Sealed Class | 10 | Action contracts driving authentication and server selection |
-| 2 | `SettingsAction` | Sealed Class | 9 | Global theme and application configuration events |
-| 3 | `LobbyElementMetadata` | Contract | 7 | Dynamic layout and data definition for Lobby dashboard tiles |
-| 4 | `ServerConfig` | Data Model | 7 | OData endpoint credentials, URLs, and realm definitions |
-| 5 | `LoginState` | State Model | 6 | Reactive authentication and active server selection state |
-| 6 | `EntitySchemaMetadata` | Contract | 5 | SDUI schema definition for dynamic entity sets, cards, and actions |
-| 7 | `localStorageServiceProvider` | Provider | 5 | Persists user preferences and server profiles |
-| 8 | `NotificationsAction` | Sealed Class | 5 | System alert and push event contracts |
-| 9 | `themeModeProvider` | Provider | 5 | Reactive theme mode state provider |
-| 10 | `ActionMetadata` | Contract | 4 | Standardized contract for UI actions and navigation triggers |
+| 2 | `ServerConfig` | Data Model | 7 | OData endpoint credentials, URLs, and realm definitions |
+| 3 | `LobbyElementMetadata` | Contract | 6 | Dynamic layout and data definition for Lobby dashboard tiles |
+| 4 | `LoginState` | State Model | 6 | Reactive authentication and active server selection state |
+| 5 | `userProfileProvider` | Provider | 5 | Live user profile data provider from FrameworkServices |
+| 6 | `localStorageServiceProvider` | Provider | 5 | Persists user preferences and server profiles |
+| 7 | `SettingsAction` | Sealed Class | 5 | Global theme and application configuration events |
+| 8 | `ActionMetadata` | Contract | 4 | Standardized contract for UI actions and navigation triggers |
+| 9 | `EntitySchemaMetadata` | Contract | 4 | SDUI schema definition for dynamic entity sets, cards, and actions |
+| 10 | `ThemeModeNotifier` | Notifier / State | 4 | Reactive theme mode state management |
 
 ---
 
@@ -78,11 +78,16 @@ lib/
 │   ├── navigation/          # Dynamic Navigation & Route Handlers
 │   │   └── action_dispatcher.dart      # Schema-driven action and route dispatcher
 │   ├── network/             # Dio HTTP Client & OData v4 Integration
+│   │   ├── activity_log_interceptor.dart # Live request/response telemetry recorder
 │   │   ├── api_client.dart             # HTTP verbs, OData projection calls, OAuth
 │   │   ├── api_config.dart             # Active server target & token storage
 │   │   ├── auth_interceptor.dart       # Token injection & transparent 401 refresh
 │   │   └── odata_query.dart            # Query string builder ($filter, $select, $top)
-│   ├── services/            # Generic Domain Projection Gateways
+│   ├── providers/           # Shared Riverpod Global State Providers
+│   │   └── user_profile_provider.dart  # Live FrameworkServices user info provider
+│   ├── services/            # Generic Domain Projection & Utility Gateways
+│   │   ├── activity_log_service.dart   # In-memory diagnostics logger & exporter
+│   │   ├── cache_manager_service.dart  # Cache directory size calculator & purger
 │   │   └── erp_cloud_service.dart      # OData fetchEntitySet, create, update, action
 │   ├── storage/             # Device Local Storage
 │   │   └── local_storage_service.dart  # SharedPreferences for servers & theme
@@ -102,9 +107,11 @@ lib/
 │   │   └── server_form_screen.dart
 │   ├── lobby/               # Dynamic Dashboard Screens (LobbyScreen)
 │   ├── menu/                # Dynamic Navigator Menus (MenuScreen)
-│   ├── shell/               # Main Navigation Bar & App Shell (MainShellScreen)
-│   ├── notifications/       # System Alerts & Activity Messages
-│   └── settings/            # User Preferences & Theme Toggle
+│   ├── shell/               # 3-Tab Main Navigation Bar & Shell (MainShellScreen)
+│   ├── splash/              # Initialization & Session Recovery (SplashScreen)
+│   └── settings/            # User Preferences, Theme, Diagnostics, Cache Management
+│       ├── components/      # ActivityLogsSheet, ProfileSectionCard, StorageSectionCard
+│       └── settings_screen.dart
 └── theme/                   # Material 3 Dynamic Palette & Tokens
 ```
 
