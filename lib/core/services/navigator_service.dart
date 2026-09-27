@@ -112,7 +112,7 @@ class NavigatorService {
 
       return MenuItemMetadata(
         id: childId.toString(),
-        code: client ?? projection ?? 'NAV',
+        code: (client != null && client.length <= 6 && !client.contains(' ')) ? client : '',
         title: childLabel,
         subtitle: projection != null ? 'Projection: $projection' : (client ?? 'Module'),
         icon: _resolveIcon(childLabel, projection),
@@ -127,6 +127,7 @@ class NavigatorService {
             'title': childLabel,
             'hasChildren': subChildrenCount > 0,
             'projection': projection,
+            'client': client,
           },
         ),
       );

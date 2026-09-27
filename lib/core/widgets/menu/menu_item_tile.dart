@@ -55,7 +55,7 @@ class MenuItemTile extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Flexible(
+                      Expanded(
                         child: Text(
                           item.title,
                           maxLines: 1,
@@ -67,15 +67,24 @@ class MenuItemTile extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        item.code,
-                        style: GoogleFonts.robotoMono(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: colors.outline,
+                      if (_isShortCode(item.code, item.title)) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: colors.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            item.code,
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w500,
+                              color: colors.outline,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 3),
@@ -91,43 +100,53 @@ class MenuItemTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (item.badgeText != null && item.badgeText!.isNotEmpty) ...[
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                decoration: BoxDecoration(
-                  color: badgeBg,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  item.badgeText!,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: badgeFg,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (item.badgeText != null && item.badgeText!.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: badgeBg,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      item.badgeText!,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: badgeFg,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
-            if (onToggleFavorite != null) ...[
-              const SizedBox(width: 4),
-              IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
-                  size: 19,
-                  color: isFavorite ? colors.statusWarning : colors.outlineVariant,
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                onPressed: onToggleFavorite,
-              ),
-            ],
-            const SizedBox(width: 4),
-            Icon(Icons.chevron_right_rounded, size: 18, color: colors.outlineVariant),
+                ],
+                if (onToggleFavorite != null) ...[
+                  const SizedBox(width: 2),
+                  IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+                      size: 19,
+                      color: isFavorite ? colors.statusWarning : colors.outlineVariant,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
+                    onPressed: onToggleFavorite,
+                  ),
+                ],
+                const SizedBox(width: 2),
+                Icon(Icons.chevron_right_rounded, size: 18, color: colors.outlineVariant),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  bool _isShortCode(String code, String title) {
+    if (code.isEmpty || code.length > 7 || code == title) return false;
+    return !code.contains(' ') && !code.contains('/');
   }
 
   (Color, Color) _resolveBadgeColors(String type, AppPalette colors) {

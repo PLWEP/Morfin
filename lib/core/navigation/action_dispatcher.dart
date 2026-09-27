@@ -6,6 +6,7 @@ import '../metadata/action_metadata.dart';
 import '../metadata/entity_schema_registry.dart';
 import '../services/backend_service.dart';
 import '../widgets/entity/entity_list_screen.dart';
+import '../widgets/menu/module_info_sheet.dart';
 
 class AppActionDispatcher {
   const AppActionDispatcher._();
@@ -34,8 +35,8 @@ class AppActionDispatcher {
     String? fallbackTitle,
   ) {
     Widget? targetScreen;
-
     final lower = target.toLowerCase();
+
     if (lower == '/submenu') {
       final nodeId = params['nodeId'] as int? ?? 0;
       final title = (params['title'] as String?) ?? fallbackTitle ?? 'Module';
@@ -45,11 +46,7 @@ class AppActionDispatcher {
     } else if (lower == '/settings' || lower == 'settings') {
       targetScreen = const SettingsScreen();
     } else {
-      final schema = EntitySchemaRegistry.findByTarget(target) ??
-          (_isValidProjection(target)
-              ? EntitySchemaRegistry.createDynamic(target, title: fallbackTitle)
-              : null);
-
+      final schema = EntitySchemaRegistry.findByTarget(target);
       if (schema != null) {
         targetScreen = EntityListScreen(
           schema: schema,
@@ -67,20 +64,15 @@ class AppActionDispatcher {
     }
 
     if (targetScreen != null) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => targetScreen!),
-      );
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => targetScreen!));
     } else {
-      final label = fallbackTitle ?? target;
-      _showToast(context, '$label is coming soon');
+      ModuleInfoSheet.show(
+        context,
+        title: (params['title'] as String?) ?? fallbackTitle ?? target,
+        projection: (params['projection'] as String?) ?? target,
+        client: params['client'] as String?,
+      );
     }
-  }
-
-  static bool _isValidProjection(String target) {
-    if (target.startsWith('/') || target.contains(' ') || target.length < 3) {
-      return false;
-    }
-    return RegExp(r'^[A-Za-z0-9_]+$').hasMatch(target);
   }
 
   static void _handleDialog(BuildContext context, String target, Map<String, dynamic> params) {
@@ -89,23 +81,14 @@ class AppActionDispatcher {
       builder: (ctx) => AlertDialog(
         title: Text(target),
         content: Text(params.isNotEmpty ? params.toString() : 'Dialog content'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Close'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Close'))],
       ),
     );
   }
 
   static void _showToast(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2), behavior: SnackBarBehavior.floating),
     );
   }
 }
