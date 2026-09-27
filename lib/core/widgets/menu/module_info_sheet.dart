@@ -9,6 +9,7 @@ class ModuleInfoSheet {
     BuildContext context, {
     required String title,
     required String projection,
+    String? entitySet,
     String? client,
   }) {
     final colors = AppColors.of(context);
@@ -83,6 +84,10 @@ class ModuleInfoSheet {
                 child: Column(
                   children: [
                     _infoRow('Projection', projection, colors),
+                    if (entitySet != null && entitySet.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      _infoRow('EntitySet', entitySet, colors),
+                    ],
                     if (client != null && client.isNotEmpty && client != projection) ...[
                       const SizedBox(height: 6),
                       _infoRow('Client', client, colors),

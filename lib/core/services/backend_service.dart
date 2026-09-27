@@ -56,12 +56,34 @@ class BackendService {
     return _client.callFunction(projection, functionName, query: queryParameters);
   }
 
-  Future<List<Map<String, dynamic>>> fetchNavigatorNodes({String scopeId = 'global'}) async {
-    final res = await executeFunction(
-      projection: 'ClientNavigator',
-      functionName: "LoadNavigatorMain(ScopeId='$scopeId')",
+  Future<List<Map<String, dynamic>>> fetchNavigatorNodes({int? parentId}) async {
+    const projection = 'MobileAppNavigator';
+    const entitySet = 'MobileNavItemSet';
+    const select = [
+      'Id',
+      'ParentId',
+      'ScopeId',
+      'SortOrder',
+      'CleanLabel',
+      'Projection',
+      'EntitySet',
+      'DefaultFilter',
+      'Icon',
+      'EntryType',
+      'PageType',
+      'Client',
+    ];
+
+    final query = ODataQuery(
+      filter: parentId != null ? 'ParentId eq $parentId' : null,
+      select: select,
+      orderby: 'SortOrder,CleanLabel',
     );
-    final val = res['value'];
-    return (val is List) ? val.map((i) => Map<String, dynamic>.from(i as Map)).toList() : [];
+
+    return fetchEntitySet(
+      projection: projection,
+      entitySet: entitySet,
+      query: query,
+    );
   }
 }

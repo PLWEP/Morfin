@@ -22,12 +22,27 @@ class SubMenuScreen extends StatefulWidget {
 
 class _SubMenuScreenState extends State<SubMenuScreen> {
   String _searchQuery = '';
-  late List<MenuItemMetadata> _items;
+  List<MenuItemMetadata> _items = const [];
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _items = NavigatorService.instance.getChildrenOfNode(widget.parentId);
+    if (_items.isEmpty) {
+      _loadOnDemand();
+    }
+  }
+
+  Future<void> _loadOnDemand() async {
+    setState(() => _isLoading = true);
+    final live = await NavigatorService.instance.fetchChildrenOfNode(widget.parentId);
+    if (mounted) {
+      setState(() {
+        _items = live;
+        _isLoading = false;
+      });
+    }
   }
 
   List<MenuItemMetadata> get _filteredItems {
@@ -67,7 +82,14 @@ class _SubMenuScreenState extends State<SubMenuScreen> {
                 onQueryChanged: (query) => setState(() => _searchQuery = query),
               ),
               const SizedBox(height: 16),
-              if (displayed.isEmpty)
+              if (_isLoading)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Center(
+                    child: CircularProgressIndicator(color: colors.primary, strokeWidth: 2.5),
+                  ),
+                )
+              else if (displayed.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Center(

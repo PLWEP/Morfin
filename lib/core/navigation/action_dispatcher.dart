@@ -70,6 +70,7 @@ class AppActionDispatcher {
         context,
         title: (params['title'] as String?) ?? fallbackTitle ?? target,
         projection: (params['projection'] as String?) ?? target,
+        entitySet: params['entitySet'] as String?,
         client: params['client'] as String?,
       );
     }
