@@ -10,7 +10,7 @@ class NavigatorService {
   NavigatorService._();
 
   MenuMetadata? _cachedMenu;
-  Map<int, List<Map<String, dynamic>>> _childrenMap = {};
+  Map<String, List<Map<String, dynamic>>> _childrenMap = {};
 
   MenuMetadata? get cachedMenu => _cachedMenu;
 
@@ -49,26 +49,26 @@ class NavigatorService {
   MenuMetadata _transformNodesToMenu(List<Map<String, dynamic>> nodes) {
     _childrenMap = {};
     for (final node in nodes) {
-      final pid = (node['ParentId'] as num?)?.toInt() ?? 0;
+      final pid = (node['ParentId'] ?? '').toString();
       _childrenMap.putIfAbsent(pid, () => []).add(node);
     }
 
-    final rootNodes = _childrenMap[0] ?? [];
+    final rootNodes = _childrenMap[''] ??
+        _childrenMap['null'] ??
+        _childrenMap['0'] ??
+        nodes.where((n) => n['ParentId'] == null || n['ActionType'] == 'GROUP').toList();
     final groups = <MenuGroupMetadata>[];
 
     for (final root in rootNodes) {
-      final rootId = (root['Id'] as num?)?.toInt() ?? 0;
-      final rootLabel = (root['CleanLabel'] as String?)?.trim() ??
-          (root['Label'] as String?)?.trim() ??
-          (root['Name'] as String?) ??
-          'Module';
-      final rootIcon = root['Icon'] as String?;
+      final rootId = (root['NodeId'] ?? root['Id'] ?? '').toString();
+      final rootLabel = (root['Label'] ?? root['CleanLabel'] ?? 'Module').toString().trim();
+      final rootIcon = root['Icon']?.toString();
       final items = getChildrenOfNode(rootId);
 
       if (items.isNotEmpty) {
         groups.add(
           MenuGroupMetadata(
-            id: rootId.toString(),
+            id: rootId,
             title: rootLabel,
             icon: rootIcon ?? _resolveIcon(rootLabel, null),
             items: items,
@@ -80,39 +80,22 @@ class NavigatorService {
     return MenuMetadata(version: 'live', groups: groups);
   }
 
-  Future<List<MenuItemMetadata>> fetchChildrenOfNode(int parentId) async {
-    if (_childrenMap.containsKey(parentId) && _childrenMap[parentId]!.isNotEmpty) {
-      return getChildrenOfNode(parentId);
-    }
-    try {
-      final children = await BackendService.instance.fetchNavigatorNodes(parentId: parentId);
-      if (children.isNotEmpty) {
-        _childrenMap[parentId] = children;
-      }
-      return getChildrenOfNode(parentId);
-    } catch (e) {
-      debugPrint('NavigatorService.fetchChildrenOfNode error: $e');
-      return getChildrenOfNode(parentId);
-    }
-  }
-
-  List<MenuItemMetadata> getChildrenOfNode(int parentId) {
-    final children = _childrenMap[parentId] ?? [];
+  List<MenuItemMetadata> getChildrenOfNode(dynamic parentId) {
+    final key = (parentId ?? '').toString();
+    final children = _childrenMap[key] ?? [];
     return children.map((child) {
-      final childId = (child['Id'] as num?)?.toInt() ?? 0;
-      final childLabel = (child['CleanLabel'] as String?)?.trim() ??
-          (child['Label'] as String?)?.trim() ??
-          (child['Name'] as String?) ??
-          'Item';
-      final projection = child['Projection'] as String?;
-      final entitySet = child['EntitySet'] as String?;
+      final childId = (child['NodeId'] ?? child['Id'] ?? '').toString();
+      final childLabel = (child['Label'] ?? child['CleanLabel'] ?? 'Item').toString().trim();
+      final projection = child['TargetProjection'] as String? ?? child['Projection'] as String?;
+      final entitySet = child['TargetEntitySet'] as String? ?? child['EntitySet'] as String?;
+      final actionType = (child['ActionType'] as String?)?.toUpperCase();
       final client = child['Client'] as String?;
       final pageType = child['PageType'] as String?;
-      final entryType = (child['EntryType'] as String?)?.toUpperCase();
       final icon = child['Icon'] as String?;
-      final subChildrenCount = _childrenMap[childId]?.length ?? 0;
-      final isMenu = entryType == 'MENU' || subChildrenCount > 0;
-      final isLobby = entryType == 'LOBBY' || pageType == '/Lobby';
+      final defaultFilter = child['DefaultFilter'] as String?;
+      final childCount = (child['ChildCount'] as num?)?.toInt() ?? 0;
+      final isGroup = actionType == 'GROUP' || childCount > 0;
+      final isLobby = actionType == 'LOBBY' || pageType == '/Lobby';
 
       String? badgeText;
       String badgeType = 'none';
@@ -120,10 +103,10 @@ class NavigatorService {
       if (isLobby) {
         badgeText = 'Lobby';
         badgeType = 'primary';
-      } else if (subChildrenCount > 0) {
-        badgeText = '$subChildrenCount pages';
+      } else if (childCount > 0) {
+        badgeText = '$childCount pages';
         badgeType = 'info';
-      } else if (isMenu) {
+      } else if (isGroup) {
         badgeText = 'Menu';
         badgeType = 'info';
       } else if (projection != null && projection.isNotEmpty) {
@@ -133,15 +116,15 @@ class NavigatorService {
 
       final target = isLobby
           ? '/lobby'
-          : (isMenu ? '/submenu' : (projection ?? client ?? childLabel));
+          : (isGroup ? '/submenu' : (projection ?? client ?? childId));
 
       return MenuItemMetadata(
-        id: childId.toString(),
-        code: (client != null && client.length <= 6 && !client.contains(' ')) ? client : '',
+        id: childId,
+        code: '',
         title: childLabel,
         subtitle: projection != null ? 'Projection: $projection' : (client ?? 'Module'),
         icon: icon ?? _resolveIcon(childLabel, projection),
-        category: parentId.toString(),
+        category: key,
         badgeText: badgeText,
         badgeType: badgeType,
         action: ActionMetadata(
@@ -150,9 +133,10 @@ class NavigatorService {
           params: {
             'nodeId': childId,
             'title': childLabel,
-            'hasChildren': isMenu,
+            'hasChildren': isGroup,
             'projection': projection,
             'entitySet': entitySet,
+            'defaultFilter': defaultFilter,
             'client': client,
           },
         ),

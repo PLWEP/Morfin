@@ -4,6 +4,7 @@ import '../../features/settings/settings_screen.dart';
 import '../../features/shell/main_shell_screen.dart';
 import '../metadata/action_metadata.dart';
 import '../metadata/entity_schema_registry.dart';
+import '../network/odata_query.dart';
 import '../services/backend_service.dart';
 import '../widgets/entity/entity_list_screen.dart';
 import '../widgets/menu/module_info_sheet.dart';
@@ -38,7 +39,7 @@ class AppActionDispatcher {
     final lower = target.toLowerCase();
 
     if (lower == '/submenu') {
-      final nodeId = params['nodeId'] as int? ?? 0;
+      final nodeId = params['nodeId'] ?? '0';
       final title = (params['title'] as String?) ?? fallbackTitle ?? 'Module';
       targetScreen = SubMenuScreen(parentId: nodeId, title: title);
     } else if (lower == '/lobby' || lower == 'lobby') {
@@ -48,11 +49,15 @@ class AppActionDispatcher {
     } else {
       final schema = EntitySchemaRegistry.findByTarget(target);
       if (schema != null) {
+        final defaultFilter = params['defaultFilter'] as String?;
         targetScreen = EntityListScreen(
           schema: schema,
           fetchRecords: () => BackendService.instance.fetchEntitySet(
             projection: schema.projection,
             entitySet: schema.entitySet,
+            query: defaultFilter != null && defaultFilter.isNotEmpty
+                ? ODataQuery(filter: defaultFilter)
+                : null,
           ),
           onExecuteAction: (action, data) => BackendService.instance.executeAction(
             projection: schema.projection,
