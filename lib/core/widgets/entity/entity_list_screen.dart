@@ -4,20 +4,18 @@ import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 import 'entity_action_sheet.dart';
 import 'entity_card.dart';
-import 'entity_detail_screen.dart';
+import 'entity_item_handler.dart';
 
 class EntityListScreen extends StatefulWidget {
   final EntitySchemaMetadata schema;
   final Future<List<Map<String, dynamic>>> Function({int skip, int top}) fetchRecords;
   final Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
   final int pageSize;
+  final String? itemClickAction, itemClickTarget, itemClickFields;
 
   const EntityListScreen({
-    super.key,
-    required this.schema,
-    required this.fetchRecords,
-    this.onExecuteAction,
-    this.pageSize = 20,
+    super.key, required this.schema, required this.fetchRecords, this.onExecuteAction,
+    this.pageSize = 20, this.itemClickAction, this.itemClickTarget, this.itemClickFields,
   });
 
   @override
@@ -80,12 +78,22 @@ class _EntityListScreenState extends State<EntityListScreen> {
     return _records.where((r) => r.values.any((v) => v != null && v.toString().toLowerCase().contains(q))).toList();
   }
 
+  void _handleItemTap(Map<String, dynamic> record) {
+    EntityItemHandler.handleTap(
+      context,
+      schema: widget.schema,
+      record: record,
+      itemClickAction: widget.itemClickAction,
+      itemClickTarget: widget.itemClickTarget,
+      itemClickFields: widget.itemClickFields,
+      onExecuteAction: widget.onExecuteAction,
+      onRefresh: _loadLiveRecords,
+    );
+  }
+
   void _openCreateSheet(EntityActionMetadata action) {
     EntityActionSheet.show(
-      context,
-      title: action.label,
-      actionLabel: 'Save',
-      fields: action.formFields,
+      context, title: action.label, actionLabel: 'Save', fields: action.formFields,
       onSubmit: (values) async {
         if (widget.onExecuteAction != null) {
           await widget.onExecuteAction!(action.name, values);
@@ -104,8 +112,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
     return Scaffold(
       backgroundColor: colors.surfaceDeep,
       appBar: AppBar(
-        backgroundColor: colors.surfaceCard,
-        elevation: 0,
+        backgroundColor: colors.surfaceCard, elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_rounded, size: 20), onPressed: () => Navigator.of(context).pop()),
         title: Text(widget.schema.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface)),
         actions: [IconButton(icon: const Icon(Icons.refresh_rounded, size: 20), onPressed: _isLoading ? null : _loadLiveRecords)],
@@ -113,8 +120,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
       floatingActionButton: (createAction != null && widget.onExecuteAction != null)
           ? FloatingActionButton.extended(
               onPressed: () => _openCreateSheet(createAction),
-              backgroundColor: colors.primary,
-              foregroundColor: colors.surfaceDeep,
+              backgroundColor: colors.primary, foregroundColor: colors.surfaceDeep,
               icon: const Icon(Icons.add_rounded, size: 18),
               label: Text(createAction.label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
             )
@@ -131,8 +137,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
                 hintText: 'Search ${widget.schema.title}...',
                 hintStyle: GoogleFonts.inter(fontSize: 13, color: colors.outline),
                 prefixIcon: Icon(Icons.search_rounded, size: 18, color: colors.outline),
-                filled: true,
-                fillColor: colors.surfaceContainerLow,
+                filled: true, fillColor: colors.surfaceContainerLow,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
               ),
@@ -178,12 +183,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
           return EntityCard(
             schema: widget.schema,
             record: record,
-            onTap: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => EntityDetailScreen(schema: widget.schema, record: record, onExecuteAction: widget.onExecuteAction)),
-              );
-              _loadLiveRecords();
-            },
+            onTap: () => _handleItemTap(record),
           );
         },
       ),

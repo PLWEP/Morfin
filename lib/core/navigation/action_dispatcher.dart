@@ -73,6 +73,9 @@ class AppActionDispatcher {
     final entitySet = params['entitySet'] as String?;
     final defaultFilter = params['defaultFilter'] as String?;
     final title = (params['title'] as String?) ?? fallbackTitle ?? projection;
+    final itemClickAction = params['itemClickAction'] as String?;
+    final itemClickTarget = params['itemClickTarget'] as String?;
+    final itemClickFields = params['itemClickFields'] as String?;
 
     final schema = EntitySchemaRegistry.findByTarget(target) ??
         EntitySchemaRegistry.findByTarget(projection) ??
@@ -97,6 +100,9 @@ class AppActionDispatcher {
         MaterialPageRoute(
           builder: (_) => EntityListScreen(
             schema: schema,
+            itemClickAction: itemClickAction,
+            itemClickTarget: itemClickTarget,
+            itemClickFields: itemClickFields,
             fetchRecords: ({int skip = 0, int top = 20}) => BackendService.instance.fetchEntitySet(
               projection: schema.projection,
               entitySet: schema.entitySet,

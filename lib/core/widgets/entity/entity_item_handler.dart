@@ -1,0 +1,76 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import '../../metadata/entity_metadata.dart';
+import '../../services/backend_service.dart';
+import 'entity_action_sheet.dart';
+import 'entity_detail_screen.dart';
+
+class EntityItemHandler {
+  const EntityItemHandler._();
+
+  static Future<void> handleTap(
+    BuildContext context, {
+    required EntitySchemaMetadata schema,
+    required Map<String, dynamic> record,
+    String? itemClickAction,
+    String? itemClickTarget,
+    String? itemClickFields,
+    Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
+    required VoidCallback onRefresh,
+  }) async {
+    final action = itemClickAction?.toUpperCase();
+
+    if (action == 'BOTTOM_SHEET_FORM') {
+      List<EntityFieldMetadata> formFields = [];
+      if (itemClickFields != null && itemClickFields.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(itemClickFields) as List;
+          formFields = decoded
+              .map((f) => EntityFieldMetadata.fromJson(Map<String, dynamic>.from(f as Map)))
+              .toList();
+        } catch (e) {
+          debugPrint('Error parsing itemClickFields JSON: $e');
+        }
+      }
+
+      if (formFields.isEmpty) {
+        formFields = schema.fields.where((f) => !f.isKey).take(3).toList();
+      }
+
+      final targetAction = itemClickTarget ?? 'Submit';
+
+      EntityActionSheet.show(
+        context,
+        title: targetAction,
+        actionLabel: 'Submit',
+        fields: formFields,
+        initialValues: record,
+        onSubmit: (values) async {
+          final payload = <String, dynamic>{...record, ...values};
+          if (onExecuteAction != null) {
+            await onExecuteAction(targetAction, payload);
+          } else {
+            await BackendService.instance.executeAction(
+              projection: schema.projection,
+              actionName: targetAction,
+              parameters: payload,
+            );
+          }
+          onRefresh();
+        },
+      );
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => EntityDetailScreen(
+          schema: schema,
+          record: record,
+          onExecuteAction: onExecuteAction,
+        ),
+      ),
+    );
+    onRefresh();
+  }
+}

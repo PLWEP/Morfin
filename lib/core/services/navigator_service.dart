@@ -97,6 +97,9 @@ class NavigatorService {
       final defaultFilter = child['DefaultFilter'] as String?;
       final childCount = (child['ChildCount'] as num?)?.toInt() ?? 0;
       final isBottomSheet = actionType == 'BOTTOM_SHEET';
+      final itemClickAction = (child['ItemClickAction'] ?? child['item_click_action']) as String?;
+      final itemClickTarget = (child['ItemClickTarget'] ?? child['item_click_target']) as String?;
+      final itemClickFields = (child['ItemClickFields'] ?? child['item_click_fields']) as String?;
 
       String? badgeText;
       String badgeType = 'none';
@@ -129,6 +132,9 @@ class NavigatorService {
             'projection': projection,
             'entitySet': entitySet,
             'defaultFilter': defaultFilter,
+            'itemClickAction': itemClickAction,
+            'itemClickTarget': itemClickTarget,
+            'itemClickFields': itemClickFields,
           },
         ),
       );
