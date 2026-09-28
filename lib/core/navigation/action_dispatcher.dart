@@ -97,12 +97,14 @@ class AppActionDispatcher {
         MaterialPageRoute(
           builder: (_) => EntityListScreen(
             schema: schema,
-            fetchRecords: () => BackendService.instance.fetchEntitySet(
+            fetchRecords: ({int skip = 0, int top = 20}) => BackendService.instance.fetchEntitySet(
               projection: schema.projection,
               entitySet: schema.entitySet,
-              query: defaultFilter != null && defaultFilter.isNotEmpty
-                  ? ODataQuery(filter: defaultFilter)
-                  : null,
+              query: ODataQuery(
+                filter: defaultFilter != null && defaultFilter.isNotEmpty ? defaultFilter : null,
+                top: top,
+                skip: skip,
+              ),
             ),
             onExecuteAction: (action, data) => BackendService.instance.executeAction(
               projection: schema.projection,

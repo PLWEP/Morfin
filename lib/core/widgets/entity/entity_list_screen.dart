@@ -8,14 +8,16 @@ import 'entity_detail_screen.dart';
 
 class EntityListScreen extends StatefulWidget {
   final EntitySchemaMetadata schema;
-  final Future<List<Map<String, dynamic>>> Function() fetchRecords;
+  final Future<List<Map<String, dynamic>>> Function({int skip, int top}) fetchRecords;
   final Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
+  final int pageSize;
 
   const EntityListScreen({
     super.key,
     required this.schema,
     required this.fetchRecords,
     this.onExecuteAction,
+    this.pageSize = 20,
   });
 
   @override
@@ -23,30 +25,52 @@ class EntityListScreen extends StatefulWidget {
 }
 
 class _EntityListScreenState extends State<EntityListScreen> {
+  final ScrollController _scrollController = ScrollController();
   List<Map<String, dynamic>> _records = [];
-  bool _isLoading = true;
+  bool _isLoading = true, _isLoadingMore = false, _hasMore = true;
   String? _error;
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _loadLiveRecords();
   }
 
-  Future<void> _loadLiveRecords() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      _loadMoreRecords();
+    }
+  }
+
+  Future<void> _loadLiveRecords() async {
+    setState(() { _isLoading = true; _error = null; _hasMore = true; });
     try {
-      final data = await widget.fetchRecords();
-      if (mounted) setState(() => _records = data);
+      final data = await widget.fetchRecords(skip: 0, top: widget.pageSize);
+      if (mounted) setState(() { _records = data; _hasMore = data.length >= widget.pageSize; });
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadMoreRecords() async {
+    if (_isLoading || _isLoadingMore || !_hasMore) return;
+    setState(() => _isLoadingMore = true);
+    try {
+      final more = await widget.fetchRecords(skip: _records.length, top: widget.pageSize);
+      if (mounted) setState(() { _records.addAll(more); _hasMore = more.length >= widget.pageSize; });
+    } catch (_) {} finally {
+      if (mounted) setState(() => _isLoadingMore = false);
     }
   }
 
@@ -82,14 +106,9 @@ class _EntityListScreenState extends State<EntityListScreen> {
       appBar: AppBar(
         backgroundColor: colors.surfaceCard,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_rounded, size: 20), onPressed: () => Navigator.of(context).pop()),
         title: Text(widget.schema.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface)),
-        actions: [
-          IconButton(icon: const Icon(Icons.refresh_rounded, size: 20), onPressed: _isLoading ? null : _loadLiveRecords),
-        ],
+        actions: [IconButton(icon: const Icon(Icons.refresh_rounded, size: 20), onPressed: _isLoading ? null : _loadLiveRecords)],
       ),
       floatingActionButton: (createAction != null && widget.onExecuteAction != null)
           ? FloatingActionButton.extended(
@@ -128,17 +147,12 @@ class _EntityListScreenState extends State<EntityListScreen> {
   Widget _buildBody(AppPalette colors, List<Map<String, dynamic>> displayed) {
     if (_isLoading) return Center(child: CircularProgressIndicator(color: colors.primary));
     if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.wifi_off_rounded, size: 36, color: colors.statusCritical),
-            const SizedBox(height: 8),
-            Text('Failed to sync live data', style: TextStyle(color: colors.onSurface)),
-            TextButton(onPressed: _loadLiveRecords, child: const Text('Retry')),
-          ],
-        ),
-      );
+      return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(Icons.wifi_off_rounded, size: 36, color: colors.statusCritical),
+        const SizedBox(height: 8),
+        Text('Failed to sync live data', style: TextStyle(color: colors.onSurface)),
+        TextButton(onPressed: _loadLiveRecords, child: const Text('Retry')),
+      ]));
     }
     if (displayed.isEmpty) return Center(child: Text('No records found', style: TextStyle(color: colors.outline)));
 
@@ -146,26 +160,32 @@ class _EntityListScreenState extends State<EntityListScreen> {
       onRefresh: _loadLiveRecords,
       color: colors.primary,
       child: ListView.separated(
+        controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        itemCount: displayed.length,
+        itemCount: displayed.length + (_isLoadingMore ? 1 : 0),
         separatorBuilder: (_, _) => const SizedBox(height: 10),
-        itemBuilder: (context, index) => EntityCard(
-          schema: widget.schema,
-          record: displayed[index],
-          onTap: () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => EntityDetailScreen(
-                  schema: widget.schema,
-                  record: displayed[index],
-                  onExecuteAction: widget.onExecuteAction,
-                ),
+        itemBuilder: (context, index) {
+          if (index >= displayed.length) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary)),
               ),
             );
-            _loadLiveRecords();
-          },
-        ),
+          }
+          final record = displayed[index];
+          return EntityCard(
+            schema: widget.schema,
+            record: record,
+            onTap: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => EntityDetailScreen(schema: widget.schema, record: record, onExecuteAction: widget.onExecuteAction)),
+              );
+              _loadLiveRecords();
+            },
+          );
+        },
       ),
     );
   }

@@ -101,15 +101,9 @@ class NavigatorService {
       String? badgeText;
       String badgeType = 'none';
 
-      if (isBottomSheet) {
-        badgeText = childCount > 0 ? '$childCount items' : 'Menu';
-        badgeType = 'info';
-      } else if (actionType == 'FORM') {
+      if (actionType == 'FORM') {
         badgeText = 'Form';
         badgeType = 'warning';
-      } else if (projection != null && projection.isNotEmpty) {
-        badgeText = 'Live';
-        badgeType = 'active';
       }
 
       final target = isBottomSheet ? '/bottom_sheet' : (projection ?? childId);
