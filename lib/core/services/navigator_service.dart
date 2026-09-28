@@ -53,10 +53,12 @@ class NavigatorService {
       _childrenMap.putIfAbsent(pid, () => []).add(node);
     }
 
-    final rootNodes = _childrenMap[''] ??
-        _childrenMap['null'] ??
-        _childrenMap['0'] ??
-        nodes.where((n) => n['ParentId'] == null || n['ActionType'] == 'GROUP').toList();
+    final rootNodes = nodes.where((n) {
+      final pid = n['ParentId'];
+      final act = (n['ActionType'] as String?)?.toUpperCase();
+      return pid == null || pid == '' || act == 'PARENT';
+    }).toList();
+
     final groups = <MenuGroupMetadata>[];
 
     for (final root in rootNodes) {
@@ -86,43 +88,37 @@ class NavigatorService {
     return children.map((child) {
       final childId = (child['NodeId'] ?? child['Id'] ?? '').toString();
       final childLabel = (child['Label'] ?? child['CleanLabel'] ?? 'Item').toString().trim();
-      final projection = child['TargetProjection'] as String? ?? child['Projection'] as String?;
-      final entitySet = child['TargetEntitySet'] as String? ?? child['EntitySet'] as String?;
-      final actionType = (child['ActionType'] as String?)?.toUpperCase();
-      final client = child['Client'] as String?;
-      final pageType = child['PageType'] as String?;
+      final targetUrl = child['TargetUrl'] as String?;
+      final (parsedProj, parsedEntitySet) = _parseTargetUrl(targetUrl);
+      final projection = child['TargetProjection'] as String? ?? parsedProj ?? child['Projection'] as String?;
+      final entitySet = child['TargetEntitySet'] as String? ?? parsedEntitySet ?? child['EntitySet'] as String?;
+      final actionType = (child['ActionType'] as String?)?.toUpperCase() ?? 'LIST';
       final icon = child['Icon'] as String?;
       final defaultFilter = child['DefaultFilter'] as String?;
       final childCount = (child['ChildCount'] as num?)?.toInt() ?? 0;
-      final isGroup = actionType == 'GROUP' || childCount > 0;
-      final isLobby = actionType == 'LOBBY' || pageType == '/Lobby';
+      final isBottomSheet = actionType == 'BOTTOM_SHEET';
 
       String? badgeText;
       String badgeType = 'none';
 
-      if (isLobby) {
-        badgeText = 'Lobby';
-        badgeType = 'primary';
-      } else if (childCount > 0) {
-        badgeText = '$childCount pages';
+      if (isBottomSheet) {
+        badgeText = childCount > 0 ? '$childCount items' : 'Menu';
         badgeType = 'info';
-      } else if (isGroup) {
-        badgeText = 'Menu';
-        badgeType = 'info';
+      } else if (actionType == 'FORM') {
+        badgeText = 'Form';
+        badgeType = 'warning';
       } else if (projection != null && projection.isNotEmpty) {
         badgeText = 'Live';
         badgeType = 'active';
       }
 
-      final target = isLobby
-          ? '/lobby'
-          : (isGroup ? '/submenu' : (projection ?? client ?? childId));
+      final target = isBottomSheet ? '/bottom_sheet' : (projection ?? childId);
 
       return MenuItemMetadata(
         id: childId,
         code: '',
         title: childLabel,
-        subtitle: projection != null ? 'Projection: $projection' : (client ?? 'Module'),
+        subtitle: projection != null ? 'Projection: $projection' : 'Module',
         icon: icon ?? _resolveIcon(childLabel, projection),
         category: key,
         badgeText: badgeText,
@@ -133,15 +129,24 @@ class NavigatorService {
           params: {
             'nodeId': childId,
             'title': childLabel,
-            'hasChildren': isGroup,
+            'actionType': actionType,
+            'targetUrl': targetUrl,
+            'hasChildren': isBottomSheet || childCount > 0,
             'projection': projection,
             'entitySet': entitySet,
             'defaultFilter': defaultFilter,
-            'client': client,
           },
         ),
       );
     }).toList();
+  }
+
+  (String?, String?) _parseTargetUrl(String? targetUrl) {
+    if (targetUrl == null || !targetUrl.contains('.svc/')) return (null, null);
+    final parts = targetUrl.split('.svc/');
+    final p = parts[0].replaceAll('/', '').trim();
+    final e = parts[1].split('?')[0].replaceAll('/', '').trim();
+    return (p.isNotEmpty ? p : null, e.isNotEmpty ? e : null);
   }
 
   String _resolveIcon(String label, String? projection) {

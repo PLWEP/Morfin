@@ -3,11 +3,13 @@ import '../../features/menu/sub_menu_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/shell/main_shell_screen.dart';
 import '../metadata/action_metadata.dart';
+import '../metadata/entity_metadata.dart';
 import '../metadata/entity_schema_registry.dart';
 import '../network/odata_query.dart';
 import '../services/backend_service.dart';
 import '../widgets/entity/entity_list_screen.dart';
 import '../widgets/menu/module_info_sheet.dart';
+import '../widgets/menu/sub_menu_bottom_sheet.dart';
 
 class AppActionDispatcher {
   const AppActionDispatcher._();
@@ -35,47 +37,87 @@ class AppActionDispatcher {
     Map<String, dynamic> params,
     String? fallbackTitle,
   ) {
-    Widget? targetScreen;
     final lower = target.toLowerCase();
+
+    if (lower == '/bottom_sheet') {
+      final nodeId = params['nodeId'] ?? '0';
+      final title = (params['title'] as String?) ?? fallbackTitle ?? 'Menu';
+      SubMenuBottomSheet.show(context, title: title, parentId: nodeId);
+      return;
+    }
 
     if (lower == '/submenu') {
       final nodeId = params['nodeId'] ?? '0';
       final title = (params['title'] as String?) ?? fallbackTitle ?? 'Module';
-      targetScreen = SubMenuScreen(parentId: nodeId, title: title);
-    } else if (lower == '/lobby' || lower == 'lobby') {
-      targetScreen = const MainShellScreen(initialIndex: 0);
-    } else if (lower == '/settings' || lower == 'settings') {
-      targetScreen = const SettingsScreen();
-    } else {
-      final schema = EntitySchemaRegistry.findByTarget(target);
-      if (schema != null) {
-        final defaultFilter = params['defaultFilter'] as String?;
-        targetScreen = EntityListScreen(
-          schema: schema,
-          fetchRecords: () => BackendService.instance.fetchEntitySet(
-            projection: schema.projection,
-            entitySet: schema.entitySet,
-            query: defaultFilter != null && defaultFilter.isNotEmpty
-                ? ODataQuery(filter: defaultFilter)
-                : null,
-          ),
-          onExecuteAction: (action, data) => BackendService.instance.executeAction(
-            projection: schema.projection,
-            actionName: action,
-            parameters: data,
-          ),
-        );
-      }
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => SubMenuScreen(parentId: nodeId, title: title)),
+      );
+      return;
     }
 
-    if (targetScreen != null) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => targetScreen!));
+    if (lower == '/lobby' || lower == 'lobby') {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
+      );
+      return;
+    }
+
+    if (lower == '/settings' || lower == 'settings') {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+      );
+      return;
+    }
+
+    final projection = (params['projection'] as String?) ?? target;
+    final entitySet = params['entitySet'] as String?;
+    final defaultFilter = params['defaultFilter'] as String?;
+    final title = (params['title'] as String?) ?? fallbackTitle ?? projection;
+
+    final schema = EntitySchemaRegistry.findByTarget(target) ??
+        EntitySchemaRegistry.findByTarget(projection) ??
+        (entitySet != null
+            ? EntitySchemaMetadata(
+                entityName: title,
+                title: title,
+                icon: 'layers',
+                projection: projection,
+                entitySet: entitySet,
+                fields: const [],
+                listCard: const EntityListCardMetadata(
+                  codeField: 'OrderNo',
+                  primaryField: 'Description',
+                  secondaryField: 'Status',
+                ),
+              )
+            : null);
+
+    if (schema != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => EntityListScreen(
+            schema: schema,
+            fetchRecords: () => BackendService.instance.fetchEntitySet(
+              projection: schema.projection,
+              entitySet: schema.entitySet,
+              query: defaultFilter != null && defaultFilter.isNotEmpty
+                  ? ODataQuery(filter: defaultFilter)
+                  : null,
+            ),
+            onExecuteAction: (action, data) => BackendService.instance.executeAction(
+              projection: schema.projection,
+              actionName: action,
+              parameters: data,
+            ),
+          ),
+        ),
+      );
     } else {
       ModuleInfoSheet.show(
         context,
-        title: (params['title'] as String?) ?? fallbackTitle ?? target,
-        projection: (params['projection'] as String?) ?? target,
-        entitySet: params['entitySet'] as String?,
+        title: title,
+        projection: projection,
+        entitySet: entitySet,
         client: params['client'] as String?,
       );
     }
