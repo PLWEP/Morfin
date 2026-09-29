@@ -4,9 +4,9 @@ import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../services/navigator_service.dart';
 import 'entity_action_sheet.dart';
-import 'entity_bulk_action_runner.dart';
-import 'entity_card.dart';
+import 'entity_bulk_action_bar.dart';
 import 'entity_item_handler.dart';
+import 'entity_list_content.dart';
 
 class EntityListScreen extends StatefulWidget {
   final EntitySchemaMetadata schema;
@@ -46,7 +46,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
   @override
   void dispose() { _scrollController.dispose(); super.dispose(); }
 
-  void _loadLiveRecords() async {
+  Future<void> _loadLiveRecords() async {
     setState(() { _isLoading = true; _error = null; _hasMore = true; });
     try {
       final data = await widget.fetchRecords(skip: 0, top: widget.pageSize);
@@ -101,15 +101,6 @@ class _EntityListScreenState extends State<EntityListScreen> {
     });
   }
 
-  void _handleItemTap(Map<String, dynamic> record) {
-    EntityItemHandler.handleTap(
-      context, schema: widget.schema, record: record, nodeId: widget.nodeId,
-      itemClickAction: widget.itemClickAction, itemClickTarget: widget.itemClickTarget,
-      itemClickFields: widget.itemClickFields, onExecuteAction: widget.onExecuteAction,
-      onRefresh: _loadLiveRecords,
-    );
-  }
-
   void _openCreateSheet(EntityActionMetadata action) {
     EntityActionSheet.show(
       context, title: action.label, actionLabel: 'Save', fields: action.formFields,
@@ -153,31 +144,10 @@ class _EntityListScreenState extends State<EntityListScreen> {
         ],
       ),
       bottomNavigationBar: (_isSelectionMode && _selectedRecords.isNotEmpty && childActions.isNotEmpty)
-          ? Container(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 24), color: colors.surfaceCard,
-              child: Row(
-                children: childActions.map((act) {
-                  final label = (act['Label'] ?? act['CleanLabel'] ?? 'Action').toString();
-                  final targetUrl = act['TargetUrl'] as String?;
-                  final parts = (targetUrl ?? '').split('.svc/');
-                  final proj = parts.isNotEmpty && parts[0].isNotEmpty ? parts[0] : widget.schema.projection;
-                  final actionName = parts.length > 1 ? parts[1].split('?')[0] : label;
-
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: FilledButton.tonal(
-                        onPressed: () => EntityBulkActionRunner.execute(
-                          context: context, label: label, actionName: actionName, projection: proj,
-                          records: _selectedRecords.toList(), onExecuteAction: widget.onExecuteAction,
-                          onSuccess: () { _exitSelectionMode(); _loadLiveRecords(); },
-                        ),
-                        child: Text('$label (${_selectedRecords.length})', maxLines: 1),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
+          ? EntityBulkActionBar(
+              childActions: childActions, selectedRecords: _selectedRecords.toList(),
+              fallbackProjection: widget.schema.projection, onExecuteAction: widget.onExecuteAction,
+              onSuccess: () { _exitSelectionMode(); _loadLiveRecords(); },
             )
           : null,
       floatingActionButton: (createAction != null && widget.onExecuteAction != null && !_isSelectionMode)
@@ -202,57 +172,21 @@ class _EntityListScreenState extends State<EntityListScreen> {
               ),
             ),
           ),
-          Expanded(child: _buildBody(colors, displayed)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBody(AppPalette colors, List<Map<String, dynamic>> displayed) {
-    if (_isLoading) return Center(child: CircularProgressIndicator(color: colors.primary));
-    if (_error != null) {
-      return Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(Icons.wifi_off_rounded, size: 36, color: colors.statusCritical), const SizedBox(height: 8),
-          Text('Failed to sync live data', style: TextStyle(color: colors.onSurface)),
-          TextButton(onPressed: _loadLiveRecords, child: const Text('Retry')),
-        ]),
-      );
-    }
-    if (displayed.isEmpty) return Center(child: Text('No records found', style: TextStyle(color: colors.outline)));
-
-    return RefreshIndicator(
-      onRefresh: () async => _loadLiveRecords(),
-      color: colors.primary,
-      child: ListView.separated(
-        controller: _scrollController,
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        itemCount: displayed.length + (_isLoadingMore ? 1 : 0),
-        separatorBuilder: (_, _) => const SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          if (index >= displayed.length) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary)),
+          Expanded(
+            child: EntityListContent(
+              scrollController: _scrollController, schema: widget.schema, columnConfig: widget.columnConfig,
+              displayed: displayed, isLoading: _isLoading, isLoadingMore: _isLoadingMore, error: _error,
+              isSelectionMode: _isSelectionMode, selectedRecords: _selectedRecords,
+              onItemTap: (rec) => _isSelectionMode ? _toggleSelection(rec) : EntityItemHandler.handleTap(
+                context, schema: widget.schema, record: rec, nodeId: widget.nodeId,
+                itemClickAction: widget.itemClickAction, itemClickTarget: widget.itemClickTarget,
+                itemClickFields: widget.itemClickFields, onExecuteAction: widget.onExecuteAction,
+                onRefresh: _loadLiveRecords,
               ),
-            );
-          }
-          final record = displayed[index];
-          return EntityCard(
-            schema: widget.schema, record: record, columnConfig: widget.columnConfig,
-            isSelectionMode: _isSelectionMode, isSelected: _selectedRecords.contains(record),
-            onTap: () {
-              if (_isSelectionMode) {
-                _toggleSelection(record);
-              } else {
-                _handleItemTap(record);
-              }
-            },
-            onLongPress: () => _toggleSelection(record),
-          );
-        },
+              onItemLongPress: _toggleSelection, onRefresh: _loadLiveRecords,
+            ),
+          ),
+        ],
       ),
     );
   }

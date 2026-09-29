@@ -280,9 +280,9 @@
     "semantic_hash": "80f3778d030dbc0778dac4a9f376d349"
   },
   "lib/core/widgets/entity/entity_list_screen.dart": {
-    "mtime": 1790670383.476116,
-    "ast_hash": "b90fea0721dc2b1779b59e6abad8707a",
-    "semantic_hash": "b90fea0721dc2b1779b59e6abad8707a"
+    "mtime": 1790668171.0427346,
+    "ast_hash": "24e2ecf3dfa175c343fac9609cfa7cf2",
+    "semantic_hash": "24e2ecf3dfa175c343fac9609cfa7cf2"
   },
   "lib/core/widgets/lobby/lobby_chart_tile.dart": {
     "mtime": 1790311808.815104,
@@ -438,15 +438,5 @@
     "mtime": 1790526914.9435816,
     "ast_hash": "248e7d348286e91390bc6bacb06da286",
     "semantic_hash": "248e7d348286e91390bc6bacb06da286"
-  },
-  "lib/core/widgets/entity/entity_bulk_action_bar.dart": {
-    "mtime": 1790670302.4335287,
-    "ast_hash": "c83fef7cdf9e329a7cc122db37a84b5a",
-    "semantic_hash": "c83fef7cdf9e329a7cc122db37a84b5a"
-  },
-  "lib/core/widgets/entity/entity_list_content.dart": {
-    "mtime": 1790670365.2625625,
-    "ast_hash": "6af6bd6f0e3fb30af513c1a33d98d7b9",
-    "semantic_hash": "6af6bd6f0e3fb30af513c1a33d98d7b9"
   }
 }
