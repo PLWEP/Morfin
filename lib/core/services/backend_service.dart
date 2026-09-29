@@ -1,5 +1,7 @@
+import 'dart:convert';
 import '../network/api_client.dart';
 import '../network/odata_query.dart';
+import '../widgets/entity/entity_action_executor.dart';
 
 class BackendService {
   static final BackendService instance = BackendService._();
@@ -46,6 +48,23 @@ class BackendService {
     required Map<String, dynamic> parameters,
   }) async {
     return _client.callAction(projection, actionName, parameters);
+  }
+
+  Future<Map<String, dynamic>> executeBatchAction({
+    required String targetProjection,
+    required String actionName,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    final keyListJson = jsonEncode(items.map((r) => EntityActionExecutor.sanitizePayload(r)).toList());
+    return executeAction(
+      projection: 'MobileNavMenuHandling',
+      actionName: 'ExecuteBatchAction',
+      parameters: {
+        'TargetProjection': targetProjection,
+        'ActionName': actionName,
+        'KeyListJson': keyListJson,
+      },
+    );
   }
 
   Future<Map<String, dynamic>> executeFunction({

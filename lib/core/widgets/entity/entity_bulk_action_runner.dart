@@ -35,35 +35,42 @@ class EntityBulkActionRunner {
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
 
-    int successCount = 0;
-    for (final record in records) {
-      try {
-        final payload = EntityActionExecutor.sanitizePayload(record);
-        if (onExecuteAction != null) {
-          await onExecuteAction(actionName, payload);
-        } else {
-          await BackendService.instance.executeAction(
-            projection: projection,
-            actionName: actionName,
-            parameters: payload,
-          );
-        }
-        successCount++;
-      } catch (e) {
-        debugPrint('Failed to execute bulk action on record: $e');
-      }
-    }
-
-    if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
-    onSuccess();
-
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Bulk $label completed: $successCount of $count succeeded'),
-          behavior: SnackBarBehavior.floating,
-        ),
+    try {
+      final res = await BackendService.instance.executeBatchAction(
+        targetProjection: projection,
+        actionName: actionName,
+        items: records,
       );
+
+      final success = res['SuccessCount'] as int? ?? count;
+      final fail = res['FailCount'] as int? ?? 0;
+
+      if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+      onSuccess();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(fail == 0
+                ? 'Bulk $label completed: All $success items succeeded.'
+                : 'Bulk $label completed: $success succeeded, $fail failed.'),
+            backgroundColor: fail == 0 ? Colors.green.shade800 : Colors.orange.shade800,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+      final errorMsg = EntityActionExecutor.extractErrorMessage(e);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Batch failed: $errorMsg'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 }
