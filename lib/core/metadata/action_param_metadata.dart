@@ -27,13 +27,15 @@ class ActionParamMetadata {
     );
   }
 
-  EntityFieldMetadata toFormField() {
+  EntityFieldMetadata toFormField({String? projection}) {
     return EntityFieldMetadata(
       key: paramName,
       label: _humanize(paramName),
       type: _resolveType(dataType),
       isRequired: isMandatory,
       options: const [],
+      lovReference: (lovReference != null && lovReference!.trim().isNotEmpty) ? lovReference!.trim() : null,
+      lovProjection: projection,
     );
   }
 

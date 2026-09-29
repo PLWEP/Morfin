@@ -11,6 +11,8 @@ class EntityFieldMetadata {
   final bool isKey;
   final bool isRequired;
   final List<String> options;
+  final String? lovReference;
+  final String? lovProjection;
 
   const EntityFieldMetadata({
     required this.key,
@@ -19,6 +21,8 @@ class EntityFieldMetadata {
     this.isKey = false,
     this.isRequired = false,
     this.options = const [],
+    this.lovReference,
+    this.lovProjection,
   });
 
   factory EntityFieldMetadata.fromJson(Map<String, dynamic> json) {
@@ -36,6 +40,8 @@ class EntityFieldMetadata {
       isKey: json['isKey'] as bool? ?? false,
       isRequired: json['isRequired'] as bool? ?? false,
       options: rawOpts.map((e) => e.toString()).toList(),
+      lovReference: json['lovReference'] as String?,
+      lovProjection: json['lovProjection'] as String?,
     );
   }
 }

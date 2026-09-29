@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
+import 'entity_lov_picker_sheet.dart';
 
-class EntityFormField extends StatelessWidget {
+class EntityFormField extends StatefulWidget {
   final EntityFieldMetadata field;
   final dynamic initialValue;
   final ValueChanged<dynamic> onChanged;
@@ -18,44 +19,90 @@ class EntityFormField extends StatelessWidget {
   });
 
   @override
+  State<EntityFormField> createState() => _EntityFormFieldState();
+}
+
+class _EntityFormFieldState extends State<EntityFormField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue?.toString() ?? '');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _openLov() {
+    EntityLovPickerSheet.show(
+      context,
+      title: widget.field.label,
+      projection: widget.field.lovProjection ?? '',
+      lovReference: widget.field.lovReference ?? '',
+      onSelected: (val) {
+        setState(() => _controller.text = val);
+        widget.onChanged(val);
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    if (field.options.isNotEmpty) {
+    if (widget.field.options.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: DropdownButtonFormField<String>(
-          initialValue: initialValue?.toString() ?? field.options.first,
+          initialValue: widget.initialValue?.toString() ?? widget.field.options.first,
           dropdownColor: colors.surfaceCard,
           style: GoogleFonts.inter(fontSize: 13, color: colors.onSurface),
           decoration: _decoration(colors),
-          items: field.options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
-          onChanged: onChanged,
+          items: widget.field.options.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
+          onChanged: widget.onChanged,
         ),
       );
     }
 
-    final isNum = field.type == FieldType.number;
+    final hasLov = widget.field.lovReference != null && widget.field.lovReference!.isNotEmpty;
+    final isNum = widget.field.type == FieldType.number;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextFormField(
-        initialValue: initialValue?.toString(),
+        controller: _controller,
+        readOnly: hasLov,
+        onTap: hasLov ? _openLov : null,
         keyboardType: isNum ? TextInputType.number : TextInputType.text,
         style: GoogleFonts.inter(fontSize: 13, color: colors.onSurface),
-        decoration: _decoration(colors),
-        validator: field.isRequired
-            ? (val) => (val == null || val.trim().isEmpty) ? '${field.label} is required' : null
+        decoration: _decoration(
+          colors,
+          suffixIcon: hasLov
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_drop_down_circle_outlined, size: 18),
+                  onPressed: _openLov,
+                )
+              : null,
+        ),
+        validator: widget.field.isRequired
+            ? (val) => (val == null || val.trim().isEmpty) ? '${widget.field.label} is required' : null
             : null,
-        onSaved: onSaved,
+        onChanged: widget.onChanged,
+        onSaved: widget.onSaved,
       ),
     );
   }
 
-  InputDecoration _decoration(AppPalette colors) => InputDecoration(
-        labelText: field.label,
+  InputDecoration _decoration(AppPalette colors, {Widget? suffixIcon}) => InputDecoration(
+        labelText: widget.field.label,
         labelStyle: GoogleFonts.inter(fontSize: 12, color: colors.outline),
         filled: true,
         fillColor: colors.surfaceCard,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        suffixIcon: suffixIcon,
       );
 }

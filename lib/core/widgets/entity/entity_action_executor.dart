@@ -86,7 +86,7 @@ class EntityActionExecutor {
 
       if (rawParams.isNotEmpty) {
         formFields = rawParams
-            .map((p) => ActionParamMetadata.fromJson(p).toFormField())
+            .map((p) => ActionParamMetadata.fromJson(p).toFormField(projection: projection))
             .toList();
       }
     } catch (e) {
