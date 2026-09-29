@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
-
 import '../../utils/column_config_parser.dart';
 
 class EntityCard extends StatelessWidget {
@@ -10,6 +9,9 @@ class EntityCard extends StatelessWidget {
   final Map<String, dynamic> record;
   final String? columnConfig;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final bool isSelectionMode;
+  final bool isSelected;
 
   const EntityCard({
     super.key,
@@ -17,6 +19,9 @@ class EntityCard extends StatelessWidget {
     required this.record,
     this.columnConfig,
     this.onTap,
+    this.onLongPress,
+    this.isSelectionMode = false,
+    this.isSelected = false,
   });
 
   @override
@@ -29,131 +34,82 @@ class EntityCard extends StatelessWidget {
 
     final code = cfg != null
         ? (record[cfg.titleField] ?? '').toString()
-        : (record[cardMeta.codeField] ??
-                record['OrderNo'] ??
-                record['PartNo'] ??
-                record['Id'] ??
-                (record.isNotEmpty ? record.values.first : ''))
-            .toString();
+        : (record[cardMeta.codeField] ?? record['OrderNo'] ?? record['PartNo'] ?? record['Id'] ?? (record.isNotEmpty ? record.values.first : '')).toString();
 
     final title = cfg != null
         ? (cfg.subtitleField != null ? record[cfg.subtitleField]?.toString() ?? code : code)
-        : (record[cardMeta.primaryField] ??
-                record['Description'] ??
-                record['Title'] ??
-                record['Name'] ??
-                record['ErrDescr'] ??
-                (record.length > 1 ? record.values.elementAt(1) : code))
-            .toString();
+        : (record[cardMeta.primaryField] ?? record['Description'] ?? record['Title'] ?? record['Name'] ?? (record.length > 1 ? record.values.elementAt(1) : code)).toString();
 
-    final secondary = cfg != null
-        ? (cfg.detailFields.isNotEmpty ? record[cfg.detailFields[0]]?.toString() : null)
-        : (cardMeta.secondaryField != null ? record[cardMeta.secondaryField]?.toString() : null);
-
-    final tertiary = cfg != null
-        ? (cfg.detailFields.length > 1 ? record[cfg.detailFields[1]]?.toString() : null)
-        : (cardMeta.tertiaryField != null ? record[cardMeta.tertiaryField]?.toString() : null);
-
-    final metric = cfg != null
-        ? (cfg.detailFields.length > 2 ? record[cfg.detailFields[2]]?.toString() : null)
-        : (cardMeta.metricField != null ? record[cardMeta.metricField]?.toString() : null);
+    final secondary = cfg != null ? (cfg.detailFields.isNotEmpty ? record[cfg.detailFields[0]]?.toString() : null) : (cardMeta.secondaryField != null ? record[cardMeta.secondaryField]?.toString() : null);
+    final tertiary = cfg != null ? (cfg.detailFields.length > 1 ? record[cfg.detailFields[1]]?.toString() : null) : (cardMeta.tertiaryField != null ? record[cardMeta.tertiaryField]?.toString() : null);
+    final metric = cfg != null ? (cfg.detailFields.length > 2 ? record[cfg.detailFields[2]]?.toString() : null) : (cardMeta.metricField != null ? record[cardMeta.metricField]?.toString() : null);
 
     final status = cardMeta.statusField != null ? record[cardMeta.statusField]?.toString() : null;
     final (badgeBg, badgeFg) = _resolveStatusColor(status, colors);
 
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: colors.surfaceCard,
+          color: isSelected ? colors.primary.withValues(alpha: 0.08) : colors.surfaceCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colors.surfaceBorder),
+          border: Border.all(
+            color: isSelected ? colors.primary : colors.surfaceBorder,
+            width: isSelected ? 1.5 : 1,
+          ),
         ),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  code,
-                  style: GoogleFonts.robotoMono(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: colors.primary,
-                  ),
-                ),
-                if (status != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: badgeBg,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      status.toUpperCase(),
-                      style: GoogleFonts.inter(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        color: badgeFg,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: colors.onSurface,
+            if (isSelectionMode) ...[
+              Icon(
+                isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                color: isSelected ? colors.primary : colors.outline,
+                size: 20,
               ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                if (secondary != null) ...[
-                  Icon(Icons.precision_manufacturing_outlined, size: 14, color: colors.outline),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: Text(
-                      secondary,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(fontSize: 11, color: colors.onSurfaceVariant),
-                    ),
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(code, style: GoogleFonts.robotoMono(fontSize: 11, fontWeight: FontWeight.w600, color: colors.primary)),
+                      if (status != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(6)),
+                          child: Text(status.toUpperCase(), style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: badgeFg, letterSpacing: 0.5)),
+                        ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(height: 8),
+                  Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colors.onSurface)),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      if (secondary != null) ...[
+                        Icon(Icons.precision_manufacturing_outlined, size: 14, color: colors.outline),
+                        const SizedBox(width: 4),
+                        Flexible(child: Text(secondary, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 11, color: colors.onSurfaceVariant))),
+                        const SizedBox(width: 12),
+                      ],
+                      if (tertiary != null) ...[
+                        Icon(Icons.location_on_outlined, size: 14, color: colors.outline),
+                        const SizedBox(width: 4),
+                        Flexible(child: Text(tertiary, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 11, color: colors.onSurfaceVariant))),
+                      ],
+                      const Spacer(),
+                      if (metric != null) Text(metric, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: colors.outline)),
+                    ],
+                  ),
                 ],
-                if (tertiary != null) ...[
-                  Icon(Icons.location_on_outlined, size: 14, color: colors.outline),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: Text(
-                      tertiary,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(fontSize: 11, color: colors.onSurfaceVariant),
-                    ),
-                  ),
-                ],
-                const Spacer(),
-                if (metric != null)
-                  Text(
-                    metric,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: colors.outline,
-                    ),
-                  ),
-              ],
+              ),
             ),
           ],
         ),

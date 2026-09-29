@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
+import '../../services/navigator_service.dart';
 import 'entity_action_sheet.dart';
+import 'entity_bulk_action_runner.dart';
 import 'entity_card.dart';
 import 'entity_item_handler.dart';
 
@@ -25,7 +27,8 @@ class EntityListScreen extends StatefulWidget {
 class _EntityListScreenState extends State<EntityListScreen> {
   final ScrollController _scrollController = ScrollController();
   List<Map<String, dynamic>> _records = [];
-  bool _isLoading = true, _isLoadingMore = false, _hasMore = true;
+  bool _isLoading = true, _isLoadingMore = false, _hasMore = true, _isSelectionMode = false;
+  final Set<Map<String, dynamic>> _selectedRecords = {};
   String? _error;
   String _searchQuery = '';
 
@@ -72,6 +75,32 @@ class _EntityListScreenState extends State<EntityListScreen> {
     return _records.where((r) => r.values.any((v) => v != null && v.toString().toLowerCase().contains(q))).toList();
   }
 
+  void _toggleSelection(Map<String, dynamic> record) {
+    setState(() {
+      if (_selectedRecords.contains(record)) {
+        _selectedRecords.remove(record);
+        if (_selectedRecords.isEmpty) _isSelectionMode = false;
+      } else {
+        _selectedRecords.add(record);
+        _isSelectionMode = true;
+      }
+    });
+  }
+
+  void _exitSelectionMode() => setState(() { _isSelectionMode = false; _selectedRecords.clear(); });
+
+  void _selectAll(List<Map<String, dynamic>> displayed) {
+    setState(() {
+      if (_selectedRecords.length == displayed.length) {
+        _selectedRecords.clear();
+        _isSelectionMode = false;
+      } else {
+        _selectedRecords.addAll(displayed);
+        _isSelectionMode = true;
+      }
+    });
+  }
+
   void _handleItemTap(Map<String, dynamic> record) {
     EntityItemHandler.handleTap(
       context, schema: widget.schema, record: record, nodeId: widget.nodeId,
@@ -98,16 +127,60 @@ class _EntityListScreenState extends State<EntityListScreen> {
     final colors = AppColors.of(context);
     final displayed = _filteredRecords;
     final createAction = widget.schema.actions.where((a) => a.scope == ActionScope.global).firstOrNull;
+    final childActions = (widget.nodeId != null)
+        ? NavigatorService.instance.getChildActions(widget.nodeId!).where((a) => (a['ActionType'] as String?)?.toUpperCase() == 'ACTION').toList()
+        : <Map<String, dynamic>>[];
 
     return Scaffold(
       backgroundColor: colors.surfaceDeep,
       appBar: AppBar(
         backgroundColor: colors.surfaceCard, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_rounded, size: 20), onPressed: () => Navigator.of(context).pop()),
-        title: Text(widget.schema.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface)),
-        actions: [IconButton(icon: const Icon(Icons.refresh_rounded, size: 20), onPressed: _isLoading ? null : _loadLiveRecords)],
+        leading: _isSelectionMode
+            ? IconButton(icon: const Icon(Icons.close_rounded), onPressed: _exitSelectionMode)
+            : IconButton(icon: const Icon(Icons.arrow_back_rounded, size: 20), onPressed: () => Navigator.of(context).pop()),
+        title: Text(
+          _isSelectionMode ? '${_selectedRecords.length} selected' : widget.schema.title,
+          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface),
+        ),
+        actions: [
+          if (_isSelectionMode)
+            IconButton(
+              icon: Icon(_selectedRecords.length == displayed.length ? Icons.deselect_rounded : Icons.select_all_rounded),
+              onPressed: () => _selectAll(displayed),
+            )
+          else
+            IconButton(icon: const Icon(Icons.refresh_rounded, size: 20), onPressed: _isLoading ? null : _loadLiveRecords),
+        ],
       ),
-      floatingActionButton: (createAction != null && widget.onExecuteAction != null)
+      bottomNavigationBar: (_isSelectionMode && _selectedRecords.isNotEmpty && childActions.isNotEmpty)
+          ? Container(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 24), color: colors.surfaceCard,
+              child: Row(
+                children: childActions.map((act) {
+                  final label = (act['Label'] ?? act['CleanLabel'] ?? 'Action').toString();
+                  final targetUrl = act['TargetUrl'] as String?;
+                  final parts = (targetUrl ?? '').split('.svc/');
+                  final proj = parts.isNotEmpty && parts[0].isNotEmpty ? parts[0] : widget.schema.projection;
+                  final actionName = parts.length > 1 ? parts[1].split('?')[0] : label;
+
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: FilledButton.tonal(
+                        onPressed: () => EntityBulkActionRunner.execute(
+                          context: context, label: label, actionName: actionName, projection: proj,
+                          records: _selectedRecords.toList(), onExecuteAction: widget.onExecuteAction,
+                          onSuccess: () { _exitSelectionMode(); _loadLiveRecords(); },
+                        ),
+                        child: Text('$label (${_selectedRecords.length})', maxLines: 1),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            )
+          : null,
+      floatingActionButton: (createAction != null && widget.onExecuteAction != null && !_isSelectionMode)
           ? FloatingActionButton.extended(
               onPressed: () => _openCreateSheet(createAction), backgroundColor: colors.primary, foregroundColor: colors.surfaceDeep,
               icon: const Icon(Icons.add_rounded, size: 18), label: Text(createAction.label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
@@ -166,9 +239,18 @@ class _EntityListScreenState extends State<EntityListScreen> {
               ),
             );
           }
+          final record = displayed[index];
           return EntityCard(
-            schema: widget.schema, record: displayed[index],
-            columnConfig: widget.columnConfig, onTap: () => _handleItemTap(displayed[index]),
+            schema: widget.schema, record: record, columnConfig: widget.columnConfig,
+            isSelectionMode: _isSelectionMode, isSelected: _selectedRecords.contains(record),
+            onTap: () {
+              if (_isSelectionMode) {
+                _toggleSelection(record);
+              } else {
+                _handleItemTap(record);
+              }
+            },
+            onLongPress: () => _toggleSelection(record),
           );
         },
       ),
