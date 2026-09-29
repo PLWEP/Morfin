@@ -73,6 +73,8 @@ class AppActionDispatcher {
     final entitySet = params['entitySet'] as String?;
     final defaultFilter = params['defaultFilter'] as String?;
     final title = (params['title'] as String?) ?? fallbackTitle ?? projection;
+    final nodeId = (params['nodeId'] ?? '').toString();
+    final columnConfig = params['columnConfig'] as String?;
     final itemClickAction = params['itemClickAction'] as String?;
     final itemClickTarget = params['itemClickTarget'] as String?;
     final itemClickFields = params['itemClickFields'] as String?;
@@ -100,6 +102,8 @@ class AppActionDispatcher {
         MaterialPageRoute(
           builder: (_) => EntityListScreen(
             schema: schema,
+            nodeId: nodeId,
+            columnConfig: columnConfig,
             itemClickAction: itemClickAction,
             itemClickTarget: itemClickTarget,
             itemClickFields: itemClickFields,

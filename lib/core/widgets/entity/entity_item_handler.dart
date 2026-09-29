@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../services/backend_service.dart';
+import '../../services/navigator_service.dart';
+import 'entity_action_runner.dart';
 import 'entity_action_sheet.dart';
 import 'entity_detail_screen.dart';
 
@@ -12,14 +14,30 @@ class EntityItemHandler {
     BuildContext context, {
     required EntitySchemaMetadata schema,
     required Map<String, dynamic> record,
+    String? nodeId,
     String? itemClickAction,
     String? itemClickTarget,
     String? itemClickFields,
     Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,
   }) async {
-    final action = itemClickAction?.toUpperCase();
+    final childActions = (nodeId != null && nodeId.isNotEmpty)
+        ? NavigatorService.instance.getChildActions(nodeId)
+        : <Map<String, dynamic>>[];
 
+    if (childActions.isNotEmpty) {
+      EntityActionRunner.showChildActionsSheet(
+        context,
+        schema: schema,
+        record: record,
+        actions: childActions,
+        onExecuteAction: onExecuteAction,
+        onRefresh: onRefresh,
+      );
+      return;
+    }
+
+    final action = itemClickAction?.toUpperCase();
     if (action == 'BOTTOM_SHEET_FORM') {
       List<EntityFieldMetadata> formFields = [];
       if (itemClickFields != null && itemClickFields.isNotEmpty) {

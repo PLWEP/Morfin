@@ -10,13 +10,24 @@ class NavigatorService {
   NavigatorService._();
 
   MenuMetadata? _cachedMenu;
+  List<Map<String, dynamic>> _cachedNodes = [];
   Map<String, List<Map<String, dynamic>>> _childrenMap = {};
 
   MenuMetadata? get cachedMenu => _cachedMenu;
+  List<Map<String, dynamic>> get cachedNodes => _cachedNodes;
 
   void clearCache() {
     _cachedMenu = null;
+    _cachedNodes = [];
     _childrenMap.clear();
+  }
+
+  List<Map<String, dynamic>> getChildActions(String listNodeId) {
+    return _cachedNodes.where((n) {
+      final pid = (n['ParentId'] ?? '').toString();
+      final act = (n['ActionType'] as String?)?.toUpperCase() ?? '';
+      return pid == listNodeId && (act == 'ACTION' || act == 'FORM');
+    }).toList();
   }
 
   Future<MenuMetadata> fetchMenuMetadata({bool forceRefresh = false}) async {
@@ -47,6 +58,7 @@ class NavigatorService {
   }
 
   MenuMetadata _transformNodesToMenu(List<Map<String, dynamic>> nodes) {
+    _cachedNodes = List<Map<String, dynamic>>.from(nodes);
     _childrenMap = {};
     for (final node in nodes) {
       final pid = (node['ParentId'] ?? '').toString();
@@ -100,6 +112,7 @@ class NavigatorService {
       final itemClickAction = (child['ItemClickAction'] ?? child['item_click_action']) as String?;
       final itemClickTarget = (child['ItemClickTarget'] ?? child['item_click_target']) as String?;
       final itemClickFields = (child['ItemClickFields'] ?? child['item_click_fields']) as String?;
+      final columnConfig = (child['ColumnConfig'] ?? child['column_config']) as String?;
 
       String? badgeText;
       String badgeType = 'none';
@@ -135,6 +148,7 @@ class NavigatorService {
             'itemClickAction': itemClickAction,
             'itemClickTarget': itemClickTarget,
             'itemClickFields': itemClickFields,
+            'columnConfig': columnConfig,
           },
         ),
       );

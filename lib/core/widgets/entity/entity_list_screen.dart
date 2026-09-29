@@ -11,11 +11,11 @@ class EntityListScreen extends StatefulWidget {
   final Future<List<Map<String, dynamic>>> Function({int skip, int top}) fetchRecords;
   final Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
   final int pageSize;
-  final String? itemClickAction, itemClickTarget, itemClickFields;
+  final String? nodeId, columnConfig, itemClickAction, itemClickTarget, itemClickFields;
 
   const EntityListScreen({
     super.key, required this.schema, required this.fetchRecords, this.onExecuteAction,
-    this.pageSize = 20, this.itemClickAction, this.itemClickTarget, this.itemClickFields,
+    this.pageSize = 20, this.nodeId, this.columnConfig, this.itemClickAction, this.itemClickTarget, this.itemClickFields,
   });
 
   @override
@@ -32,24 +32,18 @@ class _EntityListScreenState extends State<EntityListScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    _scrollController.addListener(() {
+      if (_scrollController.hasClients && _scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+        _loadMoreRecords();
+      }
+    });
     _loadLiveRecords();
   }
 
   @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  void dispose() { _scrollController.dispose(); super.dispose(); }
 
-  void _onScroll() {
-    if (!_scrollController.hasClients) return;
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      _loadMoreRecords();
-    }
-  }
-
-  Future<void> _loadLiveRecords() async {
+  void _loadLiveRecords() async {
     setState(() { _isLoading = true; _error = null; _hasMore = true; });
     try {
       final data = await widget.fetchRecords(skip: 0, top: widget.pageSize);
@@ -61,7 +55,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
     }
   }
 
-  Future<void> _loadMoreRecords() async {
+  void _loadMoreRecords() async {
     if (_isLoading || _isLoadingMore || !_hasMore) return;
     setState(() => _isLoadingMore = true);
     try {
@@ -80,13 +74,9 @@ class _EntityListScreenState extends State<EntityListScreen> {
 
   void _handleItemTap(Map<String, dynamic> record) {
     EntityItemHandler.handleTap(
-      context,
-      schema: widget.schema,
-      record: record,
-      itemClickAction: widget.itemClickAction,
-      itemClickTarget: widget.itemClickTarget,
-      itemClickFields: widget.itemClickFields,
-      onExecuteAction: widget.onExecuteAction,
+      context, schema: widget.schema, record: record, nodeId: widget.nodeId,
+      itemClickAction: widget.itemClickAction, itemClickTarget: widget.itemClickTarget,
+      itemClickFields: widget.itemClickFields, onExecuteAction: widget.onExecuteAction,
       onRefresh: _loadLiveRecords,
     );
   }
@@ -97,7 +87,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
       onSubmit: (values) async {
         if (widget.onExecuteAction != null) {
           await widget.onExecuteAction!(action.name, values);
-          await _loadLiveRecords();
+          _loadLiveRecords();
         }
       },
     );
@@ -119,17 +109,14 @@ class _EntityListScreenState extends State<EntityListScreen> {
       ),
       floatingActionButton: (createAction != null && widget.onExecuteAction != null)
           ? FloatingActionButton.extended(
-              onPressed: () => _openCreateSheet(createAction),
-              backgroundColor: colors.primary, foregroundColor: colors.surfaceDeep,
-              icon: const Icon(Icons.add_rounded, size: 18),
-              label: Text(createAction.label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
+              onPressed: () => _openCreateSheet(createAction), backgroundColor: colors.primary, foregroundColor: colors.surfaceDeep,
+              icon: const Icon(Icons.add_rounded, size: 18), label: Text(createAction.label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
             )
           : null,
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: colors.surfaceCard,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), color: colors.surfaceCard,
             child: TextField(
               onChanged: (val) => setState(() => _searchQuery = val),
               style: GoogleFonts.inter(fontSize: 13, color: colors.onSurface),
@@ -137,8 +124,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
                 hintText: 'Search ${widget.schema.title}...',
                 hintStyle: GoogleFonts.inter(fontSize: 13, color: colors.outline),
                 prefixIcon: Icon(Icons.search_rounded, size: 18, color: colors.outline),
-                filled: true, fillColor: colors.surfaceContainerLow,
-                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                filled: true, fillColor: colors.surfaceContainerLow, contentPadding: const EdgeInsets.symmetric(vertical: 8),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
               ),
             ),
@@ -152,17 +138,18 @@ class _EntityListScreenState extends State<EntityListScreen> {
   Widget _buildBody(AppPalette colors, List<Map<String, dynamic>> displayed) {
     if (_isLoading) return Center(child: CircularProgressIndicator(color: colors.primary));
     if (_error != null) {
-      return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(Icons.wifi_off_rounded, size: 36, color: colors.statusCritical),
-        const SizedBox(height: 8),
-        Text('Failed to sync live data', style: TextStyle(color: colors.onSurface)),
-        TextButton(onPressed: _loadLiveRecords, child: const Text('Retry')),
-      ]));
+      return Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(Icons.wifi_off_rounded, size: 36, color: colors.statusCritical), const SizedBox(height: 8),
+          Text('Failed to sync live data', style: TextStyle(color: colors.onSurface)),
+          TextButton(onPressed: _loadLiveRecords, child: const Text('Retry')),
+        ]),
+      );
     }
     if (displayed.isEmpty) return Center(child: Text('No records found', style: TextStyle(color: colors.outline)));
 
     return RefreshIndicator(
-      onRefresh: _loadLiveRecords,
+      onRefresh: () async => _loadLiveRecords(),
       color: colors.primary,
       child: ListView.separated(
         controller: _scrollController,
@@ -179,11 +166,9 @@ class _EntityListScreenState extends State<EntityListScreen> {
               ),
             );
           }
-          final record = displayed[index];
           return EntityCard(
-            schema: widget.schema,
-            record: record,
-            onTap: () => _handleItemTap(record),
+            schema: widget.schema, record: displayed[index],
+            columnConfig: widget.columnConfig, onTap: () => _handleItemTap(displayed[index]),
           );
         },
       ),

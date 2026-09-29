@@ -3,15 +3,19 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 
+import '../../utils/column_config_parser.dart';
+
 class EntityCard extends StatelessWidget {
   final EntitySchemaMetadata schema;
   final Map<String, dynamic> record;
+  final String? columnConfig;
   final VoidCallback? onTap;
 
   const EntityCard({
     super.key,
     required this.schema,
     required this.record,
+    this.columnConfig,
     this.onTap,
   });
 
@@ -19,25 +23,42 @@ class EntityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     final cardMeta = schema.listCard;
+    final cfg = (columnConfig != null && columnConfig!.isNotEmpty)
+        ? ColumnConfig.parse(columnConfig)
+        : null;
 
-    final code = (record[cardMeta.codeField] ??
-            record['OrderNo'] ??
-            record['PartNo'] ??
-            record['Id'] ??
-            (record.isNotEmpty ? record.values.first : ''))
-        .toString();
-    final title = (record[cardMeta.primaryField] ??
-            record['Description'] ??
-            record['Title'] ??
-            record['Name'] ??
-            record['ErrDescr'] ??
-            (record.length > 1 ? record.values.elementAt(1) : code))
-        .toString();
-    final secondary = cardMeta.secondaryField != null ? record[cardMeta.secondaryField]?.toString() : null;
-    final tertiary = cardMeta.tertiaryField != null ? record[cardMeta.tertiaryField]?.toString() : null;
+    final code = cfg != null
+        ? (record[cfg.titleField] ?? '').toString()
+        : (record[cardMeta.codeField] ??
+                record['OrderNo'] ??
+                record['PartNo'] ??
+                record['Id'] ??
+                (record.isNotEmpty ? record.values.first : ''))
+            .toString();
+
+    final title = cfg != null
+        ? (cfg.subtitleField != null ? record[cfg.subtitleField]?.toString() ?? code : code)
+        : (record[cardMeta.primaryField] ??
+                record['Description'] ??
+                record['Title'] ??
+                record['Name'] ??
+                record['ErrDescr'] ??
+                (record.length > 1 ? record.values.elementAt(1) : code))
+            .toString();
+
+    final secondary = cfg != null
+        ? (cfg.detailFields.isNotEmpty ? record[cfg.detailFields[0]]?.toString() : null)
+        : (cardMeta.secondaryField != null ? record[cardMeta.secondaryField]?.toString() : null);
+
+    final tertiary = cfg != null
+        ? (cfg.detailFields.length > 1 ? record[cfg.detailFields[1]]?.toString() : null)
+        : (cardMeta.tertiaryField != null ? record[cardMeta.tertiaryField]?.toString() : null);
+
+    final metric = cfg != null
+        ? (cfg.detailFields.length > 2 ? record[cfg.detailFields[2]]?.toString() : null)
+        : (cardMeta.metricField != null ? record[cardMeta.metricField]?.toString() : null);
+
     final status = cardMeta.statusField != null ? record[cardMeta.statusField]?.toString() : null;
-    final metric = cardMeta.metricField != null ? record[cardMeta.metricField]?.toString() : null;
-
     final (badgeBg, badgeFg) = _resolveStatusColor(status, colors);
 
     return InkWell(
@@ -143,18 +164,10 @@ class EntityCard extends StatelessWidget {
   (Color, Color) _resolveStatusColor(String? status, AppPalette colors) {
     if (status == null) return (colors.surfaceContainerHigh, colors.outline);
     final s = status.toLowerCase();
-    if (s.contains('progress') || s.contains('active')) {
-      return (colors.statusActive.withValues(alpha: 0.12), colors.statusActive);
-    }
-    if (s.contains('pending') || s.contains('low') || s.contains('warn')) {
-      return (colors.statusWarning.withValues(alpha: 0.12), colors.statusWarning);
-    }
-    if (s.contains('crit') || s.contains('out') || s.contains('error')) {
-      return (colors.statusCritical.withValues(alpha: 0.12), colors.statusCritical);
-    }
-    if (s.contains('done') || s.contains('complete') || s.contains('in stock')) {
-      return (colors.statusSuccess.withValues(alpha: 0.12), colors.statusSuccess);
-    }
+    if (s.contains('progress') || s.contains('active')) return (colors.statusActive.withValues(alpha: 0.12), colors.statusActive);
+    if (s.contains('pending') || s.contains('low') || s.contains('warn')) return (colors.statusWarning.withValues(alpha: 0.12), colors.statusWarning);
+    if (s.contains('crit') || s.contains('out') || s.contains('error')) return (colors.statusCritical.withValues(alpha: 0.12), colors.statusCritical);
+    if (s.contains('done') || s.contains('complete') || s.contains('in stock')) return (colors.statusSuccess.withValues(alpha: 0.12), colors.statusSuccess);
     return (colors.surfaceContainerHigh, colors.outline);
   }
 }
