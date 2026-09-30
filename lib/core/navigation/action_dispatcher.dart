@@ -10,6 +10,7 @@ import '../services/backend_service.dart';
 import '../widgets/menu/module_info_sheet.dart';
 import '../widgets/menu/sub_menu_bottom_sheet.dart';
 import '../widgets/record/record_action_executor.dart';
+import '../widgets/record/record_detail_screen.dart';
 import '../widgets/record/record_list_screen.dart';
 
 class AppActionDispatcher {
@@ -78,37 +79,32 @@ class AppActionDispatcher {
     final actionType = (params['actionType'] as String?)?.toUpperCase() ?? 'LIST';
     final targetEndpoint = (params['targetEndpoint'] as String?) ?? entitySet ?? title;
 
-    if (actionType == 'FORM') {
-      final fallbackSchema = EntitySchemaMetadata(
-        entityName: title,
-        title: title,
-        icon: 'edit_note',
-        projection: projection,
-        entitySet: entitySet ?? '',
-        fields: const [],
-        listCard: const EntityListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
+    if (actionType == 'FORM_DIALOG' || actionType == 'FORM DIALOG') {
+      final fallback = EntitySchemaMetadata(
+        entityName: title, title: title, icon: 'edit_note', projection: projection, entitySet: entitySet ?? '',
+        fields: const [], listCard: const EntityListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
       );
       RecordActionExecutor.triggerFormAction(
-        context,
-        schema: EntitySchemaRegistry.findByTarget(projection) ?? fallbackSchema,
-        record: const {},
-        title: title,
-        projection: projection,
-        actionName: targetEndpoint,
-        paramConfig: paramConfig,
-        onRefresh: () {},
+        context, schema: EntitySchemaRegistry.findByTarget(projection) ?? fallback,
+        record: const {}, title: title, projection: projection, actionName: targetEndpoint, paramConfig: paramConfig, onRefresh: () {},
       );
+      return;
+    }
+
+    if (actionType == 'FORM') {
+      final formSchema = EntitySchemaRegistry.findByTarget(target) ??
+          EntitySchemaRegistry.findByTarget(projection) ??
+          EntitySchemaMetadata(
+            entityName: title, title: title, icon: 'edit_document', projection: projection, entitySet: entitySet ?? '',
+            fields: const [], listCard: const EntityListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
+          );
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => RecordDetailScreen(schema: formSchema, record: const {})));
       return;
     }
 
     if (actionType == 'ACTION') {
       RecordActionExecutor.triggerDirectAction(
-        context,
-        label: title,
-        record: const {},
-        projection: projection,
-        actionName: targetEndpoint,
-        onRefresh: () {},
+        context, label: title, record: const {}, projection: projection, actionName: targetEndpoint, onRefresh: () {},
       );
       return;
     }
@@ -117,47 +113,32 @@ class AppActionDispatcher {
         EntitySchemaRegistry.findByTarget(projection) ??
         (entitySet != null
             ? EntitySchemaMetadata(
-                entityName: title,
-                title: title,
-                icon: 'layers',
-                projection: projection,
-                entitySet: entitySet,
-                fields: const [],
-                listCard: const EntityListCardMetadata(
-                  codeField: 'OrderNo',
-                  primaryField: 'Description',
-                  secondaryField: 'Status',
-                ),
+                entityName: title, title: title, icon: 'layers', projection: projection, entitySet: entitySet, fields: const [],
+                listCard: const EntityListCardMetadata(codeField: 'OrderNo', primaryField: 'Description', secondaryField: 'Status'),
               )
             : null);
 
     if (schema != null) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => RecordListScreen(
-            schema: schema,
-            nodeId: nodeId,
-            columnConfig: columnConfig,
-            itemClickAction: itemClickAction,
-            itemClickTarget: itemClickTarget,
-            itemClickFields: itemClickFields,
-            fetchRecords: ({int skip = 0, int top = 20}) => BackendService.instance.fetchEntitySet(
-              projection: schema.projection,
-              entitySet: schema.entitySet,
-              query: DataQuery(
-                filter: DataQuery.combineFilters(defaultFilter: defaultFilter),
-                top: top,
-                skip: skip,
-              ),
-            ),
-            onExecuteAction: (action, data) => BackendService.instance.executeAction(
-              projection: schema.projection,
-              actionName: action,
-              parameters: data,
-            ),
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => RecordListScreen(
+          schema: schema,
+          nodeId: nodeId,
+          columnConfig: columnConfig,
+          itemClickAction: itemClickAction,
+          itemClickTarget: itemClickTarget,
+          itemClickFields: itemClickFields,
+          fetchRecords: ({int skip = 0, int top = 20}) => BackendService.instance.fetchEntitySet(
+            projection: schema.projection,
+            entitySet: schema.entitySet,
+            query: DataQuery(filter: DataQuery.combineFilters(defaultFilter: defaultFilter), top: top, skip: skip),
+          ),
+          onExecuteAction: (action, data) => BackendService.instance.executeAction(
+            projection: schema.projection,
+            actionName: action,
+            parameters: data,
           ),
         ),
-      );
+      ));
     } else {
       ModuleInfoSheet.show(context, title: title, projection: projection, entitySet: entitySet, client: params['client'] as String?);
     }
