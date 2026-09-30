@@ -131,6 +131,7 @@ class LoginViewModel extends ValueNotifier<LoginState> {
     );
 
     if (success) {
+      NavigatorService.instance.clearCache();
       try {
         await ApiClient.instance.getCurrentUserInformation();
       } catch (_) {}

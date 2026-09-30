@@ -7,6 +7,7 @@ import '../metadata/entity_metadata.dart';
 import '../metadata/entity_schema_registry.dart';
 import '../network/odata_query.dart';
 import '../services/backend_service.dart';
+import '../widgets/entity/entity_action_executor.dart';
 import '../widgets/entity/entity_list_screen.dart';
 import '../widgets/menu/module_info_sheet.dart';
 import '../widgets/menu/sub_menu_bottom_sheet.dart';
@@ -40,37 +41,32 @@ class AppActionDispatcher {
     final lower = target.toLowerCase();
 
     if (lower == '/bottom_sheet') {
-      final nodeId = params['nodeId'] ?? '0';
-      final title = (params['title'] as String?) ?? fallbackTitle ?? 'Menu';
-      SubMenuBottomSheet.show(context, title: title, parentId: nodeId);
+      SubMenuBottomSheet.show(context, title: (params['title'] as String?) ?? fallbackTitle ?? 'Menu', parentId: params['nodeId'] ?? '0');
       return;
     }
-
     if (lower == '/submenu') {
-      final nodeId = params['nodeId'] ?? '0';
-      final title = (params['title'] as String?) ?? fallbackTitle ?? 'Module';
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => SubMenuScreen(parentId: nodeId, title: title)),
-      );
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => SubMenuScreen(parentId: params['nodeId'] ?? '0', title: (params['title'] as String?) ?? fallbackTitle ?? 'Module')));
       return;
     }
-
     if (lower == '/lobby' || lower == 'lobby') {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)),
-      );
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MainShellScreen(initialIndex: 0)));
       return;
     }
-
     if (lower == '/settings' || lower == 'settings') {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const SettingsScreen()),
-      );
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
       return;
     }
 
-    final projection = (params['projection'] as String?) ?? target;
-    final entitySet = params['entitySet'] as String?;
+    var projection = params['projection'] as String?;
+    var entitySet = params['entitySet'] as String?;
+    final targetUrl = params['targetUrl'] as String?;
+    if ((projection == null || entitySet == null) && targetUrl != null && targetUrl.contains('.svc/')) {
+      final parts = targetUrl.split('.svc/');
+      projection ??= parts[0].replaceAll('/', '').trim();
+      entitySet ??= parts[1].split('?')[0].replaceAll('/', '').trim();
+    }
+    projection ??= target;
+
     final defaultFilter = params['defaultFilter'] as String?;
     final title = (params['title'] as String?) ?? fallbackTitle ?? projection;
     final nodeId = (params['nodeId'] ?? '').toString();
@@ -78,6 +74,42 @@ class AppActionDispatcher {
     final itemClickAction = params['itemClickAction'] as String?;
     final itemClickTarget = params['itemClickTarget'] as String?;
     final itemClickFields = params['itemClickFields'] as String?;
+    final actionType = (params['actionType'] as String?)?.toUpperCase() ?? 'LIST';
+    final targetEndpoint = (params['targetEndpoint'] as String?) ?? entitySet ?? title;
+
+    if (actionType == 'FORM') {
+      final fallbackSchema = EntitySchemaMetadata(
+        entityName: title,
+        title: title,
+        icon: 'edit_note',
+        projection: projection,
+        entitySet: entitySet ?? '',
+        fields: const [],
+        listCard: const EntityListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
+      );
+      EntityActionExecutor.triggerFormAction(
+        context,
+        schema: EntitySchemaRegistry.findByTarget(projection) ?? fallbackSchema,
+        record: const {},
+        title: title,
+        projection: projection,
+        actionName: targetEndpoint,
+        onRefresh: () {},
+      );
+      return;
+    }
+
+    if (actionType == 'ACTION') {
+      EntityActionExecutor.triggerDirectAction(
+        context,
+        label: title,
+        record: const {},
+        projection: projection,
+        actionName: targetEndpoint,
+        onRefresh: () {},
+      );
+      return;
+    }
 
     final schema = EntitySchemaRegistry.findByTarget(target) ??
         EntitySchemaRegistry.findByTarget(projection) ??
@@ -125,13 +157,7 @@ class AppActionDispatcher {
         ),
       );
     } else {
-      ModuleInfoSheet.show(
-        context,
-        title: title,
-        projection: projection,
-        entitySet: entitySet,
-        client: params['client'] as String?,
-      );
+      ModuleInfoSheet.show(context, title: title, projection: projection, entitySet: entitySet, client: params['client'] as String?);
     }
   }
 
@@ -146,9 +172,6 @@ class AppActionDispatcher {
     );
   }
 
-  static void _showToast(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: const Duration(seconds: 2), behavior: SnackBarBehavior.floating),
-    );
-  }
+  static void _showToast(BuildContext context, String message) => ScaffoldMessenger.of(context)
+      .showSnackBar(SnackBar(content: Text(message), duration: const Duration(seconds: 2), behavior: SnackBarBehavior.floating));
 }

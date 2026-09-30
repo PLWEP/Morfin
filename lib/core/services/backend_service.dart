@@ -81,23 +81,14 @@ class BackendService {
   }) async {
     try {
       final res = await executeFunction(
-        projection: 'MobileNavMenu',
+        projection: 'MobileNavMenuHandling',
         functionName: "GetMobileMenu(ScopeId='$scopeId',DeviceType='$deviceType')",
       );
       final val = res['value'];
-      if (val is List) {
+      if (val is List && val.isNotEmpty) {
         return val.map((i) => Map<String, dynamic>.from(i as Map)).toList();
       }
-    } catch (_) {
-      final res = await executeFunction(
-        projection: 'MobileAppNavigator',
-        functionName: "GetMobileMenu(ScopeId='$scopeId',DeviceType='$deviceType')",
-      );
-      final val = res['value'];
-      if (val is List) {
-        return val.map((i) => Map<String, dynamic>.from(i as Map)).toList();
-      }
-    }
+    } catch (_) {}
     return [];
   }
 }

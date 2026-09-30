@@ -101,9 +101,9 @@ class NavigatorService {
       final childId = (child['NodeId'] ?? child['Id'] ?? '').toString();
       final childLabel = (child['Label'] ?? child['CleanLabel'] ?? 'Item').toString().trim();
       final targetUrl = child['TargetUrl'] as String?;
-      final (parsedProj, parsedEntitySet) = _parseTargetUrl(targetUrl);
+      final (parsedProj, parsedEndpoint) = _parseTargetUrl(targetUrl);
       final projection = child['TargetProjection'] as String? ?? parsedProj ?? child['Projection'] as String?;
-      final entitySet = child['TargetEntitySet'] as String? ?? parsedEntitySet ?? child['EntitySet'] as String?;
+      final entitySet = child['TargetEntitySet'] as String? ?? parsedEndpoint ?? child['EntitySet'] as String?;
       final actionType = (child['ActionType'] as String?)?.toUpperCase() ?? 'LIST';
       final icon = child['Icon'] as String?;
       final defaultFilter = child['DefaultFilter'] as String?;
@@ -114,15 +114,10 @@ class NavigatorService {
       final itemClickFields = (child['ItemClickFields'] ?? child['item_click_fields']) as String?;
       final columnConfig = (child['ColumnConfig'] ?? child['column_config']) as String?;
 
-      String? badgeText;
-      String badgeType = 'none';
-
-      if (actionType == 'FORM') {
-        badgeText = 'Form';
-        badgeType = 'warning';
-      }
-
-      final target = isBottomSheet ? '/bottom_sheet' : (projection ?? childId);
+      final targetEndpoint = parsedEndpoint ?? child['TargetEndpoint'] as String?;
+      final target = isBottomSheet
+          ? '/bottom_sheet'
+          : (projection != null ? '/$projection' : (targetEndpoint ?? childId));
 
       return MenuItemMetadata(
         id: childId,
@@ -131,8 +126,8 @@ class NavigatorService {
         subtitle: projection != null ? 'Projection: $projection' : 'Module',
         icon: icon ?? _resolveIcon(childLabel, projection),
         category: key,
-        badgeText: badgeText,
-        badgeType: badgeType,
+        badgeText: actionType == 'FORM' ? 'Form' : null,
+        badgeType: actionType == 'FORM' ? 'warning' : 'none',
         action: ActionMetadata(
           type: ActionType.navigate,
           target: target,
@@ -144,6 +139,7 @@ class NavigatorService {
             'hasChildren': isBottomSheet || childCount > 0,
             'projection': projection,
             'entitySet': entitySet,
+            'targetEndpoint': targetEndpoint,
             'defaultFilter': defaultFilter,
             'itemClickAction': itemClickAction,
             'itemClickTarget': itemClickTarget,
