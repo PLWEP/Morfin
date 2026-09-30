@@ -128,40 +128,45 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
       color: colors.primary,
       backgroundColor: colors.surfaceCard,
       onRefresh: () => ref.read(menuProvider.notifier).refresh(),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MenuSearchBar(onQueryChanged: (q) => setState(() => _searchQuery = q)),
-            const SizedBox(height: 12),
-            if (favoriteItems.isNotEmpty && _searchQuery.isEmpty)
-              MenuFavoritesBar(
-                items: favoriteItems,
-                onItemTap: (i) => AppActionDispatcher.dispatch(context, i.action, fallbackTitle: i.title),
-              ),
-            MenuFilterPills(
-              selectedCategory: _selectedCategory,
-              groups: metadata.groups,
-              onCategorySelected: (cat) => setState(() => _selectedCategory = cat),
-            ),
-            const SizedBox(height: 16),
-            if (displayedGroups.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                child: Center(
-                  child: Text('No matching modules found', style: TextStyle(color: colors.outline, fontSize: 13)),
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight - 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MenuSearchBar(onQueryChanged: (q) => setState(() => _searchQuery = q)),
+                const SizedBox(height: 12),
+                if (favoriteItems.isNotEmpty && _searchQuery.isEmpty)
+                  MenuFavoritesBar(
+                    items: favoriteItems,
+                    onItemTap: (i) => AppActionDispatcher.dispatch(context, i.action, fallbackTitle: i.title),
+                  ),
+                MenuFilterPills(
+                  selectedCategory: _selectedCategory,
+                  groups: metadata.groups,
+                  onCategorySelected: (cat) => setState(() => _selectedCategory = cat),
                 ),
-              )
-            else
-              ...displayedGroups.map((g) => MenuSectionCard(
-                    group: g,
-                    favoriteIds: _favoriteIds,
-                    onToggleFavorite: _toggleFavorite,
-                  )),
-            const SizedBox(height: 24),
-          ],
+                const SizedBox(height: 16),
+                if (displayedGroups.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: Text('No matching modules found', style: TextStyle(color: colors.outline, fontSize: 13)),
+                    ),
+                  )
+                else
+                  ...displayedGroups.map((g) => MenuSectionCard(
+                        group: g,
+                        favoriteIds: _favoriteIds,
+                        onToggleFavorite: _toggleFavorite,
+                      )),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
         ),
       ),
     );
