@@ -97,7 +97,7 @@ class ModuleInfoSheet {
               ),
               const SizedBox(height: 12),
               Text(
-                'This projection is not yet mobilized into the mobile SDUI schema.',
+                'This projection schema is not registered in the application registry.',
                 style: GoogleFonts.inter(fontSize: 12, color: colors.outline),
               ),
               const SizedBox(height: 16),

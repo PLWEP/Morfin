@@ -104,8 +104,8 @@ class SchemaCatalogService {
     return fields;
   }
 
-  static FieldType _resolveFieldType(String odataType) {
-    final t = odataType.toLowerCase();
+  static FieldType _resolveFieldType(String typeName) {
+    final t = typeName.toLowerCase();
     if (t.contains('decimal') || t.contains('int') || t.contains('double')) return FieldType.number;
     if (t.contains('date') || t.contains('time')) return FieldType.date;
     if (t.contains('boolean')) return FieldType.boolean;

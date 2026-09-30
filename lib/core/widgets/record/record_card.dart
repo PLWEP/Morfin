@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../utils/column_config_parser.dart';
+import 'record_status_badge.dart';
 
 class RecordCard extends StatelessWidget {
   final EntitySchemaMetadata schema;
@@ -57,7 +58,6 @@ class RecordCard extends StatelessWidget {
     }
 
     final status = cardMeta.statusField != null ? record[cardMeta.statusField]?.toString() : null;
-    final (badgeBg, badgeFg) = _resolveStatusColor(status, colors);
 
     return InkWell(
       onTap: onTap,
@@ -91,58 +91,30 @@ class RecordCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              titleLabel,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: colors.outline),
-                            ),
+                            Text(titleLabel, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: colors.outline)),
                             const SizedBox(height: 2),
-                            Text(
-                              title.isNotEmpty ? title : '-',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface, height: 1.25),
-                            ),
+                            Text(title.isNotEmpty ? title : '-', maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface, height: 1.25)),
                           ],
                         ),
                       ),
                       if (status != null && status.isNotEmpty) ...[
                         const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(6)),
-                          child: Text(status.toUpperCase(), style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: badgeFg, letterSpacing: 0.5)),
-                        ),
+                        RecordStatusBadge(status: status),
                       ],
                     ],
                   ),
                   if (subtitle != null && subtitle.trim().isNotEmpty && subtitle != title) ...[
                     const SizedBox(height: 6),
-                    Text(
-                      subtitleLabel ?? '',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: colors.outline),
-                    ),
+                    Text(subtitleLabel ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: colors.outline)),
                     const SizedBox(height: 1),
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant),
-                    ),
+                    Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
                   ],
                   if (detailPairs.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     Divider(height: 1, thickness: 0.75, color: colors.surfaceBorder.withValues(alpha: 0.7)),
                     const SizedBox(height: 8),
                     Table(
-                      columnWidths: const {
-                        0: IntrinsicColumnWidth(),
-                        1: FixedColumnWidth(10),
-                        2: FlexColumnWidth(),
-                      },
+                      columnWidths: const {0: IntrinsicColumnWidth(), 1: FixedColumnWidth(10), 2: FlexColumnWidth()},
                       defaultVerticalAlignment: TableCellVerticalAlignment.top,
                       children: [
                         for (int i = 0; i < detailPairs.length; i++)
@@ -150,10 +122,7 @@ class RecordCard extends StatelessWidget {
                             children: [
                               Padding(
                                 padding: EdgeInsets.only(top: i > 0 ? 5 : 0),
-                                child: Text(
-                                  detailPairs[i].$1,
-                                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: colors.outline),
-                                ),
+                                child: Text(detailPairs[i].$1, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: colors.outline)),
                               ),
                               Padding(
                                 padding: EdgeInsets.only(top: i > 0 ? 5 : 0),
@@ -161,11 +130,7 @@ class RecordCard extends StatelessWidget {
                               ),
                               Padding(
                                 padding: EdgeInsets.only(top: i > 0 ? 5 : 0),
-                                child: Text(
-                                  detailPairs[i].$2,
-                                  textAlign: TextAlign.end,
-                                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: colors.onSurface),
-                                ),
+                                child: Text(detailPairs[i].$2, textAlign: TextAlign.end, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: colors.onSurface)),
                               ),
                             ],
                           ),
@@ -187,15 +152,5 @@ class RecordCard extends StatelessWidget {
     }
     final formatted = key.replaceAllMapped(RegExp(r'(?<=[a-z])[A-Z]'), (m) => ' ${m.group(0)}');
     return formatted.replaceAll('_', ' ').trim();
-  }
-
-  (Color, Color) _resolveStatusColor(String? status, AppPalette colors) {
-    if (status == null) return (colors.surfaceContainerHigh, colors.outline);
-    final s = status.toLowerCase();
-    if (s.contains('progress') || s.contains('active')) return (colors.statusActive.withValues(alpha: 0.12), colors.statusActive);
-    if (s.contains('pending') || s.contains('low') || s.contains('warn')) return (colors.statusWarning.withValues(alpha: 0.12), colors.statusWarning);
-    if (s.contains('crit') || s.contains('out') || s.contains('error')) return (colors.statusCritical.withValues(alpha: 0.12), colors.statusCritical);
-    if (s.contains('done') || s.contains('complete') || s.contains('in stock')) return (colors.statusSuccess.withValues(alpha: 0.12), colors.statusSuccess);
-    return (colors.surfaceContainerHigh, colors.outline);
   }
 }

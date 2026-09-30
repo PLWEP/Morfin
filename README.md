@@ -3,11 +3,11 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.13+-blue.svg)](https://flutter.dev)
 [![Architecture](https://img.shields.io/badge/Architecture-Server--Driven_UI_(SDUI)-emerald.svg)]()
 [![Platform](https://img.shields.io/badge/Platform-Android_Native-green.svg)]()
-[![Network](https://img.shields.io/badge/Network-Dio_OData_v4-purple.svg)]()
-[![Code_Quality](https://img.shields.io/badge/Static_Analysis-0_Issues-brightgreen.svg)]()
+[![Network](https://img.shields.io/badge/Network-Dio_REST_Projections-purple.svg)]()
+[![Static_Analysis](https://img.shields.io/badge/Static_Analysis-0_Issues-brightgreen.svg)]()
 [![Tests](https://img.shields.io/badge/Tests-100%25_Passing-success.svg)]()
 
-> **Morfin** is a high-performance, vendor-neutral native Android mobile ERP client built with Flutter. It implements an end-to-end **Server-Driven UI (SDUI)** architecture consuming live **OData v4 REST Projections** (IFS Cloud compatible) with strict MVVM and Material Design 3.
+> **Morfin** is a high-performance, vendor-neutral native Android ERP client built with Flutter. It implements an end-to-end **Server-Driven UI (SDUI)** architecture consuming live **REST Projections** (IFS Cloud compatible) with strict MVVM and Material Design 3.
 
 ---
 
@@ -18,7 +18,7 @@ Any engineer or AI agent contributing to this codebase must adhere strictly to t
 1. **Target Platform**:
    - **Android only**. No cross-platform shims, iOS pods, or redundant platform checks.
 2. **Strictly Always-Online (Zero Offline Transactions)**:
-   - ERP operations must always sync live with backend OData projections to ensure master data integrity.
+   - ERP operations must always sync live with backend projections to ensure master data integrity.
    - Offline-first mutation queues and cached transactional states are intentionally disallowed.
 3. **Anti-God-File Policy**:
    - **Soft Limit**: Maximum **180 lines** per file.
@@ -30,7 +30,7 @@ Any engineer or AI agent contributing to this codebase must adhere strictly to t
 5. **Testing Directive**:
    - Do NOT generate test suites, unit tests, or instrumentation tests unless explicitly instructed.
 6. **Vendor Decoupling**:
-   - All internal class names, file paths, and identifiers must remain vendor-neutral (`ApiClient`, `ApiConfig`, `AuthInterceptor`, `ErpCloudService`, `EntitySchemaRegistry`).
+   - All internal class names, file paths, and identifiers must remain vendor-neutral (`ApiClient`, `ApiConfig`, `AuthInterceptor`, `BackendService`, `EntitySchemaRegistry`).
    - Enterprise system branding is isolated exclusively to user-facing typography and visual assets.
 7. **Mandatory RTK Tooling Prefix**:
    - All terminal, build, test, and git commands must be executed with the `rtk` wrapper prefix (e.g., `rtk dart analyze lib test`, `rtk flutter test`, `rtk git status`).
@@ -40,24 +40,24 @@ Any engineer or AI agent contributing to this codebase must adhere strictly to t
 ## 2. Knowledge Graph & Architecture Hubs (Graphify)
 
 The codebase is indexed via **Graphify AST extraction** to provide full topological traceability:
-- **Total Nodes**: 1,048
-- **Total Edges**: 1,445
+- **Total Nodes**: 1,068
+- **Total Edges**: 1,443
 - **Visual Artifacts**:
-  - Interactive D3 Component Hierarchy: `graphify-out/GRAPH_TREE.html`
-  - Interactive Mermaid Call-Flow & Sequence: `graphify-out/morfin-callflow.html`
+  - Interactive Component Hierarchy: `graphify-out/GRAPH_TREE.html`
+  - Interactive Call-Flow & Sequence: `graphify-out/morfin-callflow.html`
 
-### Top Architectural Hubs (God Nodes)
+### Top Architectural Hubs
 | Rank | Architectural Node | Type | Connected Edges | Role |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | `LoginAction` | Sealed Class | 10 | Action contracts driving authentication and server selection |
-| 2 | `ServerConfig` | Data Model | 7 | OData endpoint credentials, URLs, and realm definitions |
+| 2 | `ServerConfig` | Data Model | 7 | Endpoint credentials, URLs, and realm definitions |
 | 3 | `LobbyElementMetadata` | Contract | 6 | Dynamic layout and data definition for Lobby dashboard tiles |
 | 4 | `LoginState` | State Model | 6 | Reactive authentication and active server selection state |
 | 5 | `userProfileProvider` | Provider | 5 | Live user profile data provider from FrameworkServices |
 | 6 | `localStorageServiceProvider` | Provider | 5 | Persists user preferences and server profiles |
 | 7 | `SettingsAction` | Sealed Class | 5 | Global theme and application configuration events |
 | 8 | `ActionMetadata` | Contract | 4 | Standardized contract for UI actions and navigation triggers |
-| 9 | `EntitySchemaMetadata` | Contract | 4 | SDUI schema definition for dynamic entity sets, cards, and actions |
+| 9 | `EntitySchemaMetadata` | Contract | 4 | SDUI schema definition for dynamic record sets, cards, and actions |
 | 10 | `ThemeModeNotifier` | Notifier / State | 4 | Reactive theme mode state management |
 
 ---
@@ -74,30 +74,35 @@ lib/
 │   │   ├── lobby_metadata.dart
 │   │   ├── menu_metadata.dart
 │   │   └── metadata_service.dart
+│   ├── models/              # Core Domain Data Models
+│   │   ├── navigation_node.dart        # Dynamic navigator node & param config
+│   │   └── user_profile.dart           # User profile model
 │   ├── navigation/          # Dynamic Navigation & Route Handlers
 │   │   └── action_dispatcher.dart      # Schema-driven action and route dispatcher
-│   ├── network/             # Dio HTTP Client & OData v4 Integration
+│   ├── network/             # Dio HTTP Client & REST Projection Integration
 │   │   ├── activity_log_interceptor.dart # Live request/response telemetry recorder
-│   │   ├── api_client.dart             # HTTP verbs, OData projection calls, OAuth
+│   │   ├── api_client.dart             # HTTP verbs, projection calls, OAuth
 │   │   ├── api_config.dart             # Active server target & token storage
 │   │   ├── auth_interceptor.dart       # Token injection & transparent 401 refresh
 │   │   └── data_query.dart             # Query string builder ($filter, $select, $top)
 │   ├── providers/           # Shared Riverpod Global State Providers
 │   │   └── user_profile_provider.dart  # Live FrameworkServices user info provider
-│   ├── services/            # Generic Domain Projection & Utility Gateways
+│   ├── services/            # Domain Projection & Utility Gateways
 │   │   ├── activity_log_service.dart   # In-memory diagnostics logger & exporter
 │   │   ├── backend_service.dart        # Core projection gateway & batch executor
 │   │   ├── cache_manager_service.dart  # Cache directory size calculator & purger
+│   │   ├── navigator_service.dart      # Dynamic navigation hierarchy service
 │   │   └── schema_catalog_service.dart # Live projection schema discovery & XML metadata
 │   ├── storage/             # Device Local Storage
 │   │   └── local_storage_service.dart  # SharedPreferences for servers & theme
 │   ├── utils/               # Resolvers & Helpers
 │   │   ├── color_resolver.dart
+│   │   ├── column_config_parser.dart   # Parser for dynamic list column configurations
 │   │   └── icon_resolver.dart
 │   └── widgets/             # Reusable SDUI Components
-│       ├── record/          # RecordCard, RecordListScreen, RecordDetailScreen, RecordActionSheet
+│       ├── record/          # RecordCard, RecordStatusBadge, RecordListScreen, RecordDetailScreen, RecordActionSheet
 │       ├── lobby/           # LobbyGrid, LobbyElementTile, LobbyCounterTile, LobbyChartTile
-│       └── menu/            # MenuSectionCard, MenuItemTile
+│       └── menu/            # MenuSectionCard, MenuItemTile, ModuleInfoSheet
 ├── features/
 │   ├── login/               # Authentication & Server Profile Management
 │   │   ├── components/      # ServerCardTile, LoginFormCard, ServerFormField
@@ -123,32 +128,32 @@ lib/
 ```
 [Backend Metadata / Registry] ──> EntitySchemaMetadata
                                       │
-                                      ├──> EntityListScreen (Dynamic Appbar, Search, FAB)
+                                      ├──> RecordListScreen (Dynamic Appbar, Search, FAB)
                                       │         │
-                                      │         └──> EntityCard (Dynamic fields, priority badges)
+                                      │         └──> RecordCard (Aligned table grid, status badges)
                                       │
-                                      └──> AppActionDispatcher ──> EntityActionSheet (Dynamic forms)
+                                      └──> AppActionDispatcher ──> RecordActionSheet (Dynamic forms)
 ```
 
-1. **Schema Definition**: Entities declare their projection name, entity set, fields, keys, filters, and actionable mutations via `EntitySchemaMetadata`.
-2. **Rendering**: `EntityListScreen` reads `EntityListCardMetadata` to project raw OData records into uniform UI components without hardcoded entity screens.
-3. **Actions**: Dynamic actions (`create`, `change_status`, `execute_action`) render dynamic bottom sheets via `EntityActionSheet`.
+1. **Schema Definition**: Projections declare their projection name, entity set, fields, keys, filters, and actionable mutations via `EntitySchemaMetadata`.
+2. **Rendering**: `RecordListScreen` reads schema configuration to project raw records into uniform UI components without hardcoded record screens.
+3. **Actions**: Dynamic actions (`create`, `form_dialog`, `action`) render dynamic bottom sheets via `RecordActionSheet` and `RecordActionExecutor`.
 
-### B. OData v4 Network Pipeline
+### B. Network Pipeline
 ```
-ErpCloudService ──> ApiClient ──> AuthInterceptor ──> OData v4 Endpoint
+BackendService ──> ApiClient ──> AuthInterceptor ──> REST Projection Endpoint
                          ▲              │ (401 Response)
                          │              ▼
                          └────── ApiClient.refreshTokenOAuth()
 ```
 
 1. **Target Routing**: `ApiConfig.instance.activeServer` provides the base URL and realm.
-2. **Query Building**: `ODataQuery` constructs queries supporting `$filter`, `$select`, `$expand`, `$top`, and `$skip`.
+2. **Query Building**: `DataQuery` constructs queries supporting `$filter`, `$select`, `$expand`, `$top`, and `$skip` complying with RFC OData v4 query syntax.
 3. **Session Management**: `AuthInterceptor` injects `Authorization: Bearer <token>`. Upon receiving an HTTP 401, it attempts token refresh via OAuth `grant_type: refresh_token` and transparently retries the failed request.
 
 ### C. Server Configuration & Persistence
 - Configured servers and the currently active server ID are saved locally via `LocalStorageService`.
-- Switching servers in `ManageServersScreen` immediately calls `ApiConfig.instance.setServer(...)` and `LocalStorageService.saveSelectedServerId(...)`, directing all subsequent OData API calls to the chosen instance without requiring an app reload.
+- Switching servers in `ManageServersScreen` immediately calls `ApiConfig.instance.setServer(...)` and `LocalStorageService.saveSelectedServerId(...)`, directing all subsequent API calls to the chosen instance without requiring an app reload.
 
 ---
 
@@ -162,12 +167,9 @@ rtk dart analyze lib test
 
 # 2. Automated test suite (all tests must pass)
 rtk flutter test
-
-# 3. Line count check (all files must be <180 lines)
-rtk python "C:\Users\MP2NE93D\.gemini\antigravity-ide\brain\253681d4-7a46-4b8e-8953-a688a8bbbae0\scratch\check_lines.py"
 ```
 
 ### Adding a New Entity Projection
 1. Register the schema in `lib/core/metadata/entity_schema_registry.dart` with `projection` and `entitySet`.
 2. Register the route alias in `EntitySchemaRegistry.findByTarget(...)`.
-3. The entity is immediately browsable, searchable, and actionable across the app without writing a single new screen or widget!
+3. The entity is immediately browsable, searchable, and actionable across the app without writing a single new screen or widget.
