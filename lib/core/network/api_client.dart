@@ -65,6 +65,16 @@ class ApiClient {
   Future<Map<String, dynamic>> callFunction(String proj, String funcName, {Map<String, dynamic>? query}) async =>
       (await _dio.get<Map<String, dynamic>>('${_config.projectionBaseUrl}/$proj.svc/$funcName', queryParameters: query)).data ?? {};
 
+  Future<String?> getRawXml(String url) async {
+    try {
+      final res = await _dio.get<String>(url, options: Options(responseType: ResponseType.plain));
+      return res.data;
+    } catch (e) {
+      debugPrint('ApiClient.getRawXml error: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> getCurrentUserInformation() async {
     try {
       final res = await callFunction('FrameworkServices', 'GetCurrentUserInformation()');

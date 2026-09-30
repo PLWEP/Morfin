@@ -4,6 +4,7 @@ import '../../metadata/action_param_metadata.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../network/odata_query.dart';
 import '../../services/backend_service.dart';
+import '../../services/odata_metadata_service.dart';
 import 'entity_action_sheet.dart';
 
 class EntityActionExecutor {
@@ -88,6 +89,18 @@ class EntityActionExecutor {
         formFields = rawParams
             .map((p) => ActionParamMetadata.fromJson(p).toFormField(projection: projection))
             .toList();
+      } else {
+        // Fallback to OData $metadata parsing directly
+        formFields = await ODataMetadataService.instance.fetchActionFields(
+          projection: projection,
+          actionName: actionName,
+        );
+        if (formFields.isEmpty) {
+          formFields = await ODataMetadataService.instance.fetchEntityFields(
+            projection: projection,
+            entitySetOrName: schema.entitySet.isNotEmpty ? schema.entitySet : actionName,
+          );
+        }
       }
     } catch (e) {
       debugPrint('Failed to load action metadata: $e');

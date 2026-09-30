@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../services/navigator_service.dart';
+import '../../services/odata_metadata_service.dart';
 import 'entity_action_sheet.dart';
 import 'entity_bulk_action_bar.dart';
 import 'entity_item_handler.dart';
@@ -48,6 +49,7 @@ class _EntityListScreenState extends State<EntityListScreen> {
 
   Future<void> _loadLiveRecords() async {
     setState(() { _isLoading = true; _error = null; _hasMore = true; });
+    ODataMetadataService.instance.invalidateProjection(widget.schema.projection);
     try {
       final data = await widget.fetchRecords(skip: 0, top: widget.pageSize);
       if (mounted) setState(() { _records = data; _hasMore = data.length >= widget.pageSize; });
@@ -75,40 +77,33 @@ class _EntityListScreenState extends State<EntityListScreen> {
     return _records.where((r) => r.values.any((v) => v != null && v.toString().toLowerCase().contains(q))).toList();
   }
 
-  void _toggleSelection(Map<String, dynamic> record) {
-    setState(() {
-      if (_selectedRecords.contains(record)) {
-        _selectedRecords.remove(record);
-        if (_selectedRecords.isEmpty) _isSelectionMode = false;
-      } else {
-        _selectedRecords.add(record);
-        _isSelectionMode = true;
-      }
-    });
-  }
+  void _toggleSelection(Map<String, dynamic> record) => setState(() {
+    if (_selectedRecords.remove(record)) {
+      if (_selectedRecords.isEmpty) _isSelectionMode = false;
+    } else {
+      _selectedRecords.add(record);
+      _isSelectionMode = true;
+    }
+  });
 
   void _exitSelectionMode() => setState(() { _isSelectionMode = false; _selectedRecords.clear(); });
 
-  void _selectAll(List<Map<String, dynamic>> displayed) {
-    setState(() {
-      if (_selectedRecords.length == displayed.length) {
-        _selectedRecords.clear();
-        _isSelectionMode = false;
-      } else {
-        _selectedRecords.addAll(displayed);
-        _isSelectionMode = true;
-      }
-    });
-  }
+  void _selectAll(List<Map<String, dynamic>> displayed) => setState(() {
+    if (_selectedRecords.length == displayed.length) {
+      _selectedRecords.clear();
+      _isSelectionMode = false;
+    } else {
+      _selectedRecords.addAll(displayed);
+      _isSelectionMode = true;
+    }
+  });
 
   void _openCreateSheet(EntityActionMetadata action) {
     EntityActionSheet.show(
       context, title: action.label, actionLabel: 'Save', fields: action.formFields,
       onSubmit: (values) async {
-        if (widget.onExecuteAction != null) {
-          await widget.onExecuteAction!(action.name, values);
-          _loadLiveRecords();
-        }
+        await widget.onExecuteAction?.call(action.name, values);
+        _loadLiveRecords();
       },
     );
   }
