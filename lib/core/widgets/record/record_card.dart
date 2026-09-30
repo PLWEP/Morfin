@@ -28,21 +28,33 @@ class RecordCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     final cardMeta = schema.listCard;
-    final cfg = (columnConfig != null && columnConfig!.isNotEmpty)
-        ? ColumnConfig.parse(columnConfig)
-        : null;
+    final cfg = (columnConfig != null && columnConfig!.isNotEmpty) ? ColumnConfig.parse(columnConfig) : null;
 
-    final code = cfg != null
+    final titleKey = cfg != null ? cfg.titleField : (cardMeta.codeField.isNotEmpty ? cardMeta.codeField : 'Id');
+    final titleLabel = _resolveLabel(titleKey);
+    final title = cfg != null
         ? (record[cfg.titleField] ?? '').toString()
         : (record[cardMeta.codeField] ?? record['OrderNo'] ?? record['PartNo'] ?? record['Id'] ?? (record.isNotEmpty ? record.values.first : '')).toString();
 
-    final title = cfg != null
-        ? (cfg.subtitleField != null ? record[cfg.subtitleField]?.toString() ?? code : code)
-        : (record[cardMeta.primaryField] ?? record['Description'] ?? record['Title'] ?? record['Name'] ?? (record.length > 1 ? record.values.elementAt(1) : code)).toString();
+    final subtitleKey = cfg != null ? cfg.subtitleField : (cardMeta.primaryField != cardMeta.codeField ? cardMeta.primaryField : null);
+    final subtitleLabel = subtitleKey != null ? _resolveLabel(subtitleKey) : null;
+    final subtitle = subtitleKey != null ? record[subtitleKey]?.toString() : null;
 
-    final secondary = cfg != null ? (cfg.detailFields.isNotEmpty ? record[cfg.detailFields[0]]?.toString() : null) : (cardMeta.secondaryField != null ? record[cardMeta.secondaryField]?.toString() : null);
-    final tertiary = cfg != null ? (cfg.detailFields.length > 1 ? record[cfg.detailFields[1]]?.toString() : null) : (cardMeta.tertiaryField != null ? record[cardMeta.tertiaryField]?.toString() : null);
-    final metric = cfg != null ? (cfg.detailFields.length > 2 ? record[cfg.detailFields[2]]?.toString() : null) : (cardMeta.metricField != null ? record[cardMeta.metricField]?.toString() : null);
+    final detailPairs = <(String label, String value)>[];
+    if (cfg != null && cfg.detailFields.isNotEmpty) {
+      for (final fieldKey in cfg.detailFields) {
+        final val = record[fieldKey];
+        if (val != null && val.toString().trim().isNotEmpty) {
+          detailPairs.add((_resolveLabel(fieldKey), val.toString().trim()));
+        }
+      }
+    } else {
+      for (final key in [cardMeta.secondaryField, cardMeta.tertiaryField, cardMeta.metricField]) {
+        if (key != null && record[key] != null && record[key].toString().trim().isNotEmpty) {
+          detailPairs.add((_resolveLabel(key), record[key].toString().trim()));
+        }
+      }
+    }
 
     final status = cardMeta.statusField != null ? record[cardMeta.statusField]?.toString() : null;
     final (badgeBg, badgeFg) = _resolveStatusColor(status, colors);
@@ -52,23 +64,19 @@ class RecordCard extends StatelessWidget {
       onLongPress: onLongPress,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isSelected ? colors.primary.withValues(alpha: 0.08) : colors.surfaceCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? colors.primary : colors.surfaceBorder,
-            width: isSelected ? 1.5 : 1,
-          ),
+          border: Border.all(color: isSelected ? colors.primary : colors.surfaceBorder, width: isSelected ? 1.5 : 1),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isSelectionMode) ...[
-              Icon(
-                isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                color: isSelected ? colors.primary : colors.outline,
-                size: 20,
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded, color: isSelected ? colors.primary : colors.outline, size: 20),
               ),
               const SizedBox(width: 12),
             ],
@@ -77,37 +85,93 @@ class RecordCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(code, style: GoogleFonts.robotoMono(fontSize: 11, fontWeight: FontWeight.w600, color: colors.primary)),
-                      if (status != null)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              titleLabel,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: colors.outline),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              title.isNotEmpty ? title : '-',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface, height: 1.25),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (status != null && status.isNotEmpty) ...[
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(6)),
                           child: Text(status.toUpperCase(), style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: badgeFg, letterSpacing: 0.5)),
                         ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colors.onSurface)),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      if (secondary != null) ...[
-                        Icon(Icons.precision_manufacturing_outlined, size: 14, color: colors.outline),
-                        const SizedBox(width: 4),
-                        Flexible(child: Text(secondary, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 11, color: colors.onSurfaceVariant))),
-                        const SizedBox(width: 12),
+                  if (subtitle != null && subtitle.trim().isNotEmpty && subtitle != title) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitleLabel ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: colors.outline),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant),
+                    ),
+                  ],
+                  if (detailPairs.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Divider(height: 1, thickness: 0.75, color: colors.surfaceBorder.withValues(alpha: 0.7)),
+                    const SizedBox(height: 8),
+                    Table(
+                      columnWidths: const {
+                        0: IntrinsicColumnWidth(),
+                        1: FixedColumnWidth(10),
+                        2: FlexColumnWidth(),
+                      },
+                      defaultVerticalAlignment: TableCellVerticalAlignment.top,
+                      children: [
+                        for (int i = 0; i < detailPairs.length; i++)
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: i > 0 ? 5 : 0),
+                                child: Text(
+                                  detailPairs[i].$1,
+                                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: colors.outline),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: i > 0 ? 5 : 0),
+                                child: Text(':', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: colors.outline)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: i > 0 ? 5 : 0),
+                                child: Text(
+                                  detailPairs[i].$2,
+                                  textAlign: TextAlign.end,
+                                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: colors.onSurface),
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
-                      if (tertiary != null) ...[
-                        Icon(Icons.location_on_outlined, size: 14, color: colors.outline),
-                        const SizedBox(width: 4),
-                        Flexible(child: Text(tertiary, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 11, color: colors.onSurfaceVariant))),
-                      ],
-                      const Spacer(),
-                      if (metric != null) Text(metric, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: colors.outline)),
-                    ],
-                  ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -115,6 +179,14 @@ class RecordCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _resolveLabel(String key) {
+    for (final f in schema.fields) {
+      if (f.key.toLowerCase() == key.toLowerCase()) return f.label;
+    }
+    final formatted = key.replaceAllMapped(RegExp(r'(?<=[a-z])[A-Z]'), (m) => ' ${m.group(0)}');
+    return formatted.replaceAll('_', ' ').trim();
   }
 
   (Color, Color) _resolveStatusColor(String? status, AppPalette colors) {
