@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:morfin/core/models/mobile_nav_node.dart';
-import 'package:morfin/core/network/odata_query.dart';
+import 'package:morfin/core/models/navigation_node.dart';
+import 'package:morfin/core/network/data_query.dart';
 
 void main() {
-  group('MobileNavNode & defaultFilter test', () {
-    test('MobileNavNode parses defaultFilter properly from json', () {
+  group('NavigationNode & defaultFilter test', () {
+    test('NavigationNode parses defaultFilter properly from json', () {
       final json = {
         'NodeId': 4,
         'ParentId': 2,
@@ -21,21 +21,21 @@ void main() {
         'ChildCount': 0,
       };
 
-      final node = MobileNavNode.fromJson(json);
+      final node = NavigationNode.fromJson(json);
       expect(node.nodeId, 4);
       expect(node.defaultFilter, "Objstate eq 'Planned'");
       expect(node.actionType, 'LIST');
     });
 
-    test('ODataQuery.combineFilters formats filter query correctly', () {
+    test('DataQuery.combineFilters formats filter query correctly', () {
       // 1. Only default filter
-      final f1 = ODataQuery.combineFilters(
+      final f1 = DataQuery.combineFilters(
         defaultFilter: "Objstate eq 'Planned'",
       );
       expect(f1, "(Objstate eq 'Planned')");
 
       // 2. Default filter + search query
-      final f2 = ODataQuery.combineFilters(
+      final f2 = DataQuery.combineFilters(
         defaultFilter: "Objstate eq 'Planned'",
         searchQuery: 'REQ100',
         searchFields: ['RequisitionNo', 'Description'],
@@ -46,20 +46,20 @@ void main() {
       );
 
       // 3. Only search query
-      final f3 = ODataQuery.combineFilters(
+      final f3 = DataQuery.combineFilters(
         searchQuery: 'TEST',
         searchFields: ['PartNo'],
       );
       expect(f3, "(contains(PartNo, 'TEST'))");
 
       // 4. Null filters
-      final f4 = ODataQuery.combineFilters();
+      final f4 = DataQuery.combineFilters();
       expect(f4, isNull);
     });
 
-    test('ODataQuery toQueryParams includes formatted \$filter', () {
-      final query = ODataQuery(
-        filter: ODataQuery.combineFilters(defaultFilter: "Objstate eq 'Planned'"),
+    test('DataQuery toQueryParams includes formatted \$filter', () {
+      final query = DataQuery(
+        filter: DataQuery.combineFilters(defaultFilter: "Objstate eq 'Planned'"),
         top: 20,
         skip: 0,
       );

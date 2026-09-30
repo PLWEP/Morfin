@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'activity_log_interceptor.dart';
 import 'api_config.dart';
 import 'auth_interceptor.dart';
-import 'odata_query.dart';
+import 'data_query.dart';
 
 class ApiClient {
   static final ApiClient instance = ApiClient._();
@@ -42,7 +42,7 @@ class ApiClient {
   Future<List<Map<String, dynamic>>> getEntitySet(
     String projection,
     String entitySet, {
-    ODataQuery? query,
+    DataQuery? query,
   }) async {
     final url = '${_config.projectionBaseUrl}/$projection.svc/$entitySet';
     final res = await _dio.get<Map<String, dynamic>>(url, queryParameters: query?.toQueryParams());

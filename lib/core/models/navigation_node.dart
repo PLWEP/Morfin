@@ -1,4 +1,4 @@
-class MobileNavNode {
+class NavigationNode {
   final int nodeId;
   final int? parentId;
   final String label;
@@ -13,7 +13,7 @@ class MobileNavNode {
   final int sortOrder;
   final int childCount;
 
-  const MobileNavNode({
+  const NavigationNode({
     required this.nodeId,
     this.parentId,
     required this.label,
@@ -29,8 +29,8 @@ class MobileNavNode {
     required this.childCount,
   });
 
-  factory MobileNavNode.fromJson(Map<String, dynamic> json) {
-    return MobileNavNode(
+  factory NavigationNode.fromJson(Map<String, dynamic> json) {
+    return NavigationNode(
       nodeId: (json['NodeId'] ?? json['Id'] ?? 0) as int,
       parentId: json['ParentId'] as int?,
       label: (json['Label'] ?? json['CleanLabel'] ?? '').toString(),

@@ -3,10 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../utils/icon_resolver.dart';
-import 'entity_action_executor.dart';
+import 'record_action_executor.dart';
 
-class EntityActionRunner {
-  const EntityActionRunner._();
+class RecordActionRunner {
+  const RecordActionRunner._();
 
   static void showChildActionsSheet(
     BuildContext context, {
@@ -66,7 +66,7 @@ class EntityActionRunner {
                   onTap: () {
                     Navigator.of(sheetCtx).pop();
                     if (actType == 'FORM') {
-                      EntityActionExecutor.triggerFormAction(
+                      RecordActionExecutor.triggerFormAction(
                         context,
                         schema: schema,
                         record: record,
@@ -77,7 +77,7 @@ class EntityActionRunner {
                         onRefresh: onRefresh,
                       );
                     } else {
-                      EntityActionExecutor.triggerDirectAction(
+                      RecordActionExecutor.triggerDirectAction(
                         context,
                         label: label,
                         record: record,

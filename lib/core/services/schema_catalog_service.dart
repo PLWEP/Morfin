@@ -2,9 +2,9 @@ import '../metadata/entity_metadata.dart';
 import '../network/api_client.dart';
 import '../network/api_config.dart';
 
-class ODataMetadataService {
-  static final ODataMetadataService instance = ODataMetadataService._();
-  ODataMetadataService._();
+class SchemaCatalogService {
+  static final SchemaCatalogService instance = SchemaCatalogService._();
+  SchemaCatalogService._();
 
   final Map<String, (DateTime, String)> _xmlCache = {};
   static const Duration _cacheTtl = Duration(minutes: 5);
@@ -60,7 +60,7 @@ class ODataMetadataService {
     return fields;
   }
 
-  Future<List<EntityFieldMetadata>> fetchEntityFields({
+  Future<List<EntityFieldMetadata>> fetchRecordFields({
     required String projection,
     required String entitySetOrName,
   }) async {

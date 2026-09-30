@@ -5,12 +5,12 @@ import '../../features/shell/main_shell_screen.dart';
 import '../metadata/action_metadata.dart';
 import '../metadata/entity_metadata.dart';
 import '../metadata/entity_schema_registry.dart';
-import '../network/odata_query.dart';
+import '../network/data_query.dart';
 import '../services/backend_service.dart';
-import '../widgets/entity/entity_action_executor.dart';
-import '../widgets/entity/entity_list_screen.dart';
 import '../widgets/menu/module_info_sheet.dart';
 import '../widgets/menu/sub_menu_bottom_sheet.dart';
+import '../widgets/record/record_action_executor.dart';
+import '../widgets/record/record_list_screen.dart';
 
 class AppActionDispatcher {
   const AppActionDispatcher._();
@@ -87,7 +87,7 @@ class AppActionDispatcher {
         fields: const [],
         listCard: const EntityListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
       );
-      EntityActionExecutor.triggerFormAction(
+      RecordActionExecutor.triggerFormAction(
         context,
         schema: EntitySchemaRegistry.findByTarget(projection) ?? fallbackSchema,
         record: const {},
@@ -100,7 +100,7 @@ class AppActionDispatcher {
     }
 
     if (actionType == 'ACTION') {
-      EntityActionExecutor.triggerDirectAction(
+      RecordActionExecutor.triggerDirectAction(
         context,
         label: title,
         record: const {},
@@ -132,7 +132,7 @@ class AppActionDispatcher {
     if (schema != null) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => EntityListScreen(
+          builder: (_) => RecordListScreen(
             schema: schema,
             nodeId: nodeId,
             columnConfig: columnConfig,
@@ -142,8 +142,8 @@ class AppActionDispatcher {
             fetchRecords: ({int skip = 0, int top = 20}) => BackendService.instance.fetchEntitySet(
               projection: schema.projection,
               entitySet: schema.entitySet,
-              query: ODataQuery(
-                filter: ODataQuery.combineFilters(defaultFilter: defaultFilter),
+              query: DataQuery(
+                filter: DataQuery.combineFilters(defaultFilter: defaultFilter),
                 top: top,
                 skip: skip,
               ),

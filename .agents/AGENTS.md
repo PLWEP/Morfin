@@ -15,5 +15,5 @@ This document is the authoritative instruction manual for any AI coding assistan
 7. **Always-Online**: Zero offline mutation queues or local transactional caches. All ERP operations sync live with backend OData v4 projections.
 8. **File Size Ceiling**: Strictly **<180 lines** (soft limit) and **<200 lines** (hard limit). Zero God Objects / God Nodes.
 9. **Vendor Decoupling**: Keep internal identifiers clean and vendor-neutral (`ApiClient`, `ApiConfig`, `AuthInterceptor`, `ErpCloudService`, `EntitySchemaRegistry`).
-10. **SDUI Driven**: Use entity-driven components (`EntityListScreen`, `EntityDetailScreen`, `EntityCard`, `EntityActionSheet`, `LobbyScreen`, `MenuScreen`).
-11. **Graphify Topological Hubs**: Refer to `graphify-out/graph.json` (1,048 nodes, 1,445 edges), `graphify-out/GRAPH_TREE.html`, and `graphify-out/morfin-callflow.html` for architectural relationships.
+10. **SDUI Driven**: Use dynamic record-driven components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `LobbyScreen`, `MenuScreen`).
+11. **Graphify Topological Hubs**: Refer to `graphify-out/graph.json` (1,068 nodes, 1,443 edges), `graphify-out/GRAPH_TREE.html`, and `graphify-out/morfin-callflow.html` for architectural relationships.

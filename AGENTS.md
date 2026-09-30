@@ -32,18 +32,18 @@ This document is the authoritative instruction manual for any AI coding assistan
 
 ## 3. Graphify Topological Architecture
 
-The codebase has been mapped using Graphify AST analysis (**1,048 nodes, 1,445 edges**).
+The codebase has been mapped using Graphify AST analysis (**1,068 nodes, 1,443 edges**).
 Key architectural hubs:
 
 ```
 [LocalStorageService] ──> [ServerConfig] <──> [ApiConfig]
                                                     │
                                                     ▼
-[EntityListScreen] <── [ErpCloudService] <── [ApiClient] <── [AuthInterceptor]
+[RecordListScreen] <── [BackendService] <── [ApiClient] <── [AuthInterceptor]
           │
-          ├──> [EntityCard]
+          ├──> [RecordCard]
           │
-          └──> [AppActionDispatcher] ──> [EntityActionSheet]
+          └──> [AppActionDispatcher] ──> [RecordActionSheet]
 ```
 
 ### Top Architectural Hubs (God Nodes)
@@ -65,8 +65,9 @@ Key architectural hubs:
 - `lib/core/network/api_client.dart`: Dio-based HTTP client executing OData v4 operations (`getEntitySet`, `getEntity`, `postEntity`, `patchEntity`, `callAction`).
 - `lib/core/network/auth_interceptor.dart`: Auto-injects bearer token; transparently triggers `refreshTokenOAuth()` upon receiving HTTP 401.
 - `lib/core/network/activity_log_interceptor.dart`: Dio interceptor recording live request/response telemetry for diagnostics.
-- `lib/core/network/odata_query.dart`: Fluent builder for OData query strings (`$filter`, `$select`, `$top`, etc.).
-- `lib/core/services/erp_cloud_service.dart`: Generic OData projection gateway (`fetchEntitySet`, `fetchEntityRecord`, `createEntityRecord`, `updateEntityRecord`, `executeAction`).
+- `lib/core/network/data_query.dart`: Fluent builder for OData query strings (`$filter`, `$select`, `$top`, etc.).
+- `lib/core/services/backend_service.dart`: Core backend integration gateway (`fetchEntitySet`, `fetchEntityRecord`, `createEntityRecord`, `updateEntityRecord`, `executeAction`, `executeBatchAction`, `fetchNavigatorNodes`).
+- `lib/core/services/schema_catalog_service.dart`: Live projection schema discovery & XML metadata introspection service.
 - `lib/core/services/cache_manager_service.dart`: Live cache size calculation and cache clearing service.
 - `lib/core/services/activity_log_service.dart`: In-memory network and system activity logger for diagnostics export.
 - `lib/core/providers/user_profile_provider.dart`: Fetches live user profile data via `FrameworkServices.svc/GetCurrentUserInformation()`.
@@ -74,7 +75,7 @@ Key architectural hubs:
 - `lib/core/metadata/`: SDUI contracts (`EntitySchemaMetadata`, `ActionMetadata`, `LobbyPageMetadata`, `MenuMetadata`).
 - `lib/core/navigation/action_dispatcher.dart`: Central dispatcher executing schema-driven SDUI navigation and modal actions.
 - `lib/core/storage/local_storage_service.dart`: SharedPreferences persistence for server profiles, selected server ID, and theme.
-- `lib/core/widgets/entity/`: Pure SDUI entity components (`EntityListScreen`, `EntityDetailScreen`, `EntityCard`, `EntityActionSheet`, `EntityFormField`).
+- `lib/core/widgets/record/`: Pure SDUI record components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `RecordFormField`, `RecordLookupSheet`).
 - `lib/core/widgets/lobby/`: Dynamic dashboard tiles (`LobbyGrid`, `LobbyElementTile`, `LobbyCounterTile`, `LobbyChartTile`, etc.).
 - `lib/core/widgets/menu/`: Dynamic menu navigation (`MenuSectionCard`, `MenuItemTile`).
 - `lib/features/login/models/server_config.dart`: Profile model defining server URL, realm, and OAuth client credentials.

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/painting.dart';
-import 'odata_metadata_service.dart';
+import 'schema_catalog_service.dart';
 
 class CacheManagerService {
   static final CacheManagerService instance = CacheManagerService._();
@@ -52,8 +52,8 @@ class CacheManagerService {
       PaintingBinding.instance.imageCache.clearLiveImages();
     } catch (_) {}
 
-    // Clear OData metadata memory cache
-    ODataMetadataService.instance.clearCache();
+    // Clear schema metadata memory cache
+    SchemaCatalogService.instance.clearCache();
 
     // Clean ephemeral temporary files
     try {

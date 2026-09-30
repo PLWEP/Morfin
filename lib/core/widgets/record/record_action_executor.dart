@@ -2,13 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../../metadata/action_param_metadata.dart';
 import '../../metadata/entity_metadata.dart';
-import '../../network/odata_query.dart';
+import '../../network/data_query.dart';
 import '../../services/backend_service.dart';
-import '../../services/odata_metadata_service.dart';
-import 'entity_action_sheet.dart';
+import '../../services/schema_catalog_service.dart';
+import 'record_action_sheet.dart';
 
-class EntityActionExecutor {
-  const EntityActionExecutor._();
+class RecordActionExecutor {
+  const RecordActionExecutor._();
 
   static Future<void> triggerDirectAction(
     BuildContext context, {
@@ -80,7 +80,7 @@ class EntityActionExecutor {
       final rawParams = await BackendService.instance.fetchEntitySet(
         projection: 'MobileNavMenuHandling',
         entitySet: 'ActionParamSet',
-        query: ODataQuery(
+        query: DataQuery(
           filter: "ProjectionName eq '$projection' and ActionName eq '$actionName'",
         ),
       );
@@ -90,13 +90,12 @@ class EntityActionExecutor {
             .map((p) => ActionParamMetadata.fromJson(p).toFormField(projection: projection))
             .toList();
       } else {
-        // Fallback to OData $metadata parsing directly
-        formFields = await ODataMetadataService.instance.fetchActionFields(
+        formFields = await SchemaCatalogService.instance.fetchActionFields(
           projection: projection,
           actionName: actionName,
         );
         if (formFields.isEmpty) {
-          formFields = await ODataMetadataService.instance.fetchEntityFields(
+          formFields = await SchemaCatalogService.instance.fetchRecordFields(
             projection: projection,
             entitySetOrName: schema.entitySet.isNotEmpty ? schema.entitySet : actionName,
           );
@@ -114,7 +113,7 @@ class EntityActionExecutor {
 
     if (!context.mounted) return;
 
-    EntityActionSheet.show(
+    RecordActionSheet.show(
       context,
       title: title,
       actionLabel: 'Submit',

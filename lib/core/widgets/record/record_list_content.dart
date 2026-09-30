@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
-import 'entity_card.dart';
+import 'record_card.dart';
 
-class EntityListContent extends StatelessWidget {
+class RecordListContent extends StatelessWidget {
   final ScrollController scrollController;
   final EntitySchemaMetadata schema;
   final String? columnConfig;
@@ -17,7 +17,7 @@ class EntityListContent extends StatelessWidget {
   final ValueChanged<Map<String, dynamic>> onItemLongPress;
   final Future<void> Function() onRefresh;
 
-  const EntityListContent({
+  const RecordListContent({
     super.key,
     required this.scrollController,
     required this.schema,
@@ -78,7 +78,7 @@ class EntityListContent extends StatelessWidget {
             );
           }
           final record = displayed[index];
-          return EntityCard(
+          return RecordCard(
             schema: schema,
             record: record,
             columnConfig: columnConfig,

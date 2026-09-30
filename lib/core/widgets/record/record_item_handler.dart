@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../services/backend_service.dart';
 import '../../services/navigator_service.dart';
-import 'entity_action_runner.dart';
-import 'entity_action_sheet.dart';
-import 'entity_detail_screen.dart';
+import 'record_action_runner.dart';
+import 'record_action_sheet.dart';
+import 'record_detail_screen.dart';
 
-class EntityItemHandler {
-  const EntityItemHandler._();
+class RecordItemHandler {
+  const RecordItemHandler._();
 
   static Future<void> handleTap(
     BuildContext context, {
@@ -26,7 +26,7 @@ class EntityItemHandler {
         : <Map<String, dynamic>>[];
 
     if (childActions.isNotEmpty) {
-      EntityActionRunner.showChildActionsSheet(
+      RecordActionRunner.showChildActionsSheet(
         context,
         schema: schema,
         record: record,
@@ -57,7 +57,7 @@ class EntityItemHandler {
 
       final targetAction = itemClickTarget ?? 'Submit';
 
-      EntityActionSheet.show(
+      RecordActionSheet.show(
         context,
         title: targetAction,
         actionLabel: 'Submit',
@@ -82,7 +82,7 @@ class EntityItemHandler {
 
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => EntityDetailScreen(
+        builder: (_) => RecordDetailScreen(
           schema: schema,
           record: record,
           onExecuteAction: onExecuteAction,

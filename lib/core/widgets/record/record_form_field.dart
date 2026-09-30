@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
-import 'entity_lov_picker_sheet.dart';
+import 'record_lookup_sheet.dart';
 
-class EntityFormField extends StatefulWidget {
+class RecordFormField extends StatefulWidget {
   final EntityFieldMetadata field;
   final dynamic initialValue;
   final ValueChanged<dynamic> onChanged;
   final FormFieldSetter<String> onSaved;
 
-  const EntityFormField({
+  const RecordFormField({
     super.key,
     required this.field,
     this.initialValue,
@@ -19,10 +19,10 @@ class EntityFormField extends StatefulWidget {
   });
 
   @override
-  State<EntityFormField> createState() => _EntityFormFieldState();
+  State<RecordFormField> createState() => _RecordFormFieldState();
 }
 
-class _EntityFormFieldState extends State<EntityFormField> {
+class _RecordFormFieldState extends State<RecordFormField> {
   late final TextEditingController _controller;
 
   @override
@@ -38,7 +38,7 @@ class _EntityFormFieldState extends State<EntityFormField> {
   }
 
   void _openLov() {
-    EntityLovPickerSheet.show(
+    RecordLookupSheet.show(
       context,
       title: widget.field.label,
       projection: widget.field.lovProjection ?? '',

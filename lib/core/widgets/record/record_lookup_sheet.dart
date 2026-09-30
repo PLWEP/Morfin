@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../network/odata_query.dart';
+import '../../network/data_query.dart';
 import '../../services/backend_service.dart';
 
-class EntityLovPickerSheet extends StatefulWidget {
+class RecordLookupSheet extends StatefulWidget {
   final String title;
   final String projection;
   final String lovReference;
   final ValueChanged<String> onSelected;
 
-  const EntityLovPickerSheet({
+  const RecordLookupSheet({
     super.key,
     required this.title,
     required this.projection,
@@ -29,7 +29,7 @@ class EntityLovPickerSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => EntityLovPickerSheet(
+      builder: (_) => RecordLookupSheet(
         title: title,
         projection: projection,
         lovReference: lovReference,
@@ -39,10 +39,10 @@ class EntityLovPickerSheet extends StatefulWidget {
   }
 
   @override
-  State<EntityLovPickerSheet> createState() => _EntityLovPickerSheetState();
+  State<RecordLookupSheet> createState() => _RecordLookupSheetState();
 }
 
-class _EntityLovPickerSheetState extends State<EntityLovPickerSheet> {
+class _RecordLookupSheetState extends State<RecordLookupSheet> {
   List<Map<String, dynamic>> _items = [];
   bool _isLoading = true;
   String _search = '';
@@ -66,7 +66,7 @@ class _EntityLovPickerSheetState extends State<EntityLovPickerSheet> {
         final res = await BackendService.instance.fetchEntitySet(
           projection: widget.projection,
           entitySet: entitySet,
-          query: const ODataQuery(top: 50),
+          query: const DataQuery(top: 50),
         );
         if (res.isNotEmpty && mounted) {
           setState(() {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../services/backend_service.dart';
-import 'entity_action_executor.dart';
+import 'record_action_executor.dart';
 
-class EntityBulkActionRunner {
-  const EntityBulkActionRunner._();
+class RecordBulkActionRunner {
+  const RecordBulkActionRunner._();
 
   static Future<void> execute({
     required BuildContext context,
@@ -61,7 +61,7 @@ class EntityBulkActionRunner {
       }
     } catch (e) {
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
-      final errorMsg = EntityActionExecutor.extractErrorMessage(e);
+      final errorMsg = RecordActionExecutor.extractErrorMessage(e);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

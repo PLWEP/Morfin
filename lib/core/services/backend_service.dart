@@ -1,8 +1,8 @@
 import 'dart:convert';
-import '../models/mobile_nav_node.dart';
+import '../models/navigation_node.dart';
 import '../network/api_client.dart';
-import '../network/odata_query.dart';
-import '../widgets/entity/entity_action_executor.dart';
+import '../network/data_query.dart';
+import '../widgets/record/record_action_executor.dart';
 
 class BackendService {
   static final BackendService instance = BackendService._();
@@ -13,7 +13,7 @@ class BackendService {
   Future<List<Map<String, dynamic>>> fetchEntitySet({
     required String projection,
     required String entitySet,
-    ODataQuery? query,
+    DataQuery? query,
   }) async {
     return _client.getEntitySet(projection, entitySet, query: query);
   }
@@ -56,7 +56,7 @@ class BackendService {
     required String actionName,
     required List<Map<String, dynamic>> items,
   }) async {
-    final keyListJson = jsonEncode(items.map((r) => EntityActionExecutor.sanitizePayload(r)).toList());
+    final keyListJson = jsonEncode(items.map((r) => RecordActionExecutor.sanitizePayload(r)).toList());
     return executeAction(
       projection: 'MobileNavMenuHandling',
       actionName: 'ExecuteBatchAction',
@@ -87,7 +87,7 @@ class BackendService {
       );
       final val = res['value'];
       if (val is List && val.isNotEmpty) {
-        return val.map((i) => MobileNavNode.fromJson(Map<String, dynamic>.from(i as Map)).toJson()).toList();
+        return val.map((i) => NavigationNode.fromJson(Map<String, dynamic>.from(i as Map)).toJson()).toList();
       }
     } catch (_) {}
     return [];

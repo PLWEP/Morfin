@@ -4,7 +4,7 @@ import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../utils/column_config_parser.dart';
 
-class EntityCard extends StatelessWidget {
+class RecordCard extends StatelessWidget {
   final EntitySchemaMetadata schema;
   final Map<String, dynamic> record;
   final String? columnConfig;
@@ -13,7 +13,7 @@ class EntityCard extends StatelessWidget {
   final bool isSelectionMode;
   final bool isSelected;
 
-  const EntityCard({
+  const RecordCard({
     super.key,
     required this.schema,
     required this.record,

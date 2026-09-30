@@ -81,20 +81,21 @@ lib/
 │   │   ├── api_client.dart             # HTTP verbs, OData projection calls, OAuth
 │   │   ├── api_config.dart             # Active server target & token storage
 │   │   ├── auth_interceptor.dart       # Token injection & transparent 401 refresh
-│   │   └── odata_query.dart            # Query string builder ($filter, $select, $top)
+│   │   └── data_query.dart             # Query string builder ($filter, $select, $top)
 │   ├── providers/           # Shared Riverpod Global State Providers
 │   │   └── user_profile_provider.dart  # Live FrameworkServices user info provider
 │   ├── services/            # Generic Domain Projection & Utility Gateways
 │   │   ├── activity_log_service.dart   # In-memory diagnostics logger & exporter
+│   │   ├── backend_service.dart        # Core projection gateway & batch executor
 │   │   ├── cache_manager_service.dart  # Cache directory size calculator & purger
-│   │   └── erp_cloud_service.dart      # OData fetchEntitySet, create, update, action
+│   │   └── schema_catalog_service.dart # Live projection schema discovery & XML metadata
 │   ├── storage/             # Device Local Storage
 │   │   └── local_storage_service.dart  # SharedPreferences for servers & theme
 │   ├── utils/               # Resolvers & Helpers
 │   │   ├── color_resolver.dart
 │   │   └── icon_resolver.dart
 │   └── widgets/             # Reusable SDUI Components
-│       ├── entity/          # EntityCard, EntityListScreen, EntityDetailScreen, EntityActionSheet
+│       ├── record/          # RecordCard, RecordListScreen, RecordDetailScreen, RecordActionSheet
 │       ├── lobby/           # LobbyGrid, LobbyElementTile, LobbyCounterTile, LobbyChartTile
 │       └── menu/            # MenuSectionCard, MenuItemTile
 ├── features/

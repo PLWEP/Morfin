@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'entity_bulk_action_runner.dart';
+import 'record_bulk_action_runner.dart';
 
-class EntityBulkActionBar extends StatelessWidget {
+class RecordBulkActionBar extends StatelessWidget {
   final List<Map<String, dynamic>> childActions;
   final List<Map<String, dynamic>> selectedRecords;
   final String fallbackProjection;
   final Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
   final VoidCallback onSuccess;
 
-  const EntityBulkActionBar({
+  const RecordBulkActionBar({
     super.key,
     required this.childActions,
     required this.selectedRecords,
@@ -34,7 +34,7 @@ class EntityBulkActionBar extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: FilledButton.tonal(
-                onPressed: () => EntityBulkActionRunner.execute(
+                onPressed: () => RecordBulkActionRunner.execute(
                   context: context,
                   label: label,
                   actionName: actionName,

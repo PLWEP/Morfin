@@ -1,4 +1,4 @@
-class ODataQuery {
+class DataQuery {
   final String? filter;
   final List<String> select;
   final String? orderby;
@@ -7,7 +7,7 @@ class ODataQuery {
   final List<String> expand;
   final Map<String, dynamic> customParams;
 
-  const ODataQuery({
+  const DataQuery({
     this.filter,
     this.select = const [],
     this.orderby,
