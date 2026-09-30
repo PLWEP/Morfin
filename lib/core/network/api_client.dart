@@ -15,25 +15,19 @@ class ApiClient {
   String? lastAuthError;
 
   ApiClient._() {
-    _dio = Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
-        responseType: ResponseType.json,
-      ),
-    );
-    _dio.interceptors.add(AuthInterceptor());
-    _dio.interceptors.add(ActivityLogInterceptor());
+    _dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+      responseType: ResponseType.json,
+    ));
+    _dio.interceptors.addAll([AuthInterceptor(), ActivityLogInterceptor()]);
     enableSelfSignedCertificates();
   }
 
   void enableSelfSignedCertificates() {
     if (_dio.httpClientAdapter is IOHttpClientAdapter) {
-      (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-        final client = HttpClient();
-        client.badCertificateCallback = (cert, host, port) => true;
-        return client;
-      };
+      (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () =>
+          HttpClient()..badCertificateCallback = (cert, host, port) => true;
     }
   }
 
@@ -44,8 +38,21 @@ class ApiClient {
     String entitySet, {
     DataQuery? query,
   }) async {
-    final url = '${_config.projectionBaseUrl}/$projection.svc/$entitySet';
-    final res = await _dio.get<Map<String, dynamic>>(url, queryParameters: query?.toQueryParams());
+    var url = '${_config.projectionBaseUrl}/$projection.svc/$entitySet';
+    if (query != null) {
+      final qp = query.toQueryParams();
+      if (qp.isNotEmpty) {
+        final parts = qp.entries.where((e) => e.value != null).map((e) {
+          final enc = Uri.encodeComponent(e.value.toString())
+              .replaceAll('+', '%20').replaceAll('%27', "'")
+              .replaceAll('%28', '(').replaceAll('%29', ')')
+              .replaceAll('%3A', ':').replaceAll('%2C', ',');
+          return '${e.key}=$enc';
+        }).toList();
+        url += '?${parts.join('&')}';
+      }
+    }
+    final res = await _dio.get<Map<String, dynamic>>(url);
     final val = res.data?['value'];
     return (val is List) ? val.map((i) => Map<String, dynamic>.from(i as Map)).toList() : [];
   }
@@ -67,8 +74,7 @@ class ApiClient {
 
   Future<String?> getRawXml(String url) async {
     try {
-      final res = await _dio.get<String>(url, options: Options(responseType: ResponseType.plain));
-      return res.data;
+      return (await _dio.get<String>(url, options: Options(responseType: ResponseType.plain))).data;
     } catch (e) {
       debugPrint('ApiClient.getRawXml error: $e');
       return null;
@@ -97,8 +103,7 @@ class ApiClient {
       final payload = <String, dynamic>{
         'grant_type': 'password',
         'client_id': _config.activeServer.clientId,
-        if (_config.activeServer.clientSecret.isNotEmpty)
-          'client_secret': _config.activeServer.clientSecret,
+        if (_config.activeServer.clientSecret.isNotEmpty) 'client_secret': _config.activeServer.clientSecret,
         'username': username,
         'password': password,
         if (scope.isNotEmpty) 'scope': scope,
@@ -147,19 +152,14 @@ class ApiClient {
       final payload = <String, dynamic>{
         'grant_type': grantType,
         'client_id': _config.activeServer.clientId,
-        if (_config.activeServer.clientSecret.isNotEmpty)
-          'client_secret': _config.activeServer.clientSecret,
+        if (_config.activeServer.clientSecret.isNotEmpty) 'client_secret': _config.activeServer.clientSecret,
         'refresh_token': refresh,
         if (scope.isNotEmpty) 'scope': scope,
         if (responseType != null && responseType.isNotEmpty) 'response_type': responseType,
       };
 
-      final res = await _dio.post<Map<String, dynamic>>(
-        _config.tokenEndpoint,
-        data: payload,
-        options: Options(contentType: Headers.formUrlEncodedContentType),
-      );
-
+      final res = await _dio.post<Map<String, dynamic>>(_config.tokenEndpoint,
+          data: payload, options: Options(contentType: Headers.formUrlEncodedContentType));
       final data = res.data;
       if (data != null && data['access_token'] != null) {
         _config.setTokens(

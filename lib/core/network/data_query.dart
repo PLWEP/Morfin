@@ -35,13 +35,19 @@ class DataQuery {
   }) {
     final conditions = <String>[];
     if (defaultFilter != null && defaultFilter.trim().isNotEmpty) {
-      conditions.add('($defaultFilter)');
+      final cleaned = defaultFilter
+          .trim()
+          .replaceAll(RegExp(r'\b0bjstate\b', caseSensitive: false), 'Objstate');
+      conditions.add(cleaned);
     }
     if (searchQuery != null && searchQuery.trim().isNotEmpty && searchFields != null && searchFields.isNotEmpty) {
       final q = searchQuery.trim();
       final searchOr = searchFields.map((f) => "contains($f, '$q')").join(' or ');
       conditions.add('($searchOr)');
     }
-    return conditions.isNotEmpty ? conditions.join(' and ') : null;
+    
+    if (conditions.isEmpty) return null;
+    if (conditions.length == 1) return conditions.first;
+    return conditions.map((c) => c.startsWith('(') ? c : '($c)').join(' and ');
   }
 }

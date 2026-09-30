@@ -35,9 +35,9 @@ void main() {
 
     test('DataQuery.combineFilters formats filter query correctly', () {
       final f1 = DataQuery.combineFilters(
-        defaultFilter: "Objstate eq 'Planned'",
+        defaultFilter: "0bjstate eq 'Planned'",
       );
-      expect(f1, "(Objstate eq 'Planned')");
+      expect(f1, "Objstate eq 'Planned'");
 
       final f2 = DataQuery.combineFilters(
         defaultFilter: "Objstate eq 'Planned'",
@@ -67,7 +67,7 @@ void main() {
       );
 
       final params = query.toQueryParams();
-      expect(params[r'$filter'], "(Objstate eq 'Planned')");
+      expect(params[r'$filter'], "Objstate eq 'Planned'");
       expect(params[r'$top'], 20);
       expect(params[r'$skip'], 0);
     });
