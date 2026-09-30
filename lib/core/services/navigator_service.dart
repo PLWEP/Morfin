@@ -113,6 +113,7 @@ class NavigatorService {
       final itemClickTarget = (child['ItemClickTarget'] ?? child['item_click_target']) as String?;
       final itemClickFields = (child['ItemClickFields'] ?? child['item_click_fields']) as String?;
       final columnConfig = (child['ColumnConfig'] ?? child['column_config']) as String?;
+      final paramConfig = (child['ParamConfig'] ?? child['param_config']) as String?;
 
       final targetEndpoint = parsedEndpoint ?? child['TargetEndpoint'] as String?;
       final target = isBottomSheet
@@ -145,6 +146,7 @@ class NavigatorService {
             'itemClickTarget': itemClickTarget,
             'itemClickFields': itemClickFields,
             'columnConfig': columnConfig,
+            'paramConfig': paramConfig,
           },
         ),
       );

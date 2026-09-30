@@ -56,6 +56,8 @@ class RecordActionRunner {
                 final projection = parsedProj ?? schema.projection;
                 final actionName = parsedEndpoint ?? act['TargetEndpoint'] as String? ?? label;
 
+                final paramConfig = (act['ParamConfig'] ?? act['param_config']) as String?;
+
                 return ListTile(
                   leading: Icon(
                     iconName != null ? IconResolver.resolve(iconName) : Icons.play_arrow_rounded,
@@ -73,6 +75,7 @@ class RecordActionRunner {
                         title: label,
                         projection: projection,
                         actionName: actionName,
+                        paramConfig: paramConfig,
                         onExecuteAction: onExecuteAction,
                         onRefresh: onRefresh,
                       );

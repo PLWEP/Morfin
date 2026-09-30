@@ -17,6 +17,7 @@ void main() {
         'ItemClickTarget': null,
         'ItemClickFields': null,
         'ColumnConfig': 'TITLE=RequisitionNo^',
+        'ParamConfig': 'BuyerCode=DEFAULT_USER^HIDE=FullSelection,OwnPoNumber^CentralOrderFlag=FALSE^',
         'SortOrder': 2,
         'ChildCount': 0,
       };
@@ -24,17 +25,20 @@ void main() {
       final node = NavigationNode.fromJson(json);
       expect(node.nodeId, 4);
       expect(node.defaultFilter, "Objstate eq 'Planned'");
-      expect(node.actionType, 'LIST');
+      expect(node.paramConfig, 'BuyerCode=DEFAULT_USER^HIDE=FullSelection,OwnPoNumber^CentralOrderFlag=FALSE^');
+      expect(node.paramDefaults, {
+        'BuyerCode': 'DEFAULT_USER',
+        'CentralOrderFlag': 'FALSE',
+      });
+      expect(node.hiddenParams, {'FULLSELECTION', 'OWNPONUMBER'});
     });
 
     test('DataQuery.combineFilters formats filter query correctly', () {
-      // 1. Only default filter
       final f1 = DataQuery.combineFilters(
         defaultFilter: "Objstate eq 'Planned'",
       );
       expect(f1, "(Objstate eq 'Planned')");
 
-      // 2. Default filter + search query
       final f2 = DataQuery.combineFilters(
         defaultFilter: "Objstate eq 'Planned'",
         searchQuery: 'REQ100',
@@ -45,14 +49,12 @@ void main() {
         "(Objstate eq 'Planned') and (contains(RequisitionNo, 'REQ100') or contains(Description, 'REQ100'))",
       );
 
-      // 3. Only search query
       final f3 = DataQuery.combineFilters(
         searchQuery: 'TEST',
         searchFields: ['PartNo'],
       );
       expect(f3, "(contains(PartNo, 'TEST'))");
 
-      // 4. Null filters
       final f4 = DataQuery.combineFilters();
       expect(f4, isNull);
     });

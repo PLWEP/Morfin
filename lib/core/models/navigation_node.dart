@@ -10,6 +10,7 @@ class NavigationNode {
   final String? itemClickTarget;
   final String? itemClickFields;
   final String? columnConfig;
+  final String? paramConfig;
   final int sortOrder;
   final int childCount;
 
@@ -25,6 +26,7 @@ class NavigationNode {
     this.itemClickTarget,
     this.itemClickFields,
     this.columnConfig,
+    this.paramConfig,
     required this.sortOrder,
     required this.childCount,
   });
@@ -42,6 +44,7 @@ class NavigationNode {
       itemClickTarget: json['ItemClickTarget'] as String?,
       itemClickFields: json['ItemClickFields'] as String?,
       columnConfig: json['ColumnConfig'] as String?,
+      paramConfig: (json['ParamConfig'] ?? json['param_config']) as String?,
       sortOrder: (json['SortOrder'] as num?)?.toInt() ?? 0,
       childCount: (json['ChildCount'] as num?)?.toInt() ?? 0,
     );
@@ -59,7 +62,36 @@ class NavigationNode {
     'ItemClickTarget': itemClickTarget,
     'ItemClickFields': itemClickFields,
     'ColumnConfig': columnConfig,
+    'ParamConfig': paramConfig,
     'SortOrder': sortOrder,
     'ChildCount': childCount,
   };
+
+  Map<String, dynamic> get paramDefaults {
+    if (paramConfig == null || paramConfig!.isEmpty) return const {};
+    final map = <String, dynamic>{};
+    for (final token in paramConfig!.split('^')) {
+      final t = token.trim();
+      if (t.isEmpty) continue;
+      final eq = t.indexOf('=');
+      if (eq <= 0) continue;
+      final k = t.substring(0, eq).trim();
+      final v = t.substring(eq + 1).trim();
+      if (k.toUpperCase() != 'HIDE') map[k] = v;
+    }
+    return map;
+  }
+
+  Set<String> get hiddenParams {
+    if (paramConfig == null || paramConfig!.isEmpty) return const {};
+    final hidden = <String>{};
+    for (final token in paramConfig!.split('^')) {
+      final t = token.trim();
+      if (t.toUpperCase().startsWith('HIDE=')) {
+        final raw = t.substring(5).trim();
+        hidden.addAll(raw.split(',').map((s) => s.trim().toUpperCase()));
+      }
+    }
+    return hidden;
+  }
 }

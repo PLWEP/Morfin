@@ -71,6 +71,7 @@ class AppActionDispatcher {
     final title = (params['title'] as String?) ?? fallbackTitle ?? projection;
     final nodeId = (params['nodeId'] ?? '').toString();
     final columnConfig = params['columnConfig'] as String?;
+    final paramConfig = params['paramConfig'] as String?;
     final itemClickAction = params['itemClickAction'] as String?;
     final itemClickTarget = params['itemClickTarget'] as String?;
     final itemClickFields = params['itemClickFields'] as String?;
@@ -94,6 +95,7 @@ class AppActionDispatcher {
         title: title,
         projection: projection,
         actionName: targetEndpoint,
+        paramConfig: paramConfig,
         onRefresh: () {},
       );
       return;

@@ -64,6 +64,7 @@ class RecordActionExecutor {
     required String title,
     required String projection,
     required String actionName,
+    String? paramConfig,
     Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,
   }) async {
@@ -107,8 +108,13 @@ class RecordActionExecutor {
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
     }
 
+    final (defaults, hiddenFields) = _parseParamConfig(paramConfig);
+    if (hiddenFields.isNotEmpty) {
+      formFields = formFields.where((f) => !hiddenFields.contains(f.key.toUpperCase())).toList();
+    }
+
     if (formFields.isEmpty) {
-      formFields = schema.fields.where((f) => !f.isKey).take(4).toList();
+      formFields = schema.fields.where((f) => !f.isKey && !hiddenFields.contains(f.key.toUpperCase())).take(4).toList();
     }
 
     if (!context.mounted) return;
@@ -118,9 +124,9 @@ class RecordActionExecutor {
       title: title,
       actionLabel: 'Submit',
       fields: formFields,
-      initialValues: record,
+      initialValues: {...defaults, ...record},
       onSubmit: (values) async {
-        final payload = sanitizePayload(<String, dynamic>{...record, ...values});
+        final payload = sanitizePayload(<String, dynamic>{...defaults, ...record, ...values});
         try {
           if (onExecuteAction != null) {
             await onExecuteAction(actionName, payload);
@@ -143,6 +149,26 @@ class RecordActionExecutor {
         }
       },
     );
+  }
+
+  static (Map<String, dynamic>, Set<String>) _parseParamConfig(String? cfg) {
+    if (cfg == null || cfg.isEmpty) return (const {}, const {});
+    final defaults = <String, dynamic>{};
+    final hidden = <String>{};
+    for (final token in cfg.split('^')) {
+      final t = token.trim();
+      if (t.isEmpty) continue;
+      final eq = t.indexOf('=');
+      if (eq <= 0) continue;
+      final k = t.substring(0, eq).trim();
+      final v = t.substring(eq + 1).trim();
+      if (k.toUpperCase() == 'HIDE') {
+        hidden.addAll(v.split(',').map((s) => s.trim().toUpperCase()));
+      } else {
+        defaults[k] = v;
+      }
+    }
+    return (defaults, hidden);
   }
 
   static Map<String, dynamic> sanitizePayload(Map<String, dynamic> raw) {
