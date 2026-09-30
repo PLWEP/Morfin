@@ -143,7 +143,7 @@ class AppActionDispatcher {
               projection: schema.projection,
               entitySet: schema.entitySet,
               query: ODataQuery(
-                filter: defaultFilter != null && defaultFilter.isNotEmpty ? defaultFilter : null,
+                filter: ODataQuery.combineFilters(defaultFilter: defaultFilter),
                 top: top,
                 skip: skip,
               ),

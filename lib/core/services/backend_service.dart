@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../models/mobile_nav_node.dart';
 import '../network/api_client.dart';
 import '../network/odata_query.dart';
 import '../widgets/entity/entity_action_executor.dart';
@@ -86,7 +87,7 @@ class BackendService {
       );
       final val = res['value'];
       if (val is List && val.isNotEmpty) {
-        return val.map((i) => Map<String, dynamic>.from(i as Map)).toList();
+        return val.map((i) => MobileNavNode.fromJson(Map<String, dynamic>.from(i as Map)).toJson()).toList();
       }
     } catch (_) {}
     return [];

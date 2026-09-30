@@ -27,4 +27,21 @@ class ODataQuery {
     if (expand.isNotEmpty) params['\$expand'] = expand.join(',');
     return params;
   }
+
+  static String? combineFilters({
+    String? defaultFilter,
+    String? searchQuery,
+    List<String>? searchFields,
+  }) {
+    final conditions = <String>[];
+    if (defaultFilter != null && defaultFilter.trim().isNotEmpty) {
+      conditions.add('($defaultFilter)');
+    }
+    if (searchQuery != null && searchQuery.trim().isNotEmpty && searchFields != null && searchFields.isNotEmpty) {
+      final q = searchQuery.trim();
+      final searchOr = searchFields.map((f) => "contains($f, '$q')").join(' or ');
+      conditions.add('($searchOr)');
+    }
+    return conditions.isNotEmpty ? conditions.join(' and ') : null;
+  }
 }

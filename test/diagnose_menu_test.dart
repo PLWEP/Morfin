@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morfin/core/network/api_client.dart';
 import 'package:morfin/core/network/api_config.dart';
-import 'package:morfin/core/services/backend_service.dart';
 import 'package:morfin/core/services/navigator_service.dart';
 import 'package:morfin/features/login/models/server_config.dart';
 
