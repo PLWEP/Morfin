@@ -32,7 +32,7 @@ This document is the authoritative instruction manual for any AI coding assistan
 
 ## 3. Graphify Topological Architecture
 
-The codebase has been mapped using Graphify AST analysis (**803 nodes, 1,077 edges, 70 communities**).
+The codebase has been mapped using Graphify AST analysis (**1,048 nodes, 1,445 edges**).
 Key architectural hubs:
 
 ```

@@ -40,9 +40,8 @@ Any engineer or AI agent contributing to this codebase must adhere strictly to t
 ## 2. Knowledge Graph & Architecture Hubs (Graphify)
 
 The codebase is indexed via **Graphify AST extraction** to provide full topological traceability:
-- **Total Nodes**: 803
-- **Total Edges**: 1,077
-- **Communities**: 70
+- **Total Nodes**: 1,048
+- **Total Edges**: 1,445
 - **Visual Artifacts**:
   - Interactive D3 Component Hierarchy: `graphify-out/GRAPH_TREE.html`
   - Interactive Mermaid Call-Flow & Sequence: `graphify-out/morfin-callflow.html`
