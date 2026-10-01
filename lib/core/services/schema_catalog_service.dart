@@ -127,6 +127,9 @@ class SchemaCatalogService {
     if (t.contains('decimal') || t.contains('int') || t.contains('double')) return FieldType.number;
     if (t.contains('date') || t.contains('time')) return FieldType.date;
     if (t.contains('boolean')) return FieldType.boolean;
+    if (t.contains('collection(') || t.contains('list<') || t.contains('structure') || t.contains('array')) {
+      return FieldType.array;
+    }
     return FieldType.text;
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
+import 'record_array_field.dart';
 import 'record_form_field.dart';
 
 class RecordActionSheet extends StatefulWidget {
@@ -120,12 +121,18 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
               ),
               const SizedBox(height: 16),
               ...widget.fields.map(
-                (f) => RecordFormField(
-                  field: f,
-                  initialValue: _values[f.key],
-                  onChanged: (val) => _values[f.key] = val,
-                  onSaved: (val) => _values[f.key] = val?.trim() ?? '',
-                ),
+                (f) => f.type == FieldType.array
+                    ? RecordArrayField(
+                        field: f,
+                        initialItems: (_values[f.key] as List<dynamic>?) ?? const [],
+                        onChanged: (val) => _values[f.key] = val,
+                      )
+                    : RecordFormField(
+                        field: f,
+                        initialValue: _values[f.key],
+                        onChanged: (val) => _values[f.key] = val,
+                        onSaved: (val) => _values[f.key] = val?.trim() ?? '',
+                      ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(

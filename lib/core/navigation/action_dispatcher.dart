@@ -84,8 +84,15 @@ class AppActionDispatcher {
         fields: const [], listCard: const EntityListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
       );
       RecordActionExecutor.triggerFormAction(
-        context, schema: EntitySchemaRegistry.findByTarget(projection) ?? fallback,
-        record: const {}, title: title, projection: projection, actionName: targetEndpoint, paramConfig: paramConfig, onRefresh: () {},
+        context,
+        schema: EntitySchemaRegistry.findByTarget(projection) ?? fallback,
+        record: const {},
+        title: title,
+        projection: projection,
+        actionName: targetEndpoint,
+        paramConfig: paramConfig,
+        isFullScreen: actionType == 'FORM',
+        onRefresh: () {},
       );
       return;
     }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../metadata/action_param_metadata.dart';
 import '../../metadata/entity_metadata.dart';
@@ -6,6 +7,7 @@ import '../../services/backend_service.dart';
 import '../../services/schema_catalog_service.dart';
 import '../../utils/payload_utils.dart';
 import 'record_action_sheet.dart';
+import 'record_form_screen.dart';
 
 class RecordActionExecutor {
   const RecordActionExecutor._();
@@ -57,6 +59,7 @@ class RecordActionExecutor {
     required String projection,
     required String actionName,
     String? paramConfig,
+    bool isFullScreen = false,
     Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,
   }) async {
@@ -93,14 +96,24 @@ class RecordActionExecutor {
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
     }
 
-    final (defaults, hiddenFields) = _parseParamConfig(paramConfig);
-    if (hiddenFields.isNotEmpty) {
+    final (defaults, hiddenFields, explicitFields) = _parseParamConfig(paramConfig);
+    if (explicitFields.isNotEmpty) {
+      formFields = explicitFields;
+    } else if (hiddenFields.isNotEmpty) {
       formFields = formFields.where((f) => !hiddenFields.contains(f.key.toUpperCase())).toList();
     }
 
     if (formFields.isEmpty) {
       formFields = schema.fields.where((f) => !f.isKey && !hiddenFields.contains(f.key.toUpperCase())).take(4).toList();
     }
+
+    formFields = formFields.map((f) {
+      final updatedNested = f.nestedFields.map((nf) => nf.lovProjection == null ? nf.copyWith(lovProjection: projection) : nf).toList();
+      return f.copyWith(
+        lovProjection: f.lovProjection ?? projection,
+        nestedFields: updatedNested,
+      );
+    }).toList();
 
     if (!context.mounted) return;
 
@@ -109,12 +122,30 @@ class RecordActionExecutor {
       return;
     }
 
+    final initialVals = <String, dynamic>{...defaults, ...record};
+
+    if (isFullScreen) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => RecordFormScreen(
+            title: title,
+            projection: projection,
+            actionName: actionName,
+            fields: formFields,
+            initialValues: initialVals,
+            onRefresh: onRefresh,
+          ),
+        ),
+      );
+      return;
+    }
+
     RecordActionSheet.show(
       context,
       title: title,
       actionLabel: 'Submit',
       fields: formFields,
-      initialValues: {...defaults, ...record},
+      initialValues: initialVals,
       onSubmit: (values) async {
         final payload = PayloadUtils.sanitize(<String, dynamic>{...defaults, ...record, ...values});
         try {
@@ -133,10 +164,34 @@ class RecordActionExecutor {
     );
   }
 
-  static (Map<String, dynamic>, Set<String>) _parseParamConfig(String? cfg) {
-    if (cfg == null || cfg.isEmpty) return (const {}, const {});
+  static (Map<String, dynamic>, Set<String>, List<EntityFieldMetadata>) _parseParamConfig(String? cfg) {
+    if (cfg == null || cfg.isEmpty) return (const {}, const {}, const []);
     final defaults = <String, dynamic>{};
     final hidden = <String>{};
+    final explicit = <EntityFieldMetadata>[];
+
+    final trimmed = cfg.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        final decoded = jsonDecode(trimmed) as Map<String, dynamic>;
+        if (decoded.containsKey('fields') && decoded['fields'] is List) {
+          final fieldsList = decoded['fields'] as List;
+          for (final f in fieldsList) {
+            if (f is Map) {
+              explicit.add(EntityFieldMetadata.fromJson(Map<String, dynamic>.from(f)));
+            }
+          }
+        }
+        if (decoded.containsKey('defaults') && decoded['defaults'] is Map) {
+          defaults.addAll(Map<String, dynamic>.from(decoded['defaults'] as Map));
+        }
+        if (decoded.containsKey('hide') && decoded['hide'] is List) {
+          hidden.addAll((decoded['hide'] as List).map((e) => e.toString().toUpperCase()));
+        }
+        return (defaults, hidden, explicit);
+      } catch (_) {}
+    }
+
     for (final token in cfg.split('^')) {
       final t = token.trim();
       if (t.isEmpty) continue;
@@ -150,7 +205,7 @@ class RecordActionExecutor {
         defaults[k] = v;
       }
     }
-    return (defaults, hidden);
+    return (defaults, hidden, explicit);
   }
 
   static Map<String, dynamic> sanitizePayload(Map<String, dynamic> raw) => PayloadUtils.sanitize(raw);

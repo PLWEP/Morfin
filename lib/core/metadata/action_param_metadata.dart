@@ -28,31 +28,35 @@ class ActionParamMetadata {
   }
 
   EntityFieldMetadata toFormField({String? projection}) {
+    final resolvedType = _resolveType(dataType);
+    final isStructureOrArray = resolvedType == FieldType.array;
+
     return EntityFieldMetadata(
       key: paramName,
       label: _humanize(paramName),
-      type: _resolveType(dataType),
+      type: resolvedType,
       isRequired: isMandatory,
       options: const [],
-      lovReference: (lovReference != null && lovReference!.trim().isNotEmpty) ? lovReference!.trim() : null,
-      lovProjection: projection,
+      lovReference: (!isStructureOrArray && lovReference != null && lovReference!.trim().isNotEmpty) ? lovReference!.trim() : null,
+      lovProjection: isStructureOrArray ? null : projection,
     );
   }
 
   static FieldType _resolveType(String type) {
-    switch (type.toUpperCase()) {
-      case 'NUMBER':
-      case 'INTEGER':
-        return FieldType.number;
-      case 'DATE':
-      case 'DATETIME':
-      case 'TIMESTAMP':
-        return FieldType.date;
-      case 'BOOLEAN':
-        return FieldType.boolean;
-      default:
-        return FieldType.text;
+    final upper = type.toUpperCase();
+    if (upper == 'NUMBER' || upper == 'INTEGER' || upper == 'DECIMAL') {
+      return FieldType.number;
     }
+    if (upper == 'DATE' || upper == 'DATETIME' || upper == 'TIMESTAMP') {
+      return FieldType.date;
+    }
+    if (upper == 'BOOLEAN') {
+      return FieldType.boolean;
+    }
+    if (upper == 'STRUCTURE' || upper.startsWith('LIST<') || upper == 'ARRAY') {
+      return FieldType.array;
+    }
+    return FieldType.text;
   }
 
   static String _humanize(String key) {

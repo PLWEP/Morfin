@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum FieldType { text, number, status, priority, date, boolean, currency }
+enum FieldType { text, number, status, priority, date, boolean, currency, array }
 enum ActionScope { global, record }
 
 @immutable
@@ -13,6 +13,7 @@ class EntityFieldMetadata {
   final List<String> options;
   final String? lovReference;
   final String? lovProjection;
+  final List<EntityFieldMetadata> nestedFields;
 
   const EntityFieldMetadata({
     required this.key,
@@ -23,6 +24,7 @@ class EntityFieldMetadata {
     this.options = const [],
     this.lovReference,
     this.lovProjection,
+    this.nestedFields = const [],
   });
 
   factory EntityFieldMetadata.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class EntityFieldMetadata {
       orElse: () => FieldType.text,
     );
     final rawOpts = json['options'] as List<dynamic>? ?? [];
+    final rawNested = json['fields'] as List<dynamic>? ?? [];
 
     return EntityFieldMetadata(
       key: json['key'] as String? ?? '',
@@ -42,6 +45,31 @@ class EntityFieldMetadata {
       options: rawOpts.map((e) => e.toString()).toList(),
       lovReference: json['lovReference'] as String?,
       lovProjection: json['lovProjection'] as String?,
+      nestedFields: rawNested.map((e) => EntityFieldMetadata.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+    );
+  }
+
+  EntityFieldMetadata copyWith({
+    String? key,
+    String? label,
+    FieldType? type,
+    bool? isKey,
+    bool? isRequired,
+    List<String>? options,
+    String? lovReference,
+    String? lovProjection,
+    List<EntityFieldMetadata>? nestedFields,
+  }) {
+    return EntityFieldMetadata(
+      key: key ?? this.key,
+      label: label ?? this.label,
+      type: type ?? this.type,
+      isKey: isKey ?? this.isKey,
+      isRequired: isRequired ?? this.isRequired,
+      options: options ?? this.options,
+      lovReference: lovReference ?? this.lovReference,
+      lovProjection: lovProjection ?? this.lovProjection,
+      nestedFields: nestedFields ?? this.nestedFields,
     );
   }
 }
