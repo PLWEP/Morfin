@@ -36,12 +36,17 @@ class EntityFieldMetadata {
     final rawOpts = json['options'] as List<dynamic>? ?? [];
     final rawNested = json['fields'] as List<dynamic>? ?? [];
 
+    final isReq = (json['isRequired'] == true) ||
+        (json['required'] == true) ||
+        (json['isRequired'] == 'TRUE') ||
+        (json['required'] == 'TRUE');
+
     return EntityFieldMetadata(
       key: json['key'] as String? ?? '',
       label: json['label'] as String? ?? '',
       type: fieldType,
       isKey: json['isKey'] as bool? ?? false,
-      isRequired: json['isRequired'] as bool? ?? false,
+      isRequired: isReq,
       options: rawOpts.map((e) => e.toString()).toList(),
       lovReference: json['lovReference'] as String?,
       lovProjection: json['lovProjection'] as String?,

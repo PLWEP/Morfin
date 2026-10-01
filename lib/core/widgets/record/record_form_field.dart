@@ -24,11 +24,13 @@ class RecordFormField extends StatefulWidget {
 
 class _RecordFormFieldState extends State<RecordFormField> {
   late final TextEditingController _controller;
+  String? _selectedValue;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.initialValue?.toString() ?? '');
+    _selectedValue = widget.initialValue?.toString();
+    _controller = TextEditingController(text: _selectedValue ?? '');
   }
 
   @override
@@ -43,8 +45,18 @@ class _RecordFormFieldState extends State<RecordFormField> {
       title: widget.field.label,
       projection: widget.field.lovProjection ?? '',
       lovReference: widget.field.lovReference ?? '',
+      onRecordSelected: (code, display) {
+        setState(() {
+          _selectedValue = code;
+          _controller.text = display;
+        });
+        widget.onChanged(code);
+      },
       onSelected: (val) {
-        setState(() => _controller.text = val);
+        setState(() {
+          _selectedValue = val;
+          _controller.text = val;
+        });
         widget.onChanged(val);
       },
     );
@@ -92,17 +104,38 @@ class _RecordFormFieldState extends State<RecordFormField> {
             ? (val) => (val == null || val.trim().isEmpty) ? '${widget.field.label} is required' : null
             : null,
         onChanged: widget.onChanged,
-        onSaved: widget.onSaved,
+        onSaved: (val) {
+          if (hasLov && _selectedValue != null) {
+            widget.onSaved(_selectedValue);
+          } else {
+            widget.onSaved(val?.trim() ?? '');
+          }
+        },
       ),
     );
   }
 
   InputDecoration _decoration(AppPalette colors, {Widget? suffixIcon}) => InputDecoration(
-        labelText: widget.field.label,
+        labelText: widget.field.isRequired ? '${widget.field.label} *' : widget.field.label,
         labelStyle: GoogleFonts.inter(fontSize: 12, color: colors.outline),
         filled: true,
         fillColor: colors.surfaceCard,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: colors.surfaceBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: colors.primary, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: colors.statusCritical),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: colors.statusCritical, width: 1.5),
+        ),
         suffixIcon: suffixIcon,
       );
 }

@@ -67,6 +67,22 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
+    for (final field in widget.fields) {
+      if (field.type == FieldType.array && field.isRequired) {
+        final items = _values[field.key] as List<dynamic>?;
+        if (items == null || items.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Please add at least one item to "${field.label}"'),
+              backgroundColor: Colors.redAccent,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          return;
+        }
+      }
+    }
+
     setState(() => _isSubmitting = true);
     try {
       await widget.onSubmit(_values);

@@ -166,7 +166,7 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${widget.field.label} (${_items.length})',
+                '${widget.field.label}${widget.field.isRequired ? ' *' : ''} (${_items.length})',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
