@@ -139,6 +139,7 @@ class NavigatorService {
             'targetUrl': targetUrl,
             'hasChildren': isBottomSheet || childCount > 0,
             'projection': projection,
+            'targetProjection': projection,
             'entitySet': entitySet,
             'targetEndpoint': targetEndpoint,
             'defaultFilter': defaultFilter,

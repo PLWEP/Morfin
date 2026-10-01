@@ -107,10 +107,17 @@ class RecordActionExecutor {
       formFields = schema.fields.where((f) => !f.isKey && !hiddenFields.contains(f.key.toUpperCase())).take(4).toList();
     }
 
+    final effectiveProj = projection.replaceAll('/', '').trim();
+
     formFields = formFields.map((f) {
-      final updatedNested = f.nestedFields.map((nf) => nf.lovProjection == null ? nf.copyWith(lovProjection: projection) : nf).toList();
+      final updatedNested = f.nestedFields.map((nf) {
+        final nestedProj = (nf.lovProjection == null || nf.lovProjection!.isEmpty) ? effectiveProj : nf.lovProjection;
+        return nf.copyWith(lovProjection: nestedProj);
+      }).toList();
+
+      final fieldProj = (f.lovProjection == null || f.lovProjection!.isEmpty) ? effectiveProj : f.lovProjection;
       return f.copyWith(
-        lovProjection: f.lovProjection ?? projection,
+        lovProjection: fieldProj,
         nestedFields: updatedNested,
       );
     }).toList();

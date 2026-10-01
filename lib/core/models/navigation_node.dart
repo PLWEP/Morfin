@@ -11,6 +11,8 @@ class NavigationNode {
   final String? itemClickFields;
   final String? columnConfig;
   final String? paramConfig;
+  final String? targetProjection;
+  final String? targetEndpoint;
   final int sortOrder;
   final int childCount;
 
@@ -21,6 +23,8 @@ class NavigationNode {
     required this.actionType,
     this.icon,
     this.targetUrl,
+    this.targetProjection,
+    this.targetEndpoint,
     this.defaultFilter,
     this.itemClickAction,
     this.itemClickTarget,
@@ -39,6 +43,8 @@ class NavigationNode {
       actionType: (json['ActionType'] ?? '').toString(),
       icon: json['Icon'] as String?,
       targetUrl: json['TargetUrl'] as String?,
+      targetProjection: (json['TargetProjection'] ?? json['target_projection']) as String?,
+      targetEndpoint: (json['TargetEndpoint'] ?? json['target_endpoint']) as String?,
       defaultFilter: json['DefaultFilter'] as String?,
       itemClickAction: json['ItemClickAction'] as String?,
       itemClickTarget: json['ItemClickTarget'] as String?,
@@ -57,6 +63,8 @@ class NavigationNode {
     'ActionType': actionType,
     'Icon': icon,
     'TargetUrl': targetUrl,
+    'TargetProjection': targetProjection,
+    'TargetEndpoint': targetEndpoint,
     'DefaultFilter': defaultFilter,
     'ItemClickAction': itemClickAction,
     'ItemClickTarget': itemClickTarget,

@@ -40,7 +40,7 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
     final formKey = GlobalKey<FormState>();
     final draft = Map<String, dynamic>.from(existingItem ?? {});
 
-    final subFields = widget.field.nestedFields.isNotEmpty
+    final rawSubFields = widget.field.nestedFields.isNotEmpty
         ? widget.field.nestedFields
         : [
             const EntityFieldMetadata(key: 'PartNo', label: 'Part No'),
@@ -50,6 +50,13 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
             const EntityFieldMetadata(key: 'Price', label: 'Price', type: FieldType.number),
             const EntityFieldMetadata(key: 'CurrencyCode', label: 'Currency'),
           ];
+
+    final subFields = rawSubFields.map((sf) {
+      if (sf.lovProjection == null || sf.lovProjection!.isEmpty) {
+        return sf.copyWith(lovProjection: widget.field.lovProjection);
+      }
+      return sf;
+    }).toList();
 
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,

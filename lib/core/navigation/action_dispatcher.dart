@@ -57,15 +57,24 @@ class AppActionDispatcher {
       return;
     }
 
-    var projection = params['projection'] as String?;
-    var entitySet = params['entitySet'] as String?;
+    var projection = params['projection'] as String? ?? params['targetProjection'] as String?;
+    var entitySet = params['entitySet'] as String? ?? params['targetEndpoint'] as String?;
     final targetUrl = params['targetUrl'] as String?;
-    if ((projection == null || entitySet == null) && targetUrl != null && targetUrl.contains('.svc/')) {
+    if ((projection == null || projection.isEmpty || entitySet == null || entitySet.isEmpty) &&
+        targetUrl != null &&
+        targetUrl.contains('.svc/')) {
       final parts = targetUrl.split('.svc/');
-      projection ??= parts[0].replaceAll('/', '').trim();
-      entitySet ??= parts[1].split('?')[0].replaceAll('/', '').trim();
+      if (projection == null || projection.isEmpty) {
+        projection = parts[0].replaceAll('/', '').trim();
+      }
+      if (entitySet == null || entitySet.isEmpty) {
+        entitySet = parts[1].split('?')[0].replaceAll('/', '').trim();
+      }
     }
     projection ??= target;
+    if (projection.startsWith('/')) {
+      projection = projection.substring(1).trim();
+    }
 
     final defaultFilter = params['defaultFilter'] as String?;
     final title = (params['title'] as String?) ?? fallbackTitle ?? projection;

@@ -47,6 +47,8 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
   bool _isLoading = true;
   String _search = '';
 
+  String? _errorMessage;
+
   @override
   void initState() {
     super.initState();
@@ -54,17 +56,48 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
   }
 
   Future<void> _fetchLovData() async {
-    setState(() => _isLoading = true);
-    final candidates = [
-      'Reference_${widget.lovReference}',
-      '${widget.lovReference}Set',
-      widget.lovReference,
-    ];
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
+    final proj = widget.projection.replaceAll('/', '').trim();
+    if (proj.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Projection name is missing for LOV "${widget.title}"';
+        });
+      }
+      return;
+    }
+
+    final ref = widget.lovReference.trim();
+    if (ref.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'LOV reference name is missing';
+        });
+      }
+      return;
+    }
+
+    final candidates = <String>[];
+    if (ref.startsWith('Reference_')) {
+      candidates.add(ref);
+      candidates.add(ref.substring('Reference_'.length));
+    } else {
+      candidates.add('Reference_$ref');
+      candidates.add('${ref}Set');
+      candidates.add(ref);
+    }
+
+    String? lastError;
     for (final entitySet in candidates) {
       try {
         final res = await BackendService.instance.fetchEntitySet(
-          projection: widget.projection,
+          projection: proj,
           entitySet: entitySet,
           query: const DataQuery(top: 50),
         );
@@ -75,9 +108,18 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
           });
           return;
         }
-      } catch (_) {}
+      } catch (e) {
+        lastError = e.toString();
+      }
     }
-    if (mounted) setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        if (_items.isEmpty && lastError != null) {
+          _errorMessage = lastError;
+        }
+      });
+    }
   }
 
   @override
@@ -123,9 +165,27 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : displayed.isEmpty
-                    ? Center(child: Text('No options available', style: TextStyle(color: colors.outline)))
-                    : ListView.separated(
+                : _errorMessage != null
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 36),
+                              const SizedBox(height: 8),
+                              Text(
+                                _errorMessage!,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.inter(fontSize: 12, color: colors.outline),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : displayed.isEmpty
+                        ? Center(child: Text('No options available', style: TextStyle(color: colors.outline)))
+                        : ListView.separated(
                         itemCount: displayed.length,
                         separatorBuilder: (_, _) => const Divider(height: 1),
                         itemBuilder: (_, index) {
