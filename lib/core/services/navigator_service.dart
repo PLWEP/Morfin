@@ -26,7 +26,7 @@ class NavigatorService {
     return _cachedNodes.where((n) {
       final pid = (n['ParentId'] ?? '').toString();
       final act = (n['ActionType'] as String?)?.toUpperCase() ?? '';
-      return pid == listNodeId && (act == 'ACTION' || act == 'FORM');
+      return pid == listNodeId && (act == 'ACTION' || act == 'FORM' || act.contains('FORM'));
     }).toList();
   }
 

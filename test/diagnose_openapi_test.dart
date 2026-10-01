@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morfin/core/network/api_client.dart';
 import 'package:morfin/core/network/api_config.dart';
+import 'package:morfin/core/services/schema_catalog_service.dart';
 import 'package:morfin/features/login/models/server_config.dart';
 
 class _TestHttpOverrides extends HttpOverrides {
@@ -119,6 +120,16 @@ void main() {
         // ignore: avoid_print
         print('ENDPOINT $ep FAILED (${sw.elapsedMilliseconds}ms): $e');
       }
+    }
+
+    print('=== TESTING SchemaCatalogService.fetchActionFields ===');
+    final fields = await SchemaCatalogService.instance.fetchActionFields(
+      projection: 'PurchaseRequisitionHandling',
+      actionName: 'CreateRequisitionLineToOrder',
+    );
+    print('Fetched fields count: ${fields.length}');
+    for (final f in fields) {
+      print(' -> Field: key=${f.key}, label="${f.label}", type=${f.type}, isRequired=${f.isRequired}');
     }
   });
 }

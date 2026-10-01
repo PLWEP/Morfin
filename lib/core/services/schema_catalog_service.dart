@@ -30,35 +30,41 @@ class SchemaCatalogService {
     required String projection,
     required String actionName,
   }) async {
-    final xml = await _getMetadataXml(projection);
-    if (xml == null) return [];
+    final meta = await _getMetadataXml(projection);
+    if (meta == null) return [];
 
     final cleanName = actionName.split('/').last.split('?').first;
+    final jsonRegex = RegExp('"$cleanName"\\s*:\\s*\\[([^\\]]+)\\]', caseSensitive: false);
+    final jsonMatch = jsonRegex.firstMatch(meta);
+    if (jsonMatch != null) {
+      final pRegex = RegExp(r'"\$Name"\s*:\s*"([^"]+)"[^}]*"\$Type"\s*:\s*"([^"]+)"');
+      final fields = <EntityFieldMetadata>[];
+      for (final m in pRegex.allMatches(jsonMatch.group(1)!)) {
+        final name = m.group(1) ?? '';
+        final type = m.group(2) ?? 'Edm.String';
+        if (name.isEmpty || name == 'FullSelection' || name == 'Selection') continue;
+        fields.add(EntityFieldMetadata(key: name, label: _humanize(name), type: _resolveFieldType(type)));
+      }
+      if (fields.isNotEmpty) return fields;
+    }
+
     final actRegex = RegExp('<Action\\s+Name="$cleanName"', caseSensitive: false);
-    final match = actRegex.firstMatch(xml);
+    final match = actRegex.firstMatch(meta);
     if (match == null) return [];
 
     final actIdx = match.start;
-    final actEnd = xml.indexOf('</Action>', actIdx);
-    final snippet = actEnd != -1 ? xml.substring(actIdx, actEnd + 9) : xml.substring(actIdx);
+    final actEnd = meta.indexOf('</Action>', actIdx);
+    final snippet = actEnd != -1 ? meta.substring(actIdx, actEnd + 9) : meta.substring(actIdx);
 
-    final paramRegex = RegExp(
-      r'<Parameter\s+Name="([^"]+)"\s+Type="([^"]+)"([^>]*)/>|<Parameter\s+Name="([^"]+)"\s+Type="([^"]+)"([^>]*)></Parameter>',
-    );
-    final matches = paramRegex.allMatches(snippet);
+    final paramRegex = RegExp(r'<Parameter\s+Name="([^"]+)"\s+Type="([^"]+)"([^>]*)/>|<Parameter\s+Name="([^"]+)"\s+Type="([^"]+)"([^>]*)></Parameter>');
     final fields = <EntityFieldMetadata>[];
-
-    for (final m in matches) {
+    for (final m in paramRegex.allMatches(snippet)) {
       final name = m.group(1) ?? m.group(4) ?? '';
       final type = m.group(2) ?? m.group(5) ?? 'Edm.String';
       final attr = m.group(3) ?? m.group(6) ?? '';
       if (name.isEmpty || name == 'FullSelection' || name == 'Selection') continue;
-
       fields.add(EntityFieldMetadata(
-        key: name,
-        label: _humanize(name),
-        type: _resolveFieldType(type),
-        isRequired: !attr.contains('Nullable="true"'),
+        key: name, label: _humanize(name), type: _resolveFieldType(type), isRequired: !attr.contains('Nullable="true"'),
       ));
     }
     return fields;

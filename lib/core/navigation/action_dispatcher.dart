@@ -10,7 +10,6 @@ import '../services/backend_service.dart';
 import '../widgets/menu/module_info_sheet.dart';
 import '../widgets/menu/sub_menu_bottom_sheet.dart';
 import '../widgets/record/record_action_executor.dart';
-import '../widgets/record/record_detail_screen.dart';
 import '../widgets/record/record_list_screen.dart';
 
 class AppActionDispatcher {
@@ -79,7 +78,7 @@ class AppActionDispatcher {
     final actionType = (params['actionType'] as String?)?.toUpperCase() ?? 'LIST';
     final targetEndpoint = (params['targetEndpoint'] as String?) ?? entitySet ?? title;
 
-    if (actionType == 'FORM_DIALOG' || actionType == 'FORM DIALOG') {
+    if (actionType == 'FORM_DIALOG' || actionType == 'FORM DIALOG' || actionType == 'FORM') {
       final fallback = EntitySchemaMetadata(
         entityName: title, title: title, icon: 'edit_note', projection: projection, entitySet: entitySet ?? '',
         fields: const [], listCard: const EntityListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
@@ -88,17 +87,6 @@ class AppActionDispatcher {
         context, schema: EntitySchemaRegistry.findByTarget(projection) ?? fallback,
         record: const {}, title: title, projection: projection, actionName: targetEndpoint, paramConfig: paramConfig, onRefresh: () {},
       );
-      return;
-    }
-
-    if (actionType == 'FORM') {
-      final formSchema = EntitySchemaRegistry.findByTarget(target) ??
-          EntitySchemaRegistry.findByTarget(projection) ??
-          EntitySchemaMetadata(
-            entityName: title, title: title, icon: 'edit_document', projection: projection, entitySet: entitySet ?? '',
-            fields: const [], listCard: const EntityListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
-          );
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => RecordDetailScreen(schema: formSchema, record: const {})));
       return;
     }
 

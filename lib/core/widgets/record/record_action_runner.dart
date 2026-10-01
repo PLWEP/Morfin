@@ -67,7 +67,7 @@ class RecordActionRunner {
                   trailing: Icon(Icons.chevron_right_rounded, size: 20, color: colors.outline),
                   onTap: () {
                     Navigator.of(sheetCtx).pop();
-                    if (actType == 'FORM') {
+                    if (actType == 'FORM' || actType == 'FORM_DIALOG' || actType.contains('FORM')) {
                       RecordActionExecutor.triggerFormAction(
                         context,
                         schema: schema,

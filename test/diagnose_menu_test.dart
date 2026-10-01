@@ -56,28 +56,26 @@ void main() {
         "GetMobileMenu(ScopeId='global',DeviceType='phone')",
       );
       print('MobileNavMenuHandling result: ${res1.runtimeType} -> ${res1['value']?.length} items');
-      if (res1['value'] is List && (res1['value'] as List).isNotEmpty) {
-        print('Sample from MobileNavMenuHandling: ${res1['value'][0]}');
-        print('Sample 2: ${res1['value'][2]}');
+      if (res1['value'] is List) {
+        for (var i = 0; i < (res1['value'] as List).length; i++) {
+          print('Item $i: ${res1['value'][i]}');
+        }
       }
     } catch (e) {
       // ignore: avoid_print
       print('MobileNavMenuHandling failed: $e');
     }
 
-    // Check entity set MobileNavMenuSet or NavigatorNodeSet
+    // Check ActionParamSet
+    // Check ActionParamSet
     try {
-      final res3 = await ApiClient.instance.getEntitySet(
-        'MobileNavMenuHandling',
-        'MobileNavMenuSet',
-      );
-      print('MobileNavMenuHandling.svc/MobileNavMenuSet: ${res3.length} items');
-      if (res3.isNotEmpty) {
-        print('Sample from MobileNavMenuSet: ${res3[0]}');
-        print('Sample 2: ${res3[2]}');
+      final res = await ApiClient.instance.getEntitySet('MobileNavMenuHandling', 'ActionParamSet');
+      print('ActionParamSet count: ${res.length}');
+      if (res.isNotEmpty) {
+        print('ActionParamSet item 0: ${res[0]}');
       }
     } catch (e) {
-      print('MobileNavMenuSet failed: $e');
+      print('ActionParamSet failed: $e');
     }
 
     // 2. Transform into MenuMetadata via NavigatorService
@@ -97,6 +95,10 @@ void main() {
           for (final ch in children) {
             // ignore: avoid_print
             print('      CHILD: id=${ch.id}, title="${ch.title}", target="${ch.action?.target}", params=${ch.action?.params}');
+            final childActions = NavigatorService.instance.getChildActions(ch.id);
+            if (childActions.isNotEmpty) {
+              print('        CHILD ACTIONS of ${ch.id} (${childActions.length}): $childActions');
+            }
           }
         }
       }
