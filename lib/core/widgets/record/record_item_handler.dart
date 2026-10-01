@@ -80,6 +80,22 @@ class RecordItemHandler {
       return;
     }
 
+    await openDetail(
+      context,
+      schema: schema,
+      record: record,
+      onExecuteAction: onExecuteAction,
+      onRefresh: onRefresh,
+    );
+  }
+
+  static Future<void> openDetail(
+    BuildContext context, {
+    required EntitySchemaMetadata schema,
+    required Map<String, dynamic> record,
+    Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
+    required VoidCallback onRefresh,
+  }) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => RecordDetailScreen(

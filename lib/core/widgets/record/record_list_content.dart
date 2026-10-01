@@ -15,6 +15,7 @@ class RecordListContent extends StatelessWidget {
   final Set<Map<String, dynamic>> selectedRecords;
   final ValueChanged<Map<String, dynamic>> onItemTap;
   final ValueChanged<Map<String, dynamic>> onItemLongPress;
+  final ValueChanged<Map<String, dynamic>>? onDetailTap;
   final Future<void> Function() onRefresh;
 
   const RecordListContent({
@@ -30,6 +31,7 @@ class RecordListContent extends StatelessWidget {
     required this.selectedRecords,
     required this.onItemTap,
     required this.onItemLongPress,
+    this.onDetailTap,
     required this.onRefresh,
   });
 
@@ -86,6 +88,7 @@ class RecordListContent extends StatelessWidget {
             isSelected: selectedRecords.contains(record),
             onTap: () => onItemTap(record),
             onLongPress: () => onItemLongPress(record),
+            onDetailTap: onDetailTap != null ? () => onDetailTap!(record) : null,
           );
         },
       ),

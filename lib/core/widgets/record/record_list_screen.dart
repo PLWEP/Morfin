@@ -37,9 +37,7 @@ class _RecordListScreenState extends State<RecordListScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      if (_scrollController.hasClients && _scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-        _loadMoreRecords();
-      }
+      if (_scrollController.hasClients && _scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) _loadMoreRecords();
     });
     _loadLiveRecords();
   }
@@ -77,33 +75,20 @@ class _RecordListScreenState extends State<RecordListScreen> {
       orElse: () => EntityActionMetadata(name: 'Create', label: 'Create ${widget.schema.title}', formFields: widget.schema.fields),
     );
     RecordActionSheet.show(
-      context,
-      title: createAction.label,
-      actionLabel: 'Create',
-      fields: createAction.formFields,
+      context, title: createAction.label, actionLabel: 'Create', fields: createAction.formFields,
       onSubmit: (values) async {
-        if (widget.onExecuteAction != null) {
-          await widget.onExecuteAction!(createAction.name, values);
-        }
+        if (widget.onExecuteAction != null) await widget.onExecuteAction!(createAction.name, values);
         await _loadLiveRecords();
       },
     );
   }
 
-  List<Map<String, dynamic>> get _filteredRecords {
-    if (_searchQuery.isEmpty) return _records;
-    final q = _searchQuery.toLowerCase();
-    return _records.where((r) => r.values.any((v) => v != null && v.toString().toLowerCase().contains(q))).toList();
-  }
+  List<Map<String, dynamic>> get _filteredRecords => _searchQuery.isEmpty ? _records : _records.where((r) => r.values.any((v) => v != null && v.toString().toLowerCase().contains(_searchQuery.toLowerCase()))).toList();
 
   void _toggleSelection(Map<String, dynamic> record) {
     setState(() {
-      if (_selectedRecords.contains(record)) {
-        _selectedRecords.remove(record);
-        if (_selectedRecords.isEmpty) _isSelectionMode = false;
-      } else {
-        _selectedRecords.add(record);
-      }
+      if (!_selectedRecords.remove(record)) _selectedRecords.add(record);
+      if (_selectedRecords.isEmpty) _isSelectionMode = false;
     });
   }
 
@@ -118,9 +103,7 @@ class _RecordListScreenState extends State<RecordListScreen> {
     return Scaffold(
       backgroundColor: colors.surfaceDeep,
       appBar: AppBar(
-        title: _isSelectionMode
-            ? Text('${_selectedRecords.length} selected', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 18))
-            : Text(widget.schema.title, style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 18)),
+        title: Text(_isSelectionMode ? '${_selectedRecords.length} selected' : widget.schema.title, style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 18)),
         leading: _isSelectionMode ? IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => setState(() { _isSelectionMode = false; _selectedRecords.clear(); })) : null,
         actions: [
           if (!_isSelectionMode && childActions.isNotEmpty && displayed.isNotEmpty)
@@ -154,23 +137,16 @@ class _RecordListScreenState extends State<RecordListScreen> {
         error: _error,
         isSelectionMode: _isSelectionMode,
         selectedRecords: _selectedRecords,
-        onItemTap: (record) {
-          if (_isSelectionMode) {
-            _toggleSelection(record);
-          } else {
-            RecordItemHandler.handleTap(
-              context,
-              schema: widget.schema,
-              record: record,
-              nodeId: widget.nodeId,
-              itemClickAction: widget.itemClickAction,
-              itemClickTarget: widget.itemClickTarget,
-              itemClickFields: widget.itemClickFields,
-              onExecuteAction: widget.onExecuteAction,
-              onRefresh: _loadLiveRecords,
-            );
-          }
-        },
+        onItemTap: (record) => _isSelectionMode
+            ? _toggleSelection(record)
+            : RecordItemHandler.handleTap(
+                context, schema: widget.schema, record: record, nodeId: widget.nodeId,
+                itemClickAction: widget.itemClickAction, itemClickTarget: widget.itemClickTarget, itemClickFields: widget.itemClickFields,
+                onExecuteAction: widget.onExecuteAction, onRefresh: _loadLiveRecords,
+              ),
+        onDetailTap: (record) => RecordItemHandler.openDetail(
+          context, schema: widget.schema, record: record, onExecuteAction: widget.onExecuteAction, onRefresh: _loadLiveRecords,
+        ),
         onItemLongPress: (record) {
           if (!_isSelectionMode && childActions.isNotEmpty) {
             setState(() { _isSelectionMode = true; _selectedRecords.add(record); });
