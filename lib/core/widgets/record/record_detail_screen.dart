@@ -74,7 +74,6 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     final colors = AppColors.of(context);
     final cardMeta = widget.schema.listCard;
     final code = (_record[cardMeta.codeField] ?? _record['OrderNo'] ?? _record['PartNo'] ?? _record['RequisitionNo'] ?? '').toString();
-    final title = (_record[cardMeta.primaryField] ?? _record['Description'] ?? _record['Title'] ?? (code.isEmpty && _record.isNotEmpty ? _record.values.first : '')).toString();
     final recordActions = widget.schema.actions.where((a) => a.scope == ActionScope.record).toList();
 
     final displayFields = _fields.isNotEmpty ? _fields : _buildFallbackFieldsFromRecord();
@@ -97,25 +96,6 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colors.surfaceCard,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colors.surfaceBorder),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (code.isNotEmpty) ...[
-                    Text(code, style: GoogleFonts.robotoMono(fontSize: 12, fontWeight: FontWeight.w600, color: colors.primary)),
-                    const SizedBox(height: 4),
-                  ],
-                  Text(title.isNotEmpty ? title : widget.schema.title, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: colors.onSurface)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
             if (_isLoadingFields)
               const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
             else
