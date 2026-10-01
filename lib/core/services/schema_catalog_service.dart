@@ -33,8 +33,12 @@ class SchemaCatalogService {
     final xml = await _getMetadataXml(projection);
     if (xml == null) return [];
 
-    final actIdx = xml.indexOf('<Action Name="$actionName"');
-    if (actIdx == -1) return [];
+    final cleanName = actionName.split('/').last.split('?').first;
+    final actRegex = RegExp('<Action\\s+Name="$cleanName"', caseSensitive: false);
+    final match = actRegex.firstMatch(xml);
+    if (match == null) return [];
+
+    final actIdx = match.start;
     final actEnd = xml.indexOf('</Action>', actIdx);
     final snippet = actEnd != -1 ? xml.substring(actIdx, actEnd + 9) : xml.substring(actIdx);
 
@@ -67,18 +71,26 @@ class SchemaCatalogService {
     final xml = await _getMetadataXml(projection);
     if (xml == null) return [];
 
-    var entityName = entitySetOrName;
-    if (entitySetOrName.endsWith('Set')) {
-      final esRegex = RegExp('<EntitySet\\s+Name="$entitySetOrName"\\s+EntityType="([^"]+)"');
+    var entityName = entitySetOrName.split('/').last.split('?').first;
+    if (entityName.endsWith('Set')) {
+      final esRegex = RegExp('<EntitySet\\s+Name="$entityName"\\s+EntityType="([^"]+)"', caseSensitive: false);
       final esMatch = esRegex.firstMatch(xml);
       if (esMatch != null) {
         entityName = esMatch.group(1)!.split('.').last;
       } else {
-        entityName = entitySetOrName.substring(0, entitySetOrName.length - 3);
+        entityName = entityName.substring(0, entityName.length - 3);
       }
     }
 
-    final etIdx = xml.indexOf('<EntityType Name="$entityName"');
+    final etRegex = RegExp('<EntityType\\s+Name="$entityName"', caseSensitive: false);
+    final etMatch = etRegex.firstMatch(xml);
+    if (etMatch == null) {
+      final firstEtMatch = RegExp(r'<EntityType\s+Name="([^"]+)"').firstMatch(xml);
+      if (firstEtMatch == null) return [];
+      entityName = firstEtMatch.group(1)!;
+    }
+
+    final etIdx = xml.indexOf(RegExp('<EntityType\\s+Name="$entityName"', caseSensitive: false));
     if (etIdx == -1) return [];
     final etEnd = xml.indexOf('</EntityType>', etIdx);
     final snippet = etEnd != -1 ? xml.substring(etIdx, etEnd + 13) : xml.substring(etIdx);

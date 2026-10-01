@@ -1,10 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../../metadata/action_param_metadata.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../network/data_query.dart';
 import '../../services/backend_service.dart';
 import '../../services/schema_catalog_service.dart';
+import '../../utils/payload_utils.dart';
 import 'record_action_sheet.dart';
 
 class RecordActionExecutor {
@@ -35,25 +35,17 @@ class RecordActionExecutor {
     if (confirmed != true) return;
 
     try {
-      final payload = sanitizePayload(record);
+      final payload = PayloadUtils.sanitize(record);
       if (onExecuteAction != null) {
         await onExecuteAction(actionName, payload);
       } else {
-        await BackendService.instance.executeAction(
-          projection: projection,
-          actionName: actionName,
-          parameters: payload,
-        );
+        await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
       }
-      messenger.showSnackBar(
-        SnackBar(content: Text('"$label" completed successfully'), behavior: SnackBarBehavior.floating),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('"$label" completed successfully'), behavior: SnackBarBehavior.floating));
       onRefresh();
     } catch (e) {
-      final errorMsg = extractErrorMessage(e);
-      messenger.showSnackBar(
-        SnackBar(content: Text('Error: $errorMsg'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
-      );
+      final errorMsg = PayloadUtils.extractErrorMessage(e);
+      messenger.showSnackBar(SnackBar(content: Text('Error: $errorMsg'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
     }
   }
 
@@ -81,20 +73,13 @@ class RecordActionExecutor {
       final rawParams = await BackendService.instance.fetchEntitySet(
         projection: 'MobileNavMenuHandling',
         entitySet: 'ActionParamSet',
-        query: DataQuery(
-          filter: "ProjectionName eq '$projection' and ActionName eq '$actionName'",
-        ),
+        query: DataQuery(filter: "ProjectionName eq '$projection' and ActionName eq '$actionName'"),
       );
 
       if (rawParams.isNotEmpty) {
-        formFields = rawParams
-            .map((p) => ActionParamMetadata.fromJson(p).toFormField(projection: projection))
-            .toList();
+        formFields = rawParams.map((p) => ActionParamMetadata.fromJson(p).toFormField(projection: projection)).toList();
       } else {
-        formFields = await SchemaCatalogService.instance.fetchActionFields(
-          projection: projection,
-          actionName: actionName,
-        );
+        formFields = await SchemaCatalogService.instance.fetchActionFields(projection: projection, actionName: actionName);
         if (formFields.isEmpty) {
           formFields = await SchemaCatalogService.instance.fetchRecordFields(
             projection: projection,
@@ -119,6 +104,11 @@ class RecordActionExecutor {
 
     if (!context.mounted) return;
 
+    if (formFields.isEmpty) {
+      messenger.showSnackBar(SnackBar(content: Text('No parameters or fields found for "$title"'), behavior: SnackBarBehavior.floating));
+      return;
+    }
+
     RecordActionSheet.show(
       context,
       title: title,
@@ -126,26 +116,18 @@ class RecordActionExecutor {
       fields: formFields,
       initialValues: {...defaults, ...record},
       onSubmit: (values) async {
-        final payload = sanitizePayload(<String, dynamic>{...defaults, ...record, ...values});
+        final payload = PayloadUtils.sanitize(<String, dynamic>{...defaults, ...record, ...values});
         try {
           if (onExecuteAction != null) {
             await onExecuteAction(actionName, payload);
           } else {
-            await BackendService.instance.executeAction(
-              projection: projection,
-              actionName: actionName,
-              parameters: payload,
-            );
+            await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
           }
-          messenger.showSnackBar(
-            SnackBar(content: Text('"$title" submitted successfully'), behavior: SnackBarBehavior.floating),
-          );
+          messenger.showSnackBar(SnackBar(content: Text('"$title" submitted successfully'), behavior: SnackBarBehavior.floating));
           onRefresh();
         } catch (e) {
-          final errorMsg = extractErrorMessage(e);
-          messenger.showSnackBar(
-            SnackBar(content: Text('Error: $errorMsg'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
-          );
+          final errorMsg = PayloadUtils.extractErrorMessage(e);
+          messenger.showSnackBar(SnackBar(content: Text('Error: $errorMsg'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
         }
       },
     );
@@ -171,26 +153,6 @@ class RecordActionExecutor {
     return (defaults, hidden);
   }
 
-  static Map<String, dynamic> sanitizePayload(Map<String, dynamic> raw) {
-    const internalKeys = {'luname', 'objid', 'objversion', 'rowkey', 'rowstate', 'rowtype'};
-    final cleaned = <String, dynamic>{};
-    for (final entry in raw.entries) {
-      final k = entry.key;
-      if (!k.startsWith('@') && !internalKeys.contains(k.toLowerCase())) {
-        cleaned[k] = entry.value;
-      }
-    }
-    return cleaned;
-  }
-
-  static String extractErrorMessage(dynamic error) {
-    if (error is DioException && error.response?.data is Map) {
-      final map = error.response!.data as Map;
-      final err = map['error'];
-      if (err is Map && err['message'] != null) {
-        return err['message'].toString();
-      }
-    }
-    return error.toString();
-  }
+  static Map<String, dynamic> sanitizePayload(Map<String, dynamic> raw) => PayloadUtils.sanitize(raw);
+  static String extractErrorMessage(dynamic error) => PayloadUtils.extractErrorMessage(error);
 }
