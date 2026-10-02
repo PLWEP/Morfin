@@ -102,10 +102,58 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const SizedBox(height: 20),
                   SettingsTerminalLockCard(
-                    onLockTerminal: () {
-                      ref.read(userProfileProvider.notifier).clear();
-                      _viewModel.dispatch(const SettingsLockTerminal());
-                      Navigator.pushReplacementNamed(context, '/login');
+                    onLockTerminal: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          backgroundColor: colors.surfaceCard,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: Text(
+                            'Log Out Confirmation',
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: colors.onSurface,
+                            ),
+                          ),
+                          content: Text(
+                            'Are you sure you want to log out from this terminal?',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: Text(
+                                'Cancel',
+                                style: GoogleFonts.inter(
+                                  color: colors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colors.statusCritical,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text(
+                                'Log Out',
+                                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed == true && context.mounted) {
+                        ref.read(userProfileProvider.notifier).clear();
+                        _viewModel.dispatch(const SettingsLockTerminal());
+                        Navigator.pushReplacementNamed(context, '/login');
+                      }
                     },
                   ),
                   const SizedBox(height: 24),

@@ -27,17 +27,17 @@ class RecordFormDiscardDialog {
         backgroundColor: colors.surfaceCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Batalkan Perubahan?',
+          'Discard Changes?',
           style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface),
         ),
         content: Text(
-          'Data yang sudah dimasukkan akan hilang jika Anda keluar dari form ini.',
+          'Any unsaved changes will be lost if you leave this form.',
           style: GoogleFonts.inter(fontSize: 14, color: colors.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(false),
-            child: Text('Tetap di Sini', style: GoogleFonts.inter(color: colors.primary, fontWeight: FontWeight.w600)),
+            child: Text('Keep Editing', style: GoogleFonts.inter(color: colors.primary, fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(dialogCtx).pop(true),
@@ -46,7 +46,7 @@ class RecordFormDiscardDialog {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: Text('Keluar', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+            child: Text('Discard', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
           ),
         ],
       ),

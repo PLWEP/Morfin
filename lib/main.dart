@@ -70,11 +70,11 @@ class _MorfinAppState extends ConsumerState<MorfinApp> {
             children: const [
               Icon(Icons.lock_clock_outlined, color: Colors.orangeAccent),
               SizedBox(width: 8),
-              Text('Sesi Berakhir'),
+              Text('Session Expired'),
             ],
           ),
           content: const Text(
-            'Sesi Anda telah kedaluwarsa atau tidak valid. Silakan login kembali untuk melanjutkan.',
+            'Your session has expired or is invalid. Please sign in again to continue.',
             style: TextStyle(fontSize: 14),
           ),
           actions: [
@@ -85,7 +85,7 @@ class _MorfinAppState extends ConsumerState<MorfinApp> {
                 Navigator.of(dialogCtx).pop();
                 AppNavigator.pushNamedAndRemoveUntil('/login', (route) => false);
               },
-              child: const Text('Login Kembali'),
+              child: const Text('Sign In Again'),
             ),
           ],
         );

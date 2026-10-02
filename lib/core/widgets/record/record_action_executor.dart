@@ -151,12 +151,14 @@ class RecordActionExecutor {
           defaultValues: defaults,
         );
         try {
-          if (onExecuteAction != null) {
-            await onExecuteAction(actionName, payload);
-          } else {
-            await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
-          }
-          messenger.showSnackBar(SnackBar(content: Text('"$title" submitted successfully'), behavior: SnackBarBehavior.floating));
+          final res = onExecuteAction != null
+              ? await () async {
+                  await onExecuteAction(actionName, payload);
+                  return <String, dynamic>{};
+                }()
+              : await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
+          final msg = PayloadUtils.extractSuccessMessage(res, fallback: '"$title" submitted successfully');
+          messenger.showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
           onRefresh();
         } catch (e) {
           final errorMsg = PayloadUtils.extractErrorMessage(e);
