@@ -5,6 +5,7 @@ import '../../metadata/entity_metadata.dart';
 import '../../services/backend_service.dart';
 import '../../utils/payload_utils.dart';
 import 'record_array_field.dart';
+import 'record_form_discard_dialog.dart';
 import 'record_form_field.dart';
 
 class RecordFormScreen extends StatefulWidget {
@@ -51,62 +52,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
     _initialSnapshot = Map<String, dynamic>.from(_values);
   }
 
-  bool get _isDirty {
-    for (final entry in _values.entries) {
-      final initial = _initialSnapshot[entry.key];
-      final current = entry.value;
-      if (current is List && current.isNotEmpty) {
-        return true;
-      }
-      if (current is String && current.trim().isNotEmpty && current != initial) {
-        return true;
-      }
-      if (current != null && current != initial && current is! List && current is! String) {
-        return true;
-      }
-    }
-    // Also check if new keys were added
-    if (_values.keys.length > _initialSnapshot.keys.length) return true;
-    return false;
-  }
-
-  Future<bool> _confirmDiscard() async {
-    if (!_isDirty) return true;
-
-    final colors = AppColors.of(context);
-    final discard = await showDialog<bool>(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        backgroundColor: colors.surfaceCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Batalkan Perubahan?',
-          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface),
-        ),
-        content: Text(
-          'Data yang sudah dimasukkan akan hilang jika Anda keluar dari form ini.',
-          style: GoogleFonts.inter(fontSize: 14, color: colors.onSurfaceVariant),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogCtx).pop(false),
-            child: Text('Tetap di Sini', style: GoogleFonts.inter(color: colors.primary, fontWeight: FontWeight.w600)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(dialogCtx).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: Text('Keluar', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-          ),
-        ],
-      ),
-    );
-
-    return discard ?? false;
-  }
+  bool get _isDirty => RecordFormDiscardDialog.isDirty(current: _values, initial: _initialSnapshot);
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -125,63 +71,67 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
     }
 
     final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    final cardColor = AppColors.of(context).surfaceCard;
     setState(() => _isSubmitting = true);
     try {
       final effectiveDefs = widget.allFieldDefinitions.isNotEmpty ? widget.allFieldDefinitions : widget.fields;
-      final payload = PayloadUtils.formatActionPayload(
-        rawValues: _values,
-        allFieldDefs: effectiveDefs,
-        defaultValues: widget.paramDefaults,
-      );
-      final response = await BackendService.instance.executeAction(
-        projection: widget.projection,
-        actionName: widget.actionName,
-        parameters: payload,
-      );
+      final payload = PayloadUtils.formatActionPayload(rawValues: _values, allFieldDefs: effectiveDefs, defaultValues: widget.paramDefaults);
+      final response = await BackendService.instance.executeAction(projection: widget.projection, actionName: widget.actionName, parameters: payload);
 
       if (mounted) {
-        final successMsg = PayloadUtils.extractSuccessMessage(
-          response,
-          fallback: '"${widget.title}" submitted successfully',
-        );
+        final successMsg = PayloadUtils.extractSuccessMessage(response, fallback: '"${widget.title}" submitted successfully');
         messenger.showSnackBar(
           SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 16),
-                const SizedBox(width: 8),
-                Expanded(child: Text(successMsg, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500))),
-              ],
-            ),
-            backgroundColor: AppColors.of(context).surfaceCard,
+            content: Row(children: [
+              const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 16),
+              const SizedBox(width: 8),
+              Expanded(child: Text(successMsg, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500))),
+            ]),
+            backgroundColor: cardColor,
             behavior: SnackBarBehavior.floating,
           ),
         );
         widget.onRefresh();
-        Navigator.of(context).pop();
+        nav.pop();
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        final errorMsg = PayloadUtils.extractErrorMessage(e);
-        messenger.showSnackBar(SnackBar(content: Text('Error: $errorMsg'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
+        messenger.showSnackBar(SnackBar(content: Text('Error: ${PayloadUtils.extractErrorMessage(e)}'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
       }
     }
+  }
+
+  Widget _buildFieldItem(EntityFieldMetadata f) {
+    final resolved = (f.lovProjection == null || f.lovProjection!.isEmpty) ? f.copyWith(lovProjection: widget.projection) : f;
+    return resolved.type == FieldType.array
+        ? RecordArrayField(
+            field: resolved,
+            initialItems: (_values[resolved.key] as List<dynamic>?) ?? const [],
+            defaultValues: widget.paramDefaults,
+            parentValues: _values,
+            onParentFieldChanged: (k, v) => setState(() => _values[k] = v),
+            onChanged: (val) => setState(() => _values[resolved.key] = val),
+          )
+        : RecordFormField(
+            key: ValueKey('header_${resolved.key}'),
+            field: resolved,
+            initialValue: _values[resolved.key],
+            contextualValues: _values,
+            onChanged: (val) => setState(() => _values[resolved.key] = val),
+            onSaved: (val) => _values[resolved.key] = val?.trim() ?? '',
+          );
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-
+    final nav = Navigator.of(context);
     return PopScope(
       canPop: !_isDirty,
       onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        final nav = Navigator.of(context);
-        final shouldDiscard = await _confirmDiscard();
-        if (shouldDiscard && mounted) {
-          nav.pop();
-        }
+        if (!didPop && await RecordFormDiscardDialog.confirm(context) && mounted) nav.pop();
       },
       child: Scaffold(
         backgroundColor: colors.surfaceDeep,
@@ -192,11 +142,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: colors.onSurface),
             onPressed: () async {
-              final nav = Navigator.of(context);
-              final shouldDiscard = await _confirmDiscard();
-              if (shouldDiscard && mounted) {
-                nav.pop();
-              }
+              if (await RecordFormDiscardDialog.confirm(context) && mounted) nav.pop();
             },
           ),
         ),
@@ -204,65 +150,32 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
           child: Form(
             key: _formKey,
             child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ...widget.fields.map((f) {
-                        final resolved = (f.lovProjection == null || f.lovProjection!.isEmpty)
-                            ? f.copyWith(lovProjection: widget.projection)
-                            : f;
-
-                        return resolved.type == FieldType.array
-                            ? RecordArrayField(
-                                field: resolved,
-                                initialItems: (_values[resolved.key] as List<dynamic>?) ?? const [],
-                                defaultValues: widget.paramDefaults,
-                                parentValues: _values,
-                                onParentFieldChanged: (key, val) => setState(() => _values[key] = val),
-                                onChanged: (val) => setState(() => _values[resolved.key] = val),
-                              )
-                            : RecordFormField(
-                                key: ValueKey('header_${resolved.key}'),
-                                field: resolved,
-                                initialValue: _values[resolved.key],
-                                contextualValues: _values,
-                                onChanged: (val) => setState(() => _values[resolved.key] = val),
-                                onSaved: (val) => _values[resolved.key] = val?.trim() ?? '',
-                              );
-                      }),
-                      const SizedBox(height: 24),
-                    ],
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...widget.fields.map(_buildFieldItem), const SizedBox(height: 24)]),
                   ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(color: colors.surfaceCard, border: Border(top: BorderSide(color: colors.surfaceBorder))),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isSubmitting ? null : _handleSubmit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colors.primary,
-                      foregroundColor: colors.surfaceDeep,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(color: colors.surfaceCard, border: Border(top: BorderSide(color: colors.surfaceBorder))),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isSubmitting ? null : _handleSubmit,
+                      style: ElevatedButton.styleFrom(backgroundColor: colors.primary, foregroundColor: colors.surfaceDeep, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                      child: _isSubmitting
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : Text('Submit', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
                     ),
-                    child: _isSubmitting
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text('Submit', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

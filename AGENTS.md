@@ -77,11 +77,12 @@ Key architectural hubs:
 - `lib/core/metadata/`: SDUI contracts (`EntitySchemaMetadata`, `ActionMetadata`, `LobbyPageMetadata`, `MenuMetadata`).
 - `lib/core/navigation/action_dispatcher.dart`: Central dispatcher executing schema-driven SDUI navigation and modal actions.
 - `lib/core/storage/local_storage_service.dart`: SharedPreferences persistence for server profiles, selected server ID, and theme.
+- `lib/core/utils/payload_utils.dart`: Sanitizes payloads, formats numeric and nested line-item values, and extracts human-readable response messages.
 - `lib/core/utils/action_metadata_loader.dart`: Dynamically introspects and parses action parameter schemas.
 - `lib/core/utils/action_field_consolidator.dart`: Merges dot-notated array fields and resolves dynamic schema definitions.
 - `lib/core/utils/param_config_parser.dart`: Robust parser for action parameter config strings.
 - `lib/core/utils/record_lookup_loader.dart`: Dynamically loads and filters LOV records using entity keys and form context.
-- `lib/core/widgets/record/`: Pure SDUI record components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `RecordFormScreen`, `RecordFormField`, `RecordArrayField`, `RecordLookupSheet`).
+- `lib/core/widgets/record/`: Pure SDUI record components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `RecordFormScreen`, `RecordFormField`, `RecordArrayField`, `RecordLookupSheet`, `RecordFormDiscardDialog`).
 - `lib/core/widgets/lobby/`: Dynamic dashboard tiles (`LobbyGrid`, `LobbyElementTile`, `LobbyCounterTile`, `LobbyChartTile`, etc.).
 - `lib/core/widgets/menu/`: Dynamic menu navigation (`MenuSectionCard`, `MenuItemTile`).
 - `lib/features/login/models/server_config.dart`: Profile model defining server URL, realm, and OAuth client credentials.
