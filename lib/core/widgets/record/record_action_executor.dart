@@ -6,6 +6,7 @@ import '../../services/backend_service.dart';
 import '../../services/schema_catalog_service.dart';
 import '../../utils/param_config_parser.dart';
 import '../../utils/payload_utils.dart';
+import '../../utils/record_display_utils.dart';
 import 'record_action_sheet.dart';
 import 'record_form_screen.dart';
 
@@ -112,6 +113,7 @@ class RecordActionExecutor {
           
           final childField = f.copyWith(
             key: childKey,
+            label: RecordDisplayUtils.formatLabel(childKey),
             isRequired: mandatoryFields.contains(f.key.toUpperCase())
                 ? true
                 : (optionalFields.contains(f.key.toUpperCase()) ? false : f.isRequired),
