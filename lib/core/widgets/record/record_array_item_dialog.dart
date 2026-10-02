@@ -129,36 +129,9 @@ class RecordArrayItemDialog extends StatelessWidget {
               else
                 ...subFields.map(
                   (sf) {
-                    // Generic SDUI Context Filter:
-                    // If sibling fields or inherited parent values have values, dynamically build an OData filter
-                    // for any key that represents a scope/parent key (e.g. Contract, Company, Site)
-                    final filterParts = <String>[];
-                    for (final entry in draft.entries) {
-                      if (entry.key.toLowerCase() != sf.key.toLowerCase() &&
-                          entry.value != null &&
-                          entry.value.toString().isNotEmpty) {
-                        // Sibling value available (e.g. Contract eq '2WFCC')
-                        filterParts.add("${entry.key} eq '${entry.value}'");
-                      }
-                    }
-
-                    // Fallback to matching parent values if not in draft
-                    if (filterParts.isEmpty) {
-                      for (final entry in parentValues.entries) {
-                        if (entry.key.toLowerCase() != sf.key.toLowerCase() &&
-                            entry.value != null &&
-                            entry.value.toString().isNotEmpty) {
-                          filterParts.add("${entry.key} eq '${entry.value}'");
-                        }
-                      }
-                    }
-
-                    final dynamicFilter = filterParts.isNotEmpty ? filterParts.join(' and ') : null;
-
                     return RecordFormField(
                       field: sf,
                       initialValue: draft[sf.key],
-                      contextFilter: dynamicFilter,
                       onChanged: (val) => draft[sf.key] = val,
                       onSaved: (val) => draft[sf.key] = val?.trim() ?? '',
                     );
