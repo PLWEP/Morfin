@@ -48,12 +48,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Expanded(
                 child: Text(
                   msg,
-                  style: GoogleFonts.inter(fontSize: 13),
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.of(context).onSurface,
+                  ),
                 ),
               ),
             ],
           ),
-          backgroundColor: AppColors.of(context).surfaceBorder,
+          backgroundColor: AppColors.of(context).surfaceCard,
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),

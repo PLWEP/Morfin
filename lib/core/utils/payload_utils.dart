@@ -171,4 +171,42 @@ class PayloadUtils {
     }
     return error.toString();
   }
+
+  /// Extracts success message from API response map.
+  /// Looks for common keys ('message', 'msg', 'result', 'info', 'description'),
+  /// or takes the first meaningful non-metadata key-value pair.
+  static String extractSuccessMessage(Map<String, dynamic>? response, {required String fallback}) {
+    if (response == null || response.isEmpty) return fallback;
+
+    final candidateKeys = ['message', 'msg', 'result', 'info', 'description', 'detail', 'statustext'];
+    for (final entry in response.entries) {
+      if (candidateKeys.contains(entry.key.toLowerCase()) && entry.value != null) {
+        final val = entry.value.toString().trim();
+        if (val.isNotEmpty) return val;
+      }
+    }
+
+    // Check if there is a 'value' key with string or map
+    if (response.containsKey('value') && response['value'] != null) {
+      final val = response['value'];
+      if (val is String && val.trim().isNotEmpty) return val.trim();
+      if (val is Map<String, dynamic>) {
+        return extractSuccessMessage(val, fallback: fallback);
+      }
+    }
+
+    // Try finding the first meaningful non-metadata field
+    const skipKeys = {'@odata.context', '@odata.metadata', 'luname', 'objid', 'objversion', 'rowkey', 'rowstate', 'rowtype'};
+    for (final entry in response.entries) {
+      if (!entry.key.startsWith('@') && !skipKeys.contains(entry.key.toLowerCase()) && entry.value != null) {
+        final valStr = entry.value.toString().trim();
+        if (valStr.isNotEmpty && entry.value is! List && entry.value is! Map) {
+          return '${entry.key}: $valStr';
+        }
+      }
+    }
+
+    return fallback;
+  }
 }
+

@@ -31,7 +31,27 @@ class ApiClient {
     }
   }
 
-  void logout() => _config.clearTokens();
+  Dio get dio => _dio;
+  final ValueNotifier<bool> onSessionExpired = ValueNotifier<bool>(false);
+  bool _isRefreshing = false;
+
+  void notifySessionExpired() {
+    if (!onSessionExpired.value) {
+      onSessionExpired.value = true;
+    }
+  }
+
+  void resetSessionExpired() {
+    onSessionExpired.value = false;
+  }
+
+  void logout() {
+    _config.clearTokens();
+  }
+
+  Future<Response<T>> fetchWithSelfSigned<T>(RequestOptions requestOptions) {
+    return _dio.fetch<T>(requestOptions);
+  }
 
   Future<List<Map<String, dynamic>>> getEntitySet(
     String projection,
@@ -151,9 +171,20 @@ class ApiClient {
     String scope = 'openid',
     String? responseType = 'id_token',
   }) async {
+    if (_isRefreshing) {
+      // Wait for ongoing refresh
+      int attempts = 0;
+      while (_isRefreshing && attempts < 20) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+      return _config.isAuthenticated;
+    }
+
     final refresh = _config.refreshToken;
     if (refresh == null || refresh.isEmpty) return false;
 
+    _isRefreshing = true;
     try {
       final payload = <String, dynamic>{
         'grant_type': grantType,
@@ -177,6 +208,8 @@ class ApiClient {
       }
     } catch (e) {
       debugPrint('ApiClient.refreshTokenOAuth error: $e');
+    } finally {
+      _isRefreshing = false;
     }
     _config.clearTokens();
     return false;

@@ -36,6 +36,7 @@ class RecordFormScreen extends StatefulWidget {
 class _RecordFormScreenState extends State<RecordFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final Map<String, dynamic> _values;
+  late final Map<String, dynamic> _initialSnapshot;
   bool _isSubmitting = false;
 
   @override
@@ -47,6 +48,64 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
         _values[field.key] = field.options.first;
       }
     }
+    _initialSnapshot = Map<String, dynamic>.from(_values);
+  }
+
+  bool get _isDirty {
+    for (final entry in _values.entries) {
+      final initial = _initialSnapshot[entry.key];
+      final current = entry.value;
+      if (current is List && current.isNotEmpty) {
+        return true;
+      }
+      if (current is String && current.trim().isNotEmpty && current != initial) {
+        return true;
+      }
+      if (current != null && current != initial && current is! List && current is! String) {
+        return true;
+      }
+    }
+    // Also check if new keys were added
+    if (_values.keys.length > _initialSnapshot.keys.length) return true;
+    return false;
+  }
+
+  Future<bool> _confirmDiscard() async {
+    if (!_isDirty) return true;
+
+    final colors = AppColors.of(context);
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: colors.surfaceCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Batalkan Perubahan?',
+          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface),
+        ),
+        content: Text(
+          'Data yang sudah dimasukkan akan hilang jika Anda keluar dari form ini.',
+          style: GoogleFonts.inter(fontSize: 14, color: colors.onSurfaceVariant),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(false),
+            child: Text('Tetap di Sini', style: GoogleFonts.inter(color: colors.primary, fontWeight: FontWeight.w600)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text('Keluar', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+
+    return discard ?? false;
   }
 
   Future<void> _handleSubmit() async {
@@ -74,14 +133,30 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
         allFieldDefs: effectiveDefs,
         defaultValues: widget.paramDefaults,
       );
-      await BackendService.instance.executeAction(
+      final response = await BackendService.instance.executeAction(
         projection: widget.projection,
         actionName: widget.actionName,
         parameters: payload,
       );
 
       if (mounted) {
-        messenger.showSnackBar(SnackBar(content: Text('"${widget.title}" submitted successfully'), behavior: SnackBarBehavior.floating));
+        final successMsg = PayloadUtils.extractSuccessMessage(
+          response,
+          fallback: '"${widget.title}" submitted successfully',
+        );
+        messenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 16),
+                const SizedBox(width: 8),
+                Expanded(child: Text(successMsg, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500))),
+              ],
+            ),
+            backgroundColor: AppColors.of(context).surfaceCard,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
         widget.onRefresh();
         Navigator.of(context).pop();
       }
@@ -98,21 +173,37 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    return Scaffold(
-      backgroundColor: colors.surfaceDeep,
-      appBar: AppBar(
-        backgroundColor: colors.surfaceCard,
-        elevation: 0,
-        title: Text(widget.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: colors.onSurface),
-          onPressed: () => Navigator.of(context).pop(),
+    return PopScope(
+      canPop: !_isDirty,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final nav = Navigator.of(context);
+        final shouldDiscard = await _confirmDiscard();
+        if (shouldDiscard && mounted) {
+          nav.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: colors.surfaceDeep,
+        appBar: AppBar(
+          backgroundColor: colors.surfaceCard,
+          elevation: 0,
+          title: Text(widget.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface)),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: colors.onSurface),
+            onPressed: () async {
+              final nav = Navigator.of(context);
+              final shouldDiscard = await _confirmDiscard();
+              if (shouldDiscard && mounted) {
+                nav.pop();
+              }
+            },
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Column(
+        body: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: Column(
             children: [
               Expanded(
                 child: SingleChildScrollView(
@@ -171,6 +262,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
