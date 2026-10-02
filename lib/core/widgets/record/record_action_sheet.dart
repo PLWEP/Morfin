@@ -35,22 +35,20 @@ class RecordActionSheet extends StatefulWidget {
     Map<String, dynamic> initialValues = const {},
     Map<String, dynamic> paramDefaults = const {},
     required Future<void> Function(Map<String, dynamic> values) onSubmit,
-  }) {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => RecordActionSheet(
-        title: title,
-        actionLabel: actionLabel,
-        projection: projection,
-        fields: fields,
-        initialValues: initialValues,
-        paramDefaults: paramDefaults,
-        onSubmit: onSubmit,
-      ),
-    );
-  }
+  }) => showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => RecordActionSheet(
+      title: title,
+      actionLabel: actionLabel,
+      projection: projection,
+      fields: fields,
+      initialValues: initialValues,
+      paramDefaults: paramDefaults,
+      onSubmit: onSubmit,
+    ),
+  );
 
   @override
   State<RecordActionSheet> createState() => _RecordActionSheetState();
@@ -81,11 +79,7 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
         final items = _values[field.key] as List<dynamic>?;
         if (items == null || items.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Please add at least one item to "${field.label}"'),
-              backgroundColor: Colors.redAccent,
-              behavior: SnackBarBehavior.floating,
-            ),
+            SnackBar(content: Text('Please add at least one item to "${field.label}"'), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating),
           );
           return;
         }
@@ -125,53 +119,29 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: colors.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
+              Center(child: Container(width: 36, height: 4, decoration: BoxDecoration(color: colors.outlineVariant, borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: 16),
-              Text(
-                widget.title,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: colors.onSurface,
-                ),
-              ),
+              Text(widget.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface)),
               const SizedBox(height: 16),
               ...widget.fields.map((f) {
-                final resolvedField = (f.lovProjection == null || f.lovProjection!.isEmpty)
+                final resolved = (f.lovProjection == null || f.lovProjection!.isEmpty)
                     ? (widget.projection != null ? f.copyWith(lovProjection: widget.projection) : f)
                     : f;
 
-                return resolvedField.type == FieldType.array
+                return resolved.type == FieldType.array
                     ? RecordArrayField(
-                        field: resolvedField,
-                        initialItems: (_values[resolvedField.key] as List<dynamic>?) ?? const [],
+                        field: resolved,
+                        initialItems: (_values[resolved.key] as List<dynamic>?) ?? const [],
                         defaultValues: widget.paramDefaults,
                         parentValues: _values,
-                        onChanged: (val) {
-                          setState(() {
-                            _values[resolvedField.key] = val;
-                          });
-                        },
+                        onChanged: (val) => setState(() => _values[resolved.key] = val),
                       )
                     : RecordFormField(
-                        field: resolvedField,
-                        initialValue: _values[resolvedField.key],
+                        field: resolved,
+                        initialValue: _values[resolved.key],
                         contextualValues: _values,
-                        onChanged: (val) {
-                          setState(() {
-                            _values[resolvedField.key] = val;
-                          });
-                        },
-                        onSaved: (val) => _values[resolvedField.key] = val?.trim() ?? '',
+                        onChanged: (val) => setState(() => _values[resolved.key] = val),
+                        onSaved: (val) => _values[resolved.key] = val?.trim() ?? '',
                       );
               }),
               const SizedBox(height: 20),
@@ -184,15 +154,8 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 child: _isSubmitting
-                    ? SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: colors.surfaceDeep),
-                      )
-                    : Text(
-                        widget.actionLabel,
-                        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
-                      ),
+                    ? SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: colors.surfaceDeep))
+                    : Text(widget.actionLabel, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
               ),
             ],
           ),

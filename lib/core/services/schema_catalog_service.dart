@@ -102,21 +102,17 @@ class SchemaCatalogService {
     final snippet = etEnd != -1 ? xml.substring(etIdx, etEnd + 13) : xml.substring(etIdx);
 
     final propRegex = RegExp(r'<Property\s+Name="([^"]+)"\s+Type="([^"]+)"([^>]*)');
-    final matches = propRegex.allMatches(snippet);
     final fields = <EntityFieldMetadata>[];
     const systemFields = {'luname', 'keyref', 'objsite', 'objstate', 'objgrants'};
 
-    for (final m in matches) {
+    for (final m in propRegex.allMatches(snippet)) {
       final name = m.group(1) ?? '';
       final type = m.group(2) ?? 'Edm.String';
       final attr = m.group(3) ?? '';
       if (name.isEmpty || systemFields.contains(name.toLowerCase())) continue;
 
       fields.add(EntityFieldMetadata(
-        key: name,
-        label: _humanize(name),
-        type: _resolveFieldType(type),
-        isRequired: attr.contains('Nullable="false"'),
+        key: name, label: _humanize(name), type: _resolveFieldType(type), isRequired: attr.contains('Nullable="false"'),
       ));
     }
     return fields;
@@ -171,14 +167,10 @@ class SchemaCatalogService {
     if (t.contains('decimal') || t.contains('int') || t.contains('double')) return FieldType.number;
     if (t.contains('date') || t.contains('time')) return FieldType.date;
     if (t.contains('boolean')) return FieldType.boolean;
-    if (t.contains('collection(') || t.contains('list<') || t.contains('structure') || t.contains('array')) {
-      return FieldType.array;
-    }
+    if (t.contains('collection(') || t.contains('list<') || t.contains('structure') || t.contains('array')) return FieldType.array;
     return FieldType.text;
   }
 
-  static String _humanize(String key) {
-    return key.replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m[1]}').trim();
-  }
+  static String _humanize(String key) => key.replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m[1]}').trim();
 }
 

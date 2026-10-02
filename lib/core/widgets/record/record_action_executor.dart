@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../metadata/action_param_metadata.dart';
 import '../../metadata/entity_metadata.dart';
-import '../../network/data_query.dart';
 import '../../services/backend_service.dart';
-import '../../services/schema_catalog_service.dart';
+import '../../utils/action_field_consolidator.dart';
+import '../../utils/action_metadata_loader.dart';
 import '../../utils/param_config_parser.dart';
 import '../../utils/payload_utils.dart';
-import '../../utils/record_display_utils.dart';
 import 'record_action_sheet.dart';
 import 'record_form_screen.dart';
 
@@ -34,7 +32,6 @@ class RecordActionExecutor {
         ],
       ),
     );
-
     if (confirmed != true) return;
 
     try {
@@ -72,142 +69,51 @@ class RecordActionExecutor {
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
 
-    List<EntityFieldMetadata> formFields = [];
-    List<Map<String, dynamic>> rawParams = [];
-    try {
-      rawParams = await BackendService.instance.fetchEntitySet(
-        projection: 'MobileNavMenuHandling',
-        entitySet: 'ActionParamSet',
-        query: DataQuery(filter: "ProjectionName eq '$projection' and ActionName eq '$actionName'"),
-      );
-
-      if (rawParams.isNotEmpty) {
-        formFields = rawParams.map((p) => ActionParamMetadata.fromJson(p).toFormField(projection: projection)).toList();
-      } else {
-        formFields = await SchemaCatalogService.instance.fetchActionFields(projection: projection, actionName: actionName);
-        if (formFields.isEmpty) {
-          formFields = await SchemaCatalogService.instance.fetchRecordFields(
-            projection: projection,
-            entitySetOrName: schema.entitySet.isNotEmpty ? schema.entitySet : actionName,
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('Failed to load action metadata: $e');
-    } finally {
-      if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
-    }
+    final (loadedFields, rawParams) = await ActionMetadataLoader.load(
+      projection: projection,
+      actionName: actionName,
+      schema: schema,
+    );
+    if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+    List<EntityFieldMetadata> formFields = loadedFields;
 
     final (defaults, hiddenFields, explicitFields, mandatoryFields, optionalFields) = ParamConfigParser.parse(paramConfig);
     if (explicitFields.isNotEmpty) {
       formFields = explicitFields;
     } else {
-      // 1. Group dot-notated parameters (e.g. ReqLines.PartNo) into parent structure field (ReqLines)
-      final topLevelFields = <String, EntityFieldMetadata>{};
-      final nestedMap = <String, List<EntityFieldMetadata>>{};
-
-      for (final f in formFields) {
-        if (f.key.contains('.')) {
-          final parts = f.key.split('.');
-          final parentKey = parts[0];
-          final childKey = parts.sublist(1).join('.');
-          
-          final childField = f.copyWith(
-            key: childKey,
-            label: RecordDisplayUtils.formatLabel(childKey),
-            isRequired: mandatoryFields.contains(f.key.toUpperCase())
-                ? true
-                : (optionalFields.contains(f.key.toUpperCase()) ? false : f.isRequired),
-          );
-
-          nestedMap.putIfAbsent(parentKey, () => []).add(childField);
-        } else {
-          final isReq = mandatoryFields.contains(f.key.toUpperCase())
-              ? true
-              : (optionalFields.contains(f.key.toUpperCase()) ? false : f.isRequired);
-          topLevelFields[f.key] = f.copyWith(isRequired: isReq);
-        }
-      }
-
-      // Merge nested fields into parent
-      final consolidated = <EntityFieldMetadata>[];
-      for (final entry in topLevelFields.entries) {
-        var parentField = entry.value;
-        if (nestedMap.containsKey(parentField.key)) {
-          final children = nestedMap[parentField.key]!;
-          // Filter children that are hidden
-          final visibleChildren = children
-              .where((c) => !hiddenFields.contains('${parentField.key}.${c.key}'.toUpperCase()) &&
-                            !hiddenFields.contains(c.key.toUpperCase()))
-              .toList();
-          parentField = parentField.copyWith(
-            nestedFields: visibleChildren,
-            type: FieldType.array,
-          );
-        }
-        consolidated.add(parentField);
-      }
-
-      formFields = consolidated;
-
-      // 2. Filter top-level hidden fields
-      if (hiddenFields.isNotEmpty) {
-        formFields = formFields.where((f) => !hiddenFields.contains(f.key.toUpperCase())).toList();
-      }
+      formFields = ActionFieldConsolidator.consolidate(
+        formFields: formFields,
+        mandatoryFields: mandatoryFields,
+        optionalFields: optionalFields,
+        hiddenFields: hiddenFields,
+      );
     }
 
-    // Retain full schema definitions (including all child structure fields) for serialization
-    final allFieldDefinitions = <EntityFieldMetadata>[];
-    final allTopLevel = <String, EntityFieldMetadata>{};
-    final allNested = <String, List<EntityFieldMetadata>>{};
-    for (final f in formFields) {
-      allTopLevel[f.key] = f;
-    }
-    // Also include rawParams fields if not present
-    for (final f in rawParams.map((p) => ActionParamMetadata.fromJson(p).toFormField(projection: projection))) {
-      if (f.key.contains('.')) {
-        final parts = f.key.split('.');
-        allNested.putIfAbsent(parts[0], () => []).add(f.copyWith(key: parts.sublist(1).join('.')));
-      } else {
-        allTopLevel.putIfAbsent(f.key, () => f);
-      }
-    }
-    for (final entry in allTopLevel.entries) {
-      var field = entry.value;
-      if (allNested.containsKey(field.key)) {
-        field = field.copyWith(
-          nestedFields: allNested[field.key]!,
-          type: FieldType.array,
-        );
-      }
-      allFieldDefinitions.add(field);
-    }
+    final allFieldDefinitions = ActionFieldConsolidator.buildAllDefinitions(
+      formFields: formFields,
+      rawParams: rawParams,
+      projection: projection,
+    );
 
     final effectiveProj = projection.replaceAll('/', '').trim();
-
     formFields = formFields.map((f) {
-      final updatedNested = f.nestedFields.map((nf) {
-        final nestedProj = (nf.lovProjection == null || nf.lovProjection!.isEmpty) ? effectiveProj : nf.lovProjection;
-        return nf.copyWith(lovProjection: nestedProj);
-      }).toList();
-
-      final fieldProj = (f.lovProjection == null || f.lovProjection!.isEmpty) ? effectiveProj : f.lovProjection;
+      final updatedNested = f.nestedFields.map((nf) => nf.copyWith(
+        lovProjection: (nf.lovProjection == null || nf.lovProjection!.isEmpty) ? effectiveProj : nf.lovProjection,
+      )).toList();
       return f.copyWith(
-        lovProjection: fieldProj,
+        lovProjection: (f.lovProjection == null || f.lovProjection!.isEmpty) ? effectiveProj : f.lovProjection,
         nestedFields: updatedNested,
       );
     }).toList();
 
     if (!context.mounted) return;
-
     if (formFields.isEmpty) {
-      messenger.showSnackBar(SnackBar(content: Text('No parameters or fields found for "$title"'), behavior: SnackBarBehavior.floating));
+      messenger.showSnackBar(SnackBar(content: Text('No parameters found for "$title"'), behavior: SnackBarBehavior.floating));
       return;
     }
 
     final initialVals = <String, dynamic>{
-      for (final entry in defaults.entries)
-        if (!entry.key.contains('.')) entry.key: entry.value,
+      for (final entry in defaults.entries) if (!entry.key.contains('.')) entry.key: entry.value,
       ...record,
     };
 

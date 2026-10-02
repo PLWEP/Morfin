@@ -81,12 +81,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
       );
 
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text('"${widget.title}" submitted successfully'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        messenger.showSnackBar(SnackBar(content: Text('"${widget.title}" submitted successfully'), behavior: SnackBarBehavior.floating));
         widget.onRefresh();
         Navigator.of(context).pop();
       }
@@ -94,13 +89,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
       if (mounted) {
         setState(() => _isSubmitting = false);
         final errorMsg = PayloadUtils.extractErrorMessage(e);
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text('Error: $errorMsg'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        messenger.showSnackBar(SnackBar(content: Text('Error: $errorMsg'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
       }
     }
   }
@@ -114,14 +103,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
       appBar: AppBar(
         backgroundColor: colors.surfaceCard,
         elevation: 0,
-        title: Text(
-          widget.title,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: colors.onSurface,
-          ),
-        ),
+        title: Text(widget.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: colors.onSurface),
           onPressed: () => Navigator.of(context).pop(),
@@ -139,32 +121,24 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       ...widget.fields.map((f) {
-                        final resolvedField = (f.lovProjection == null || f.lovProjection!.isEmpty)
+                        final resolved = (f.lovProjection == null || f.lovProjection!.isEmpty)
                             ? f.copyWith(lovProjection: widget.projection)
                             : f;
 
-                        return resolvedField.type == FieldType.array
+                        return resolved.type == FieldType.array
                             ? RecordArrayField(
-                                field: resolvedField,
-                                initialItems: (_values[resolvedField.key] as List<dynamic>?) ?? const [],
+                                field: resolved,
+                                initialItems: (_values[resolved.key] as List<dynamic>?) ?? const [],
                                 defaultValues: widget.paramDefaults,
                                 parentValues: _values,
-                                onChanged: (val) {
-                                  setState(() {
-                                    _values[resolvedField.key] = val;
-                                  });
-                                },
+                                onChanged: (val) => setState(() => _values[resolved.key] = val),
                               )
                             : RecordFormField(
-                                field: resolvedField,
-                                initialValue: _values[resolvedField.key],
+                                field: resolved,
+                                initialValue: _values[resolved.key],
                                 contextualValues: _values,
-                                onChanged: (val) {
-                                  setState(() {
-                                    _values[resolvedField.key] = val;
-                                  });
-                                },
-                                onSaved: (val) => _values[resolvedField.key] = val?.trim() ?? '',
+                                onChanged: (val) => setState(() => _values[resolved.key] = val),
+                                onSaved: (val) => _values[resolved.key] = val?.trim() ?? '',
                               );
                       }),
                       const SizedBox(height: 24),

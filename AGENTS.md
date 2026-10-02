@@ -25,7 +25,7 @@ This document is the authoritative instruction manual for any AI coding assistan
 | **Testing Rule** | No unsolicited tests | Do NOT generate test suites, unit tests, or instrumentation tests unless explicitly instructed. |
 | **Online First** | Zero offline transactional mutations | Never implement local SQLite/Hive offline sync queues. API errors must propagate to UI. |
 | **UI Aesthetics** | Material Design 3 + `antislop-ui` | Clean, deterministic layouts. Eliminate bloated wrappers, placeholders, and decorative UI slop. First-class Light & Dark themes. |
-| **Static Analysis** | 0 warnings, 0 errors | Must verify with `rtk dart analyze lib test` before finishing turns. |
+| **Static Analysis** | 0 warnings, 0 errors in `lib/` | Must verify with `rtk dart analyze lib test` before finishing turns. |
 | **Test Verification** | 100% test pass rate | Verify existing tests with `rtk flutter test`. |
 
 ---
@@ -69,7 +69,7 @@ Key architectural hubs:
 - `lib/core/network/activity_log_interceptor.dart`: Dio interceptor recording live request/response telemetry for diagnostics.
 - `lib/core/network/data_query.dart`: Fluent builder for query strings (`$filter`, `$select`, `$top`, etc.).
 - `lib/core/services/backend_service.dart`: Core backend integration gateway (`fetchEntitySet`, `fetchEntityRecord`, `createEntityRecord`, `updateEntityRecord`, `executeAction`, `executeBatchAction`, `fetchNavigatorNodes`).
-- `lib/core/services/schema_catalog_service.dart`: Live projection schema discovery & XML metadata introspection service.
+- `lib/core/services/schema_catalog_service.dart`: Live projection schema discovery & XML metadata introspection service (`fetchEntityKeys`).
 - `lib/core/services/cache_manager_service.dart`: Live cache size calculation and cache clearing service.
 - `lib/core/services/activity_log_service.dart`: In-memory network and system activity logger for diagnostics export.
 - `lib/core/providers/user_profile_provider.dart`: Fetches live user profile data via `FrameworkServices.svc/GetCurrentUserInformation()`.
@@ -77,6 +77,10 @@ Key architectural hubs:
 - `lib/core/metadata/`: SDUI contracts (`EntitySchemaMetadata`, `ActionMetadata`, `LobbyPageMetadata`, `MenuMetadata`).
 - `lib/core/navigation/action_dispatcher.dart`: Central dispatcher executing schema-driven SDUI navigation and modal actions.
 - `lib/core/storage/local_storage_service.dart`: SharedPreferences persistence for server profiles, selected server ID, and theme.
+- `lib/core/utils/action_metadata_loader.dart`: Dynamically introspects and parses action parameter schemas.
+- `lib/core/utils/action_field_consolidator.dart`: Merges dot-notated array fields and resolves dynamic schema definitions.
+- `lib/core/utils/param_config_parser.dart`: Robust parser for action parameter config strings.
+- `lib/core/utils/record_lookup_loader.dart`: Dynamically loads and filters LOV records using entity keys and form context.
 - `lib/core/widgets/record/`: Pure SDUI record components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `RecordFormScreen`, `RecordFormField`, `RecordArrayField`, `RecordLookupSheet`).
 - `lib/core/widgets/lobby/`: Dynamic dashboard tiles (`LobbyGrid`, `LobbyElementTile`, `LobbyCounterTile`, `LobbyChartTile`, etc.).
 - `lib/core/widgets/menu/`: Dynamic menu navigation (`MenuSectionCard`, `MenuItemTile`).

@@ -24,19 +24,17 @@ class RecordArrayItemDialog extends StatefulWidget {
     Map<String, dynamic>? existingItem,
     Map<String, dynamic> defaultValues = const {},
     Map<String, dynamic> parentValues = const {},
-  }) {
-    return showModalBottomSheet<Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => RecordArrayItemDialog(
-        parentField: parentField,
-        existingItem: existingItem,
-        defaultValues: defaultValues,
-        parentValues: parentValues,
-      ),
-    );
-  }
+  }) => showModalBottomSheet<Map<String, dynamic>>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => RecordArrayItemDialog(
+      parentField: parentField,
+      existingItem: existingItem,
+      defaultValues: defaultValues,
+      parentValues: parentValues,
+    ),
+  );
 
   @override
   State<RecordArrayItemDialog> createState() => _RecordArrayItemDialogState();
@@ -138,26 +136,13 @@ class _RecordArrayItemDialogState extends State<RecordArrayItemDialog> {
                   ),
                 )
               else
-                ...subFields.map(
-                  (sf) {
-                    final combinedContext = <String, dynamic>{
-                      ...widget.parentValues,
-                      ..._draft,
-                    };
-
-                    return RecordFormField(
-                      field: sf,
-                      initialValue: _draft[sf.key],
-                      contextualValues: combinedContext,
-                      onChanged: (val) {
-                        setState(() {
-                          _draft[sf.key] = val;
-                        });
-                      },
-                      onSaved: (val) => _draft[sf.key] = val?.trim() ?? '',
-                    );
-                  },
-                ),
+                ...subFields.map((sf) => RecordFormField(
+                  field: sf,
+                  initialValue: _draft[sf.key],
+                  contextualValues: <String, dynamic>{...widget.parentValues, ..._draft},
+                  onChanged: (val) => setState(() => _draft[sf.key] = val),
+                  onSaved: (val) => _draft[sf.key] = val?.trim() ?? '',
+                )),
               const SizedBox(height: 16),
               if (subFields.isNotEmpty)
                 FilledButton(
