@@ -10,6 +10,7 @@ class RecordLookupSheet extends StatefulWidget {
   final String title;
   final String projection;
   final String lovReference;
+  final String? contextFilter;
   final ValueChanged<String>? onSelected;
   final void Function(String code, String display)? onRecordSelected;
 
@@ -18,6 +19,7 @@ class RecordLookupSheet extends StatefulWidget {
     required this.title,
     required this.projection,
     required this.lovReference,
+    this.contextFilter,
     this.onSelected,
     this.onRecordSelected,
   });
@@ -27,6 +29,7 @@ class RecordLookupSheet extends StatefulWidget {
     required String title,
     required String projection,
     required String lovReference,
+    String? contextFilter,
     ValueChanged<String>? onSelected,
     void Function(String code, String display)? onRecordSelected,
   }) => showModalBottomSheet(
@@ -37,6 +40,7 @@ class RecordLookupSheet extends StatefulWidget {
       title: title,
       projection: projection,
       lovReference: lovReference,
+      contextFilter: contextFilter,
       onSelected: onSelected,
       onRecordSelected: onRecordSelected,
     ),
@@ -82,7 +86,12 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
       final res = await BackendService.instance.fetchEntitySet(
         projection: proj,
         entitySet: entitySet,
-        query: const DataQuery(top: 50),
+        query: DataQuery(
+          top: 50,
+          filter: (widget.contextFilter != null && widget.contextFilter!.trim().isNotEmpty)
+              ? widget.contextFilter!.trim()
+              : null,
+        ),
       );
       if (mounted) {
         setState(() {

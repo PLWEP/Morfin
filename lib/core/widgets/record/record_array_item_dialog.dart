@@ -8,12 +8,14 @@ class RecordArrayItemDialog extends StatelessWidget {
   final EntityFieldMetadata parentField;
   final Map<String, dynamic>? existingItem;
   final Map<String, dynamic> defaultValues;
+  final Map<String, dynamic> parentValues;
 
   const RecordArrayItemDialog({
     super.key,
     required this.parentField,
     this.existingItem,
     this.defaultValues = const {},
+    this.parentValues = const {},
   });
 
   static Future<Map<String, dynamic>?> show(
@@ -21,6 +23,7 @@ class RecordArrayItemDialog extends StatelessWidget {
     required EntityFieldMetadata parentField,
     Map<String, dynamic>? existingItem,
     Map<String, dynamic> defaultValues = const {},
+    Map<String, dynamic> parentValues = const {},
   }) {
     return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
@@ -30,6 +33,7 @@ class RecordArrayItemDialog extends StatelessWidget {
         parentField: parentField,
         existingItem: existingItem,
         defaultValues: defaultValues,
+        parentValues: parentValues,
       ),
     );
   }
@@ -40,8 +44,20 @@ class RecordArrayItemDialog extends StatelessWidget {
     final formKey = GlobalKey<FormState>();
     final draft = Map<String, dynamic>.from(existingItem ?? {});
 
-    // Prefill defaults for child fields if new item
+    // Prefill for child fields if creating a new item
     if (existingItem == null) {
+      // 1. Generic Auto-Cascade: inherit values from parent/header if field names match
+      for (final sf in parentField.nestedFields) {
+        final matchParentEntry = parentValues.entries.firstWhere(
+          (e) => e.key.toLowerCase() == sf.key.toLowerCase() && e.value != null && e.value.toString().isNotEmpty,
+          orElse: () => const MapEntry('', null),
+        );
+        if (matchParentEntry.key.isNotEmpty) {
+          draft[sf.key] = matchParentEntry.value;
+        }
+      }
+
+      // 2. Prefill configured default values (prefixed or direct match)
       final parentPrefix = '${parentField.key.toLowerCase()}.';
       for (final entry in defaultValues.entries) {
         final k = entry.key.toLowerCase();
@@ -112,12 +128,41 @@ class RecordArrayItemDialog extends StatelessWidget {
                 )
               else
                 ...subFields.map(
-                  (sf) => RecordFormField(
-                    field: sf,
-                    initialValue: draft[sf.key],
-                    onChanged: (val) => draft[sf.key] = val,
-                    onSaved: (val) => draft[sf.key] = val?.trim() ?? '',
-                  ),
+                  (sf) {
+                    // Generic SDUI Context Filter:
+                    // If sibling fields or inherited parent values have values, dynamically build an OData filter
+                    // for any key that represents a scope/parent key (e.g. Contract, Company, Site)
+                    final filterParts = <String>[];
+                    for (final entry in draft.entries) {
+                      if (entry.key.toLowerCase() != sf.key.toLowerCase() &&
+                          entry.value != null &&
+                          entry.value.toString().isNotEmpty) {
+                        // Sibling value available (e.g. Contract eq '2WFCC')
+                        filterParts.add("${entry.key} eq '${entry.value}'");
+                      }
+                    }
+
+                    // Fallback to matching parent values if not in draft
+                    if (filterParts.isEmpty) {
+                      for (final entry in parentValues.entries) {
+                        if (entry.key.toLowerCase() != sf.key.toLowerCase() &&
+                            entry.value != null &&
+                            entry.value.toString().isNotEmpty) {
+                          filterParts.add("${entry.key} eq '${entry.value}'");
+                        }
+                      }
+                    }
+
+                    final dynamicFilter = filterParts.isNotEmpty ? filterParts.join(' and ') : null;
+
+                    return RecordFormField(
+                      field: sf,
+                      initialValue: draft[sf.key],
+                      contextFilter: dynamicFilter,
+                      onChanged: (val) => draft[sf.key] = val,
+                      onSaved: (val) => draft[sf.key] = val?.trim() ?? '',
+                    );
+                  },
                 ),
               const SizedBox(height: 16),
               if (subFields.isNotEmpty)

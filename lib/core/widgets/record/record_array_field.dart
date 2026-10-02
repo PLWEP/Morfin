@@ -9,6 +9,7 @@ class RecordArrayField extends StatefulWidget {
   final EntityFieldMetadata field;
   final List<dynamic> initialItems;
   final Map<String, dynamic> defaultValues;
+  final Map<String, dynamic> parentValues;
   final ValueChanged<List<Map<String, dynamic>>> onChanged;
 
   const RecordArrayField({
@@ -16,6 +17,7 @@ class RecordArrayField extends StatefulWidget {
     required this.field,
     this.initialItems = const [],
     this.defaultValues = const {},
+    this.parentValues = const {},
     required this.onChanged,
   });
 
@@ -44,6 +46,7 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
       parentField: widget.field,
       existingItem: existingItem,
       defaultValues: widget.defaultValues,
+      parentValues: widget.parentValues,
     );
 
     if (result != null) {

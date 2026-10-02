@@ -144,6 +144,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
                                 field: f,
                                 initialItems: (_values[f.key] as List<dynamic>?) ?? const [],
                                 defaultValues: widget.paramDefaults,
+                                parentValues: _values,
                                 onChanged: (val) => _values[f.key] = val,
                               )
                             : RecordFormField(
