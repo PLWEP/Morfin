@@ -12,8 +12,8 @@ This document is the authoritative instruction manual for any AI coding assistan
 4. **Testing Constraint**: Do NOT generate test suites, unit tests, or instrumentation tests unless explicitly instructed.
 5. **Architecture**: Strict Model-View-ViewModel (MVVM) with Unidirectional Data Flow (UDF).
 6. **Design System**: Material Design 3 (M3) with first-class Light and Dark themes. Enforce `antislop-ui` standards (clean, deterministic layouts; eliminate bloated abstractions, placeholder wrappers, and decorative UI slop).
-7. **Always-Online**: Zero offline mutation queues or local transactional caches. All ERP operations sync live with backend OData v4 projections.
+7. **Always-Online**: Zero offline mutation queues or local transactional caches. All ERP operations sync live with backend REST projections.
 8. **File Size Ceiling**: Strictly **<180 lines** (soft limit) and **<200 lines** (hard limit). Zero God Objects / God Nodes.
-9. **Vendor Decoupling**: Keep internal identifiers clean and vendor-neutral (`ApiClient`, `ApiConfig`, `AuthInterceptor`, `ErpCloudService`, `EntitySchemaRegistry`).
-10. **SDUI Driven**: Use dynamic record-driven components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `LobbyScreen`, `MenuScreen`).
+9. **Vendor Decoupling**: Keep internal identifiers clean, professional, and vendor-neutral (`ApiClient`, `ApiConfig`, `AuthInterceptor`, `BackendService`, `EntitySchemaRegistry`, `RecordFieldMetadata`).
+10. **SDUI Driven**: Use dynamic record-driven components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `RecordFormScreen`, `RecordArrayField`, `LobbyScreen`, `MenuScreen`).
 11. **Graphify Topological Hubs**: Refer to `graphify-out/graph.json` (1,068 nodes, 1,443 edges), `graphify-out/GRAPH_TREE.html`, and `graphify-out/morfin-callflow.html` for architectural relationships.

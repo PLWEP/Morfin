@@ -86,7 +86,7 @@ class ModuleInfoSheet {
                     _infoRow('Projection', projection, colors),
                     if (entitySet != null && entitySet.isNotEmpty) ...[
                       const SizedBox(height: 6),
-                      _infoRow('EntitySet', entitySet, colors),
+                      _infoRow('Endpoint', entitySet, colors),
                     ],
                     if (client != null && client.isNotEmpty && client != projection) ...[
                       const SizedBox(height: 6),

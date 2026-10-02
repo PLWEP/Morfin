@@ -9,9 +9,9 @@ This document is the authoritative instruction manual for any AI coding assistan
 - **Role**: Native Android specialist writing production-grade, maintainable, modular, and performant code.
 - **Target Platform**: **Android only**. Do not add cross-platform shims, iOS code, or redundant platform checks.
 - **Framework**: Flutter 3.13+ (Dart 3.x), Material Design 3 (M3), Riverpod state management.
-- **Architecture**: **Server-Driven UI (SDUI)** consuming **OData v4 REST projections** (IFS Cloud compatible). Strict MVVM with Unidirectional Data Flow (UDF).
+- **Architecture**: **Server-Driven UI (SDUI)** consuming **Enterprise REST projections** (IFS Cloud compatible). Strict MVVM with Unidirectional Data Flow (UDF).
 - **Mode**: **Always-Online**. Master data and transactions are never cached locally. Offline queues are strictly forbidden.
-- **Branding Rule**: Keep internal code vendor-neutral (`ApiClient`, `ApiConfig`, `AuthInterceptor`, `ErpCloudService`, `EntitySchemaRegistry`). Do NOT introduce `ifs_` prefixes into class names, file names, or variable identifiers.
+- **Branding & Naming Rule**: Keep code vendor-neutral and professional (`ApiClient`, `ApiConfig`, `AuthInterceptor`, `BackendService`, `EntitySchemaRegistry`, `RecordFieldMetadata`, `RecordFormScreen`). Avoid legacy prefixes (`ifs_`) or informal colloquialisms (`mobile`, `odata`, `entity` when referring to generic records).
 
 ---
 
@@ -43,29 +43,31 @@ Key architectural hubs:
           │
           ├──> [RecordCard]
           │
-          └──> [AppActionDispatcher] ──> [RecordActionSheet]
+          └──> [ActionDispatcher] ──> [RecordActionSheet]
+                                           │
+                                           └──> [RecordFormScreen]
 ```
 
 ### Top Architectural Hubs (God Nodes)
 | Rank | Architectural Node | Type | Connected Edges | Role |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | `LoginAction` | Sealed Class | 10 | Action contracts driving authentication and server selection |
-| 2 | `ServerConfig` | Data Model | 7 | OData endpoint credentials, URLs, and realm definitions |
+| 2 | `ServerConfig` | Data Model | 7 | Endpoint credentials, URLs, and realm definitions |
 | 3 | `LobbyElementMetadata` | Contract | 6 | Dynamic layout and data definition for Lobby dashboard tiles |
 | 4 | `LoginState` | State Model | 6 | Reactive authentication and active server selection state |
 | 5 | `userProfileProvider` | Provider | 5 | Live user profile data provider from FrameworkServices |
 | 6 | `localStorageServiceProvider` | Provider | 5 | Persists user preferences and server profiles |
 | 7 | `SettingsAction` | Sealed Class | 5 | Global theme and application configuration events |
 | 8 | `ActionMetadata` | Contract | 4 | Standardized contract for UI actions and navigation triggers |
-| 9 | `EntitySchemaMetadata` | Contract | 4 | SDUI schema definition for dynamic entity sets, cards, and actions |
+| 9 | `EntitySchemaMetadata` | Contract | 4 | SDUI schema definition for dynamic endpoints, cards, and actions |
 | 10 | `ThemeModeNotifier` | Notifier / State | 4 | Reactive theme mode state management |
 
 ### Key File Index
 - `lib/core/network/api_config.dart`: Global singleton managing active server URL, realm, and OAuth tokens.
-- `lib/core/network/api_client.dart`: Dio-based HTTP client executing OData v4 operations (`getEntitySet`, `getEntity`, `postEntity`, `patchEntity`, `callAction`).
+- `lib/core/network/api_client.dart`: Dio-based HTTP client executing REST projection operations (`getEntitySet`, `getEntity`, `postEntity`, `patchEntity`, `callAction`).
 - `lib/core/network/auth_interceptor.dart`: Auto-injects bearer token; transparently triggers `refreshTokenOAuth()` upon receiving HTTP 401.
 - `lib/core/network/activity_log_interceptor.dart`: Dio interceptor recording live request/response telemetry for diagnostics.
-- `lib/core/network/data_query.dart`: Fluent builder for OData query strings (`$filter`, `$select`, `$top`, etc.).
+- `lib/core/network/data_query.dart`: Fluent builder for query strings (`$filter`, `$select`, `$top`, etc.).
 - `lib/core/services/backend_service.dart`: Core backend integration gateway (`fetchEntitySet`, `fetchEntityRecord`, `createEntityRecord`, `updateEntityRecord`, `executeAction`, `executeBatchAction`, `fetchNavigatorNodes`).
 - `lib/core/services/schema_catalog_service.dart`: Live projection schema discovery & XML metadata introspection service.
 - `lib/core/services/cache_manager_service.dart`: Live cache size calculation and cache clearing service.
@@ -75,7 +77,7 @@ Key architectural hubs:
 - `lib/core/metadata/`: SDUI contracts (`EntitySchemaMetadata`, `ActionMetadata`, `LobbyPageMetadata`, `MenuMetadata`).
 - `lib/core/navigation/action_dispatcher.dart`: Central dispatcher executing schema-driven SDUI navigation and modal actions.
 - `lib/core/storage/local_storage_service.dart`: SharedPreferences persistence for server profiles, selected server ID, and theme.
-- `lib/core/widgets/record/`: Pure SDUI record components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `RecordFormField`, `RecordLookupSheet`).
+- `lib/core/widgets/record/`: Pure SDUI record components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `RecordFormScreen`, `RecordFormField`, `RecordArrayField`, `RecordLookupSheet`).
 - `lib/core/widgets/lobby/`: Dynamic dashboard tiles (`LobbyGrid`, `LobbyElementTile`, `LobbyCounterTile`, `LobbyChartTile`, etc.).
 - `lib/core/widgets/menu/`: Dynamic menu navigation (`MenuSectionCard`, `MenuItemTile`).
 - `lib/features/login/models/server_config.dart`: Profile model defining server URL, realm, and OAuth client credentials.
@@ -85,16 +87,16 @@ Key architectural hubs:
 
 ## 4. How-To Recipes for AI Agents
 
-### Recipe A: Adding a New Entity to the App (Pure SDUI)
+### Recipe A: Adding a New Record Schema to the App (Pure SDUI)
 1. **Define Schema**: Register an `EntitySchemaMetadata` inside `lib/core/metadata/entity_schema_registry.dart` declaring:
-   - `projection`: Backend OData projection name (e.g., `CustomerOrderHandling`).
-   - `entitySet`: Backend entity set name (e.g., `CustomerOrderSet`).
+   - `projection`: Backend projection name (e.g., `CustomerOrderHandling`).
+   - `entitySet`: Backend endpoint/set name (e.g., `CustomerOrderSet`).
    - `fields`: Keys, labels, data types, and required flags.
-   - `listCard`: Field mappings for the dynamic `EntityCard`.
+   - `listCard`: Field mappings for the dynamic `RecordCard`.
    - `actions`: Global and record-level actions (e.g. `Release`, `Cancel`).
 2. **Register Route Key**: Add the alias key to `EntitySchemaRegistry.findByTarget(target)`.
-3. **Done!**: No custom screens, viewmodels, or mock files needed. `EntityListScreen`, `EntityCard`, `EntityDetailScreen`, and `EntityActionSheet` automatically render and execute live OData mutations.
-4. **Line Count Guard**: Ensure neither file exceeds 180 lines.
+3. **Done!**: No custom screens, viewmodels, or mock files needed. `RecordListScreen`, `RecordCard`, `RecordDetailScreen`, `RecordActionSheet`, and `RecordFormScreen` automatically render and execute live backend mutations.
+4. **Line Count Guard**: Ensure every file remains strictly under 180 lines.
 
 ### Recipe B: Modifying or Adding a Server Profile Field
 1. Update `lib/features/login/models/server_config.dart` (`toJson`, `fromJson`, constructor).

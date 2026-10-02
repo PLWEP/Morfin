@@ -54,11 +54,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
         final items = _values[field.key] as List<dynamic>?;
         if (items == null || items.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Please add at least one item to "${field.label}"'),
-              backgroundColor: Colors.redAccent,
-              behavior: SnackBarBehavior.floating,
-            ),
+            SnackBar(content: Text('Please add at least one item to "${field.label}"'), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating),
           );
           return;
         }
@@ -154,10 +150,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  color: colors.surfaceCard,
-                  border: Border(top: BorderSide(color: colors.surfaceBorder)),
-                ),
+                decoration: BoxDecoration(color: colors.surfaceCard, border: Border(top: BorderSide(color: colors.surfaceBorder))),
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -169,15 +162,8 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     child: _isSubmitting
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : Text(
-                            'Submit',
-                            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : Text('Submit', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
                   ),
                 ),
               ),

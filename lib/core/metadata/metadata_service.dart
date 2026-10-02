@@ -81,7 +81,7 @@ class AppMetadataService {
             'unit': 'jobs',
             'change': 'Tap to view',
             'isPositive': true,
-            'benchmark': 'OData Projections',
+            'benchmark': 'Live Cloud Projections',
             'colorToken': 'warning',
             'span': {'col': 1, 'row': 1},
             'action': {'type': 'navigate', 'target': '/work_orders'}
@@ -95,7 +95,7 @@ class AppMetadataService {
             'unit': 'items',
             'change': 'Tap to view',
             'isPositive': true,
-            'benchmark': 'OData Projections',
+            'benchmark': 'Live Cloud Projections',
             'colorToken': 'primary',
             'span': {'col': 1, 'row': 1},
             'action': {'type': 'navigate', 'target': '/inventory'}
