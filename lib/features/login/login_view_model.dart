@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../core/network/api_client.dart';
 import '../../core/network/api_config.dart';
 import '../../core/services/navigator_service.dart';
@@ -21,7 +22,10 @@ class LoginViewModel extends ValueNotifier<LoginState> {
 
       if (savedServers != null && savedServers.isNotEmpty) {
         final active = selectedId != null
-            ? savedServers.firstWhere((s) => s.id == selectedId, orElse: () => savedServers.first)
+            ? savedServers.firstWhere(
+                (s) => s.id == selectedId,
+                orElse: () => savedServers.first,
+              )
             : savedServers.first;
 
         value = value.copyWith(servers: savedServers, selectedServer: active);
@@ -32,7 +36,10 @@ class LoginViewModel extends ValueNotifier<LoginState> {
     } catch (_) {}
   }
 
-  Future<void> _persist(List<ServerConfig> servers, ServerConfig? selected) async {
+  Future<void> _persist(
+    List<ServerConfig> servers,
+    ServerConfig? selected,
+  ) async {
     if (selected != null) {
       ApiConfig.instance.setServer(selected);
     }
@@ -64,8 +71,12 @@ class LoginViewModel extends ValueNotifier<LoginState> {
         _persist(updatedServers, server);
 
       case LoginUpdateServerAction(:final server):
-        final updatedServers = value.servers.map((s) => s.id == server.id ? server : s).toList();
-        final updatedSelected = value.selectedServer?.id == server.id ? server : value.selectedServer;
+        final updatedServers = value.servers
+            .map((s) => s.id == server.id ? server : s)
+            .toList();
+        final updatedSelected = value.selectedServer?.id == server.id
+            ? server
+            : value.selectedServer;
         value = value.copyWith(
           servers: updatedServers,
           selectedServer: updatedSelected,
@@ -75,7 +86,9 @@ class LoginViewModel extends ValueNotifier<LoginState> {
 
       case LoginDeleteServerAction(:final serverId):
         final target = value.servers.where((s) => s.id == serverId).firstOrNull;
-        final updatedServers = value.servers.where((s) => s.id != serverId).toList();
+        final updatedServers = value.servers
+            .where((s) => s.id != serverId)
+            .toList();
         final newSelected = value.selectedServer?.id == serverId
             ? (updatedServers.isNotEmpty ? updatedServers.first : null)
             : value.selectedServer;
@@ -83,7 +96,9 @@ class LoginViewModel extends ValueNotifier<LoginState> {
           servers: updatedServers,
           selectedServer: newSelected,
           clearSelectedServer: newSelected == null,
-          notificationMessage: target != null ? 'Deleted server: ${target.name}' : 'Server deleted',
+          notificationMessage: target != null
+              ? 'Deleted server: ${target.name}'
+              : 'Server deleted',
         );
         _persist(updatedServers, newSelected);
 
@@ -108,7 +123,8 @@ class LoginViewModel extends ValueNotifier<LoginState> {
     if (value.selectedServer == null || value.servers.isEmpty) {
       value = value.copyWith(
         isLoading: false,
-        notificationMessage: 'Please add and select a server environment first.',
+        notificationMessage:
+            'Please add and select a server environment first.',
       );
       return;
     }
@@ -140,7 +156,8 @@ class LoginViewModel extends ValueNotifier<LoginState> {
       value = value.copyWith(
         isLoading: false,
         isSuccess: false,
-        notificationMessage: ApiClient.instance.lastAuthError ??
+        notificationMessage:
+            ApiClient.instance.lastAuthError ??
             'Authentication failed. Please verify credentials or server URL.',
       );
     }

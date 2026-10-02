@@ -45,7 +45,11 @@ class _RecordFormFieldState extends State<RecordFormField> {
     if (widget.initialValue != oldWidget.initialValue) {
       final newVal = widget.initialValue?.toString() ?? '';
       if (_controller.text != newVal) {
-        _controller.text = newVal;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _controller.text != newVal) {
+            _controller.text = newVal;
+          }
+        });
         _selectedValue = widget.initialValue?.toString();
       }
     }
