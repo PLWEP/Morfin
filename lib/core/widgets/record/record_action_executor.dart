@@ -96,11 +96,61 @@ class RecordActionExecutor {
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
     }
 
-    final (defaults, hiddenFields, explicitFields) = ParamConfigParser.parse(paramConfig);
+    final (defaults, hiddenFields, explicitFields, mandatoryFields, optionalFields) = ParamConfigParser.parse(paramConfig);
     if (explicitFields.isNotEmpty) {
       formFields = explicitFields;
-    } else if (hiddenFields.isNotEmpty) {
-      formFields = formFields.where((f) => !hiddenFields.contains(f.key.toUpperCase())).toList();
+    } else {
+      // 1. Group dot-notated parameters (e.g. ReqLines.PartNo) into parent structure field (ReqLines)
+      final topLevelFields = <String, EntityFieldMetadata>{};
+      final nestedMap = <String, List<EntityFieldMetadata>>{};
+
+      for (final f in formFields) {
+        if (f.key.contains('.')) {
+          final parts = f.key.split('.');
+          final parentKey = parts[0];
+          final childKey = parts.sublist(1).join('.');
+          
+          final childField = f.copyWith(
+            key: childKey,
+            isRequired: mandatoryFields.contains(f.key.toUpperCase())
+                ? true
+                : (optionalFields.contains(f.key.toUpperCase()) ? false : f.isRequired),
+          );
+
+          nestedMap.putIfAbsent(parentKey, () => []).add(childField);
+        } else {
+          final isReq = mandatoryFields.contains(f.key.toUpperCase())
+              ? true
+              : (optionalFields.contains(f.key.toUpperCase()) ? false : f.isRequired);
+          topLevelFields[f.key] = f.copyWith(isRequired: isReq);
+        }
+      }
+
+      // Merge nested fields into parent
+      final consolidated = <EntityFieldMetadata>[];
+      for (final entry in topLevelFields.entries) {
+        var parentField = entry.value;
+        if (nestedMap.containsKey(parentField.key)) {
+          final children = nestedMap[parentField.key]!;
+          // Filter children that are hidden
+          final visibleChildren = children
+              .where((c) => !hiddenFields.contains('${parentField.key}.${c.key}'.toUpperCase()) &&
+                            !hiddenFields.contains(c.key.toUpperCase()))
+              .toList();
+          parentField = parentField.copyWith(
+            nestedFields: visibleChildren,
+            type: FieldType.array,
+          );
+        }
+        consolidated.add(parentField);
+      }
+
+      formFields = consolidated;
+
+      // 2. Filter top-level hidden fields
+      if (hiddenFields.isNotEmpty) {
+        formFields = formFields.where((f) => !hiddenFields.contains(f.key.toUpperCase())).toList();
+      }
     }
 
     if (formFields.isEmpty) {
