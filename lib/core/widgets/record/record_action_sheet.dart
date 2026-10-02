@@ -134,9 +134,11 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
                         initialItems: (_values[resolved.key] as List<dynamic>?) ?? const [],
                         defaultValues: widget.paramDefaults,
                         parentValues: _values,
+                        onParentFieldChanged: (key, val) => setState(() => _values[key] = val),
                         onChanged: (val) => setState(() => _values[resolved.key] = val),
                       )
                     : RecordFormField(
+                        key: ValueKey('action_${resolved.key}_${_values[resolved.key]}'),
                         field: resolved,
                         initialValue: _values[resolved.key],
                         contextualValues: _values,

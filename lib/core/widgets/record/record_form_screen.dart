@@ -131,9 +131,11 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
                                 initialItems: (_values[resolved.key] as List<dynamic>?) ?? const [],
                                 defaultValues: widget.paramDefaults,
                                 parentValues: _values,
+                                onParentFieldChanged: (key, val) => setState(() => _values[key] = val),
                                 onChanged: (val) => setState(() => _values[resolved.key] = val),
                               )
                             : RecordFormField(
+                                key: ValueKey('header_${resolved.key}'),
                                 field: resolved,
                                 initialValue: _values[resolved.key],
                                 contextualValues: _values,

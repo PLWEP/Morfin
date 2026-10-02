@@ -191,4 +191,89 @@ void main() {
 
     print('================ ALL TESTS PASSED SUCCESSFULLY! ================');
   });
+
+  test('Simulate End-to-End SDUI Form and Line Item LOV Filter Flow', () async {
+    print('\n================ SIMULATING END-TO-END SDUI NESTED FORM FLOW ================');
+
+    // 1. Simulasikan Form Header: Pengguna memilih Header Contract
+    final headerValues = <String, dynamic>{
+      'Contract': '2WFCC',
+      'Requisitioner': '*',
+      'Description': 'Test PR Mobile',
+    };
+
+    // 2. Simulasikan Auto-Cascade SDUI murni (tanpa hardcode nama field)
+    // Ketika dialog line item dibuka untuk field 'ReqLines' (structure PrLineInput)
+    final lineFieldDefinitions = [
+      'Contract',
+      'PartNo',
+      'Description',
+      'Quantity',
+      'UnitMeasure',
+      'Price',
+      'CurrencyCode',
+    ];
+
+    final lineDraft = <String, dynamic>{};
+    for (final fieldKey in lineFieldDefinitions) {
+      // Generic match: jika ada di headerValues, cascade nilainya
+      final matchHeader = headerValues.entries.firstWhere(
+        (e) => e.key.toLowerCase() == fieldKey.toLowerCase() && e.value != null && e.value.toString().isNotEmpty,
+        orElse: () => const MapEntry('', null),
+      );
+      if (matchHeader.key.isNotEmpty) {
+        lineDraft[fieldKey] = matchHeader.value;
+      }
+    }
+
+    print('1. Header Values: $headerValues');
+    print('2. Cascaded Line Draft: $lineDraft');
+    expect(lineDraft['Contract'], '2WFCC');
+
+    // 3. Gabungkan Context untuk LOV (parentValues + lineDraft)
+    final combinedContext = <String, dynamic>{
+      ...headerValues,
+      ...lineDraft,
+    };
+
+    // 4. Buka LOV PartNo: Baca Entity Keys dari OData $metadata
+    final dio = Dio();
+    dio.options.headers['Authorization'] = 'Bearer ${ApiConfig.instance.accessToken}';
+    (dio.httpClientAdapter as dynamic).createHttpClient = () {
+      final client = HttpClient();
+      client.badCertificateCallback = (cert, host, port) => true;
+      return client;
+    };
+
+    final metaUrl = '${ApiConfig.instance.projectionBaseUrl}/MorfinApiHandling.svc/\$metadata';
+    final response = await dio.get<String>(metaUrl);
+    final xml = response.data!;
+    final partKeys = extractEntityKeys(xml, 'PurchasePartLov');
+
+    // 5. Build dynamic filter secara generik
+    final dynamicFilter = buildMetadataDrivenFilter(
+      entityKeys: partKeys,
+      targetFieldKey: 'PartNo',
+      availableValues: combinedContext,
+    );
+
+    print('3. Target LOV Field: PartNo');
+    print('4. OData Entity Keys: $partKeys');
+    print('5. Resolved Dynamic Filter: $dynamicFilter');
+    expect(dynamicFilter, "Contract eq '2WFCC'");
+
+    // 6. Verifikasi eksekusi query OData ke IFS Cloud
+    final url = '${ApiConfig.instance.projectionBaseUrl}/MorfinApiHandling.svc/Reference_PurchasePartLov?\$filter=$dynamicFilter&\$top=5';
+    final res = await dio.get<Map<String, dynamic>>(url);
+    expect(res.statusCode, 200);
+
+    final items = res.data!['value'] as List;
+    print('6. IFS Response: ${items.length} records returned');
+    expect(items.isNotEmpty, true);
+    for (final item in items) {
+      expect(item['Contract'], '2WFCC');
+    }
+    print('================ E2E SDUI TEST PASSED SUCCESSFULLY! ================\n');
+  });
 }
+

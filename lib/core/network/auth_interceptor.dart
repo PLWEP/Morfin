@@ -7,7 +7,9 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers['Accept'] = 'application/json';
+    if (!options.headers.containsKey('Accept')) {
+      options.headers['Accept'] = 'application/json';
+    }
     if (options.contentType == null && !options.headers.containsKey('Content-Type')) {
       options.headers['Content-Type'] = 'application/json;charset=utf-8';
     }

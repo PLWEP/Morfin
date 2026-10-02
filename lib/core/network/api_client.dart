@@ -74,7 +74,13 @@ class ApiClient {
 
   Future<String?> getRawXml(String url) async {
     try {
-      return (await _dio.get<String>(url, options: Options(responseType: ResponseType.plain))).data;
+      return (await _dio.get<String>(
+        url,
+        options: Options(
+          responseType: ResponseType.plain,
+          headers: {'Accept': 'application/xml, text/xml, */*'},
+        ),
+      )).data;
     } catch (e) {
       debugPrint('ApiClient.getRawXml error: $e');
       return null;

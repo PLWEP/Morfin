@@ -15,6 +15,7 @@ class RecordLookupSheet extends StatefulWidget {
   final Map<String, dynamic> contextualValues;
   final ValueChanged<String>? onSelected;
   final void Function(String code, String display)? onRecordSelected;
+  final void Function(Map<String, dynamic> record)? onFullRecordSelected;
 
   const RecordLookupSheet({
     super.key,
@@ -26,6 +27,7 @@ class RecordLookupSheet extends StatefulWidget {
     this.contextualValues = const {},
     this.onSelected,
     this.onRecordSelected,
+    this.onFullRecordSelected,
   });
 
   static Future<void> show(
@@ -38,6 +40,7 @@ class RecordLookupSheet extends StatefulWidget {
     Map<String, dynamic> contextualValues = const {},
     ValueChanged<String>? onSelected,
     void Function(String code, String display)? onRecordSelected,
+    void Function(Map<String, dynamic> record)? onFullRecordSelected,
   }) => showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -51,6 +54,7 @@ class RecordLookupSheet extends StatefulWidget {
       contextualValues: contextualValues,
       onSelected: onSelected,
       onRecordSelected: onRecordSelected,
+      onFullRecordSelected: onFullRecordSelected,
     ),
   );
 
@@ -64,7 +68,6 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
   String _search = '';
   String? _errorMessage;
   String? _activeFilter;
-  String? _debugInfo;
 
   @override
   void initState() {
@@ -76,10 +79,9 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
-      _debugInfo = null;
     });
 
-    final (items, filter, debug, err) = await RecordLookupLoader.load(
+    final (items, filter, err) = await RecordLookupLoader.load(
       projection: widget.projection,
       lovReference: widget.lovReference,
       contextFilter: widget.contextFilter,
@@ -91,7 +93,6 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
       setState(() {
         _items = items;
         _activeFilter = filter;
-        _debugInfo = debug;
         _errorMessage = err;
         _isLoading = false;
       });
@@ -144,10 +145,6 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
             Text('Select ${widget.title}', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface)),
             const SizedBox(height: 6),
             _buildFilterBadge(colors),
-            if (_debugInfo != null && _activeFilter == null) ...[
-              const SizedBox(height: 4),
-              Text(_debugInfo!, style: GoogleFonts.inter(fontSize: 9, color: colors.outline), textAlign: TextAlign.center),
-            ],
             const SizedBox(height: 12),
             TextField(
               onChanged: (val) => setState(() => _search = val),
@@ -204,6 +201,7 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
         return RecordLookupTile(
           rows: rows,
           onTap: () {
+            widget.onFullRecordSelected?.call(rawItem);
             if (widget.onRecordSelected != null) {
               widget.onRecordSelected!(code, label);
             } else {

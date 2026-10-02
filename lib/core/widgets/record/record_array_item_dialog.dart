@@ -9,6 +9,7 @@ class RecordArrayItemDialog extends StatefulWidget {
   final Map<String, dynamic>? existingItem;
   final Map<String, dynamic> defaultValues;
   final Map<String, dynamic> parentValues;
+  final void Function(String key, dynamic value)? onParentFieldChanged;
 
   const RecordArrayItemDialog({
     super.key,
@@ -16,6 +17,7 @@ class RecordArrayItemDialog extends StatefulWidget {
     this.existingItem,
     this.defaultValues = const {},
     this.parentValues = const {},
+    this.onParentFieldChanged,
   });
 
   static Future<Map<String, dynamic>?> show(
@@ -24,6 +26,7 @@ class RecordArrayItemDialog extends StatefulWidget {
     Map<String, dynamic>? existingItem,
     Map<String, dynamic> defaultValues = const {},
     Map<String, dynamic> parentValues = const {},
+    void Function(String key, dynamic value)? onParentFieldChanged,
   }) => showModalBottomSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
@@ -33,6 +36,7 @@ class RecordArrayItemDialog extends StatefulWidget {
       existingItem: existingItem,
       defaultValues: defaultValues,
       parentValues: parentValues,
+      onParentFieldChanged: onParentFieldChanged,
     ),
   );
 
@@ -137,9 +141,41 @@ class _RecordArrayItemDialogState extends State<RecordArrayItemDialog> {
                 )
               else
                 ...subFields.map((sf) => RecordFormField(
+                  key: ValueKey('line_${sf.key}'),
                   field: sf,
                   initialValue: _draft[sf.key],
                   contextualValues: <String, dynamic>{...widget.parentValues, ..._draft},
+                  onFullRecordSelected: (selectedRecord) {
+                    setState(() {
+                      // Generic reverse auto-fill for all matching child fields in this line item
+                      for (final childFld in widget.parentField.nestedFields) {
+                        if (childFld.key == sf.key) continue; // Skip target field itself
+
+                        final matchEntry = selectedRecord.entries.firstWhere(
+                          (e) => e.key.toLowerCase() == childFld.key.toLowerCase() && e.value != null && e.value.toString().isNotEmpty,
+                          orElse: () => const MapEntry('', null),
+                        );
+                        if (matchEntry.key.isNotEmpty) {
+                          _draft[childFld.key] = matchEntry.value;
+                        }
+                      }
+
+                      // Generic reverse auto-fill for parent/header fields if currently empty
+                      for (final entry in selectedRecord.entries) {
+                        if (entry.value == null || entry.value.toString().isEmpty) continue;
+                        final parentMatchKey = widget.parentValues.keys.firstWhere(
+                          (k) => k.toLowerCase() == entry.key.toLowerCase(),
+                          orElse: () => '',
+                        );
+                        if (parentMatchKey.isNotEmpty) {
+                          final currentParentVal = widget.parentValues[parentMatchKey];
+                          if (currentParentVal == null || currentParentVal.toString().trim().isEmpty) {
+                            widget.onParentFieldChanged?.call(parentMatchKey, entry.value);
+                          }
+                        }
+                      }
+                    });
+                  },
                   onChanged: (val) => setState(() => _draft[sf.key] = val),
                   onSaved: (val) => _draft[sf.key] = val?.trim() ?? '',
                 )),

@@ -11,6 +11,7 @@ class RecordArrayField extends StatefulWidget {
   final Map<String, dynamic> defaultValues;
   final Map<String, dynamic> parentValues;
   final ValueChanged<List<Map<String, dynamic>>> onChanged;
+  final void Function(String key, dynamic value)? onParentFieldChanged;
 
   const RecordArrayField({
     super.key,
@@ -19,6 +20,7 @@ class RecordArrayField extends StatefulWidget {
     this.defaultValues = const {},
     this.parentValues = const {},
     required this.onChanged,
+    this.onParentFieldChanged,
   });
 
   @override
@@ -47,6 +49,7 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
       existingItem: existingItem,
       defaultValues: widget.defaultValues,
       parentValues: widget.parentValues,
+      onParentFieldChanged: widget.onParentFieldChanged,
     );
 
     if (result != null) {

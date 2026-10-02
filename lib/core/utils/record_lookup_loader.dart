@@ -5,7 +5,7 @@ import '../services/schema_catalog_service.dart';
 class RecordLookupLoader {
   const RecordLookupLoader._();
 
-  static Future<(List<Map<String, dynamic>>, String?, String?, String?)> load({
+  static Future<(List<Map<String, dynamic>>, String?, String?)> load({
     required String projection,
     required String lovReference,
     String? contextFilter,
@@ -14,12 +14,12 @@ class RecordLookupLoader {
   }) async {
     final proj = projection.replaceAll('/', '').trim();
     if (proj.isEmpty) {
-      return (<Map<String, dynamic>>[], null, null, 'Projection name is missing');
+      return (<Map<String, dynamic>>[], null, 'Projection name is missing');
     }
 
     final ref = lovReference.trim();
     if (ref.isEmpty) {
-      return (<Map<String, dynamic>>[], null, null, 'LOV reference name is missing');
+      return (<Map<String, dynamic>>[], null, 'LOV reference name is missing');
     }
 
     final entitySet = ref.startsWith('Reference_') ? ref : 'Reference_$ref';
@@ -28,8 +28,6 @@ class RecordLookupLoader {
       String? effectiveFilter = (contextFilter != null && contextFilter.trim().isNotEmpty)
           ? contextFilter.trim()
           : null;
-
-      String debugNotes = 'proj:$proj|set:$entitySet|target:$targetFieldKey';
 
       if (effectiveFilter == null &&
           contextualValues.isNotEmpty &&
@@ -62,9 +60,6 @@ class RecordLookupLoader {
         if (dynamicParts.isNotEmpty) {
           effectiveFilter = dynamicParts.join(' and ');
         }
-        debugNotes += '|keys:${entityKeys.join(",")}|ctx:${contextualValues.keys.join(",")}';
-      } else {
-        debugNotes += '|ctxEmpty:${contextualValues.isEmpty}|ctx:$contextualValues';
       }
 
       final res = await BackendService.instance.fetchEntitySet(
@@ -73,9 +68,9 @@ class RecordLookupLoader {
         query: DataQuery(top: 50, filter: effectiveFilter),
       );
 
-      return (res, effectiveFilter, debugNotes, null);
+      return (res, effectiveFilter, null);
     } catch (e) {
-      return (<Map<String, dynamic>>[], null, null, e.toString());
+      return (<Map<String, dynamic>>[], null, e.toString());
     }
   }
 }

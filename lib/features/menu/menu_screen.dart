@@ -160,6 +160,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                 else
                   ...displayedGroups.map((g) => MenuSectionCard(
                         group: g,
+                        onItemTap: (i) => AppActionDispatcher.dispatch(context, i.action, fallbackTitle: i.title),
                         favoriteIds: _favoriteIds,
                         onToggleFavorite: _toggleFavorite,
                       )),

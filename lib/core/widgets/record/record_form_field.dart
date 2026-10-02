@@ -11,6 +11,7 @@ class RecordFormField extends StatefulWidget {
   final FormFieldSetter<String> onSaved;
   final String? contextFilter;
   final Map<String, dynamic> contextualValues;
+  final void Function(Map<String, dynamic> record)? onFullRecordSelected;
 
   const RecordFormField({
     super.key,
@@ -20,6 +21,7 @@ class RecordFormField extends StatefulWidget {
     required this.onSaved,
     this.contextFilter,
     this.contextualValues = const {},
+    this.onFullRecordSelected,
   });
 
   @override
@@ -38,6 +40,18 @@ class _RecordFormFieldState extends State<RecordFormField> {
   }
 
   @override
+  void didUpdateWidget(covariant RecordFormField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialValue != oldWidget.initialValue) {
+      final newVal = widget.initialValue?.toString() ?? '';
+      if (_controller.text != newVal) {
+        _controller.text = newVal;
+        _selectedValue = widget.initialValue?.toString();
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -52,6 +66,7 @@ class _RecordFormFieldState extends State<RecordFormField> {
       contextFilter: widget.contextFilter,
       targetFieldKey: widget.field.key,
       contextualValues: widget.contextualValues,
+      onFullRecordSelected: widget.onFullRecordSelected,
       onRecordSelected: (code, display) {
         setState(() {
           _selectedValue = code;
