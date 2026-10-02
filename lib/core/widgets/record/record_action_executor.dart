@@ -155,10 +155,6 @@ class RecordActionExecutor {
       }
     }
 
-    if (formFields.isEmpty) {
-      formFields = schema.fields.where((f) => !f.isKey && !hiddenFields.contains(f.key.toUpperCase())).take(4).toList();
-    }
-
     final effectiveProj = projection.replaceAll('/', '').trim();
 
     formFields = formFields.map((f) {

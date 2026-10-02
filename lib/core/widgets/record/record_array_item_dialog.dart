@@ -36,16 +36,7 @@ class RecordArrayItemDialog extends StatelessWidget {
     final formKey = GlobalKey<FormState>();
     final draft = Map<String, dynamic>.from(existingItem ?? {});
 
-    final rawSubFields = parentField.nestedFields.isNotEmpty
-        ? parentField.nestedFields
-        : const [
-            EntityFieldMetadata(key: 'PartNo', label: 'Part No'),
-            EntityFieldMetadata(key: 'Description', label: 'Description'),
-            EntityFieldMetadata(key: 'Quantity', label: 'Quantity', type: FieldType.number, isRequired: true),
-            EntityFieldMetadata(key: 'UnitMeasure', label: 'Unit of Measure'),
-            EntityFieldMetadata(key: 'Price', label: 'Price', type: FieldType.number),
-            EntityFieldMetadata(key: 'CurrencyCode', label: 'Currency'),
-          ];
+    final rawSubFields = parentField.nestedFields;
 
     final subFields = rawSubFields.map((sf) {
       if (sf.lovProjection == null || sf.lovProjection!.isEmpty) {
@@ -82,7 +73,7 @@ class RecordArrayItemDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                existingItem != null ? 'Edit Line Item' : 'Add Line Item',
+                existingItem != null ? 'Edit ${parentField.label} Item' : 'Add ${parentField.label} Item',
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -90,28 +81,40 @@ class RecordArrayItemDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              ...subFields.map(
-                (sf) => RecordFormField(
-                  field: sf,
-                  initialValue: draft[sf.key],
-                  onChanged: (val) => draft[sf.key] = val,
-                  onSaved: (val) => draft[sf.key] = val?.trim() ?? '',
+              if (subFields.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      'No fields configured for this line item.',
+                      style: GoogleFonts.inter(fontSize: 13, color: colors.outline),
+                    ),
+                  ),
+                )
+              else
+                ...subFields.map(
+                  (sf) => RecordFormField(
+                    field: sf,
+                    initialValue: draft[sf.key],
+                    onChanged: (val) => draft[sf.key] = val,
+                    onSaved: (val) => draft[sf.key] = val?.trim() ?? '',
+                  ),
                 ),
-              ),
               const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () {
-                  if (!formKey.currentState!.validate()) return;
-                  formKey.currentState!.save();
-                  Navigator.of(context).pop(draft);
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: colors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              if (subFields.isNotEmpty)
+                FilledButton(
+                  onPressed: () {
+                    if (!formKey.currentState!.validate()) return;
+                    formKey.currentState!.save();
+                    Navigator.of(context).pop(draft);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text(existingItem != null ? 'Update' : 'Add Item'),
                 ),
-                child: Text(existingItem != null ? 'Update' : 'Add Item'),
-              ),
             ],
           ),
         ),
