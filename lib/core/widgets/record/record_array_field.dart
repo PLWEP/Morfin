@@ -8,12 +8,14 @@ import 'record_array_item_tile.dart';
 class RecordArrayField extends StatefulWidget {
   final EntityFieldMetadata field;
   final List<dynamic> initialItems;
+  final Map<String, dynamic> defaultValues;
   final ValueChanged<List<Map<String, dynamic>>> onChanged;
 
   const RecordArrayField({
     super.key,
     required this.field,
     this.initialItems = const [],
+    this.defaultValues = const {},
     required this.onChanged,
   });
 
@@ -41,6 +43,7 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
       context,
       parentField: widget.field,
       existingItem: existingItem,
+      defaultValues: widget.defaultValues,
     );
 
     if (result != null) {

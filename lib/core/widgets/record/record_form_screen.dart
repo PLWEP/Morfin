@@ -12,6 +12,8 @@ class RecordFormScreen extends StatefulWidget {
   final String projection;
   final String actionName;
   final List<EntityFieldMetadata> fields;
+  final List<EntityFieldMetadata> allFieldDefinitions;
+  final Map<String, dynamic> paramDefaults;
   final Map<String, dynamic> initialValues;
   final VoidCallback onRefresh;
 
@@ -21,6 +23,8 @@ class RecordFormScreen extends StatefulWidget {
     required this.projection,
     required this.actionName,
     required this.fields,
+    this.allFieldDefinitions = const [],
+    this.paramDefaults = const {},
     this.initialValues = const {},
     required this.onRefresh,
   });
@@ -64,7 +68,12 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _isSubmitting = true);
     try {
-      final payload = PayloadUtils.sanitize(_values);
+      final effectiveDefs = widget.allFieldDefinitions.isNotEmpty ? widget.allFieldDefinitions : widget.fields;
+      final payload = PayloadUtils.formatActionPayload(
+        rawValues: _values,
+        allFieldDefs: effectiveDefs,
+        defaultValues: widget.paramDefaults,
+      );
       await BackendService.instance.executeAction(
         projection: widget.projection,
         actionName: widget.actionName,
@@ -134,6 +143,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
                             ? RecordArrayField(
                                 field: f,
                                 initialItems: (_values[f.key] as List<dynamic>?) ?? const [],
+                                defaultValues: widget.paramDefaults,
                                 onChanged: (val) => _values[f.key] = val,
                               )
                             : RecordFormField(

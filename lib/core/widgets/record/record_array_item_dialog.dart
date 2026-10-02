@@ -7,17 +7,20 @@ import 'record_form_field.dart';
 class RecordArrayItemDialog extends StatelessWidget {
   final EntityFieldMetadata parentField;
   final Map<String, dynamic>? existingItem;
+  final Map<String, dynamic> defaultValues;
 
   const RecordArrayItemDialog({
     super.key,
     required this.parentField,
     this.existingItem,
+    this.defaultValues = const {},
   });
 
   static Future<Map<String, dynamic>?> show(
     BuildContext context, {
     required EntityFieldMetadata parentField,
     Map<String, dynamic>? existingItem,
+    Map<String, dynamic> defaultValues = const {},
   }) {
     return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
@@ -26,6 +29,7 @@ class RecordArrayItemDialog extends StatelessWidget {
       builder: (_) => RecordArrayItemDialog(
         parentField: parentField,
         existingItem: existingItem,
+        defaultValues: defaultValues,
       ),
     );
   }
@@ -35,6 +39,21 @@ class RecordArrayItemDialog extends StatelessWidget {
     final colors = AppColors.of(context);
     final formKey = GlobalKey<FormState>();
     final draft = Map<String, dynamic>.from(existingItem ?? {});
+
+    // Prefill defaults for child fields if new item
+    if (existingItem == null) {
+      final parentPrefix = '${parentField.key.toLowerCase()}.';
+      for (final entry in defaultValues.entries) {
+        final k = entry.key.toLowerCase();
+        if (k.startsWith(parentPrefix)) {
+          final subKey = entry.key.substring(parentField.key.length + 1);
+          draft[subKey] = entry.value;
+        } else if (parentField.nestedFields.any((nf) => nf.key.toLowerCase() == k)) {
+          final matchedField = parentField.nestedFields.firstWhere((nf) => nf.key.toLowerCase() == k);
+          draft[matchedField.key] = entry.value;
+        }
+      }
+    }
 
     final rawSubFields = parentField.nestedFields;
 

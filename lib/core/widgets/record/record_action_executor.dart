@@ -73,8 +73,9 @@ class RecordActionExecutor {
     );
 
     List<EntityFieldMetadata> formFields = [];
+    List<Map<String, dynamic>> rawParams = [];
     try {
-      final rawParams = await BackendService.instance.fetchEntitySet(
+      rawParams = await BackendService.instance.fetchEntitySet(
         projection: 'MobileNavMenuHandling',
         entitySet: 'ActionParamSet',
         query: DataQuery(filter: "ProjectionName eq '$projection' and ActionName eq '$actionName'"),
@@ -155,6 +156,33 @@ class RecordActionExecutor {
       }
     }
 
+    // Retain full schema definitions (including all child structure fields) for serialization
+    final allFieldDefinitions = <EntityFieldMetadata>[];
+    final allTopLevel = <String, EntityFieldMetadata>{};
+    final allNested = <String, List<EntityFieldMetadata>>{};
+    for (final f in formFields) {
+      allTopLevel[f.key] = f;
+    }
+    // Also include rawParams fields if not present
+    for (final f in rawParams.map((p) => ActionParamMetadata.fromJson(p).toFormField(projection: projection))) {
+      if (f.key.contains('.')) {
+        final parts = f.key.split('.');
+        allNested.putIfAbsent(parts[0], () => []).add(f.copyWith(key: parts.sublist(1).join('.')));
+      } else {
+        allTopLevel.putIfAbsent(f.key, () => f);
+      }
+    }
+    for (final entry in allTopLevel.entries) {
+      var field = entry.value;
+      if (allNested.containsKey(field.key)) {
+        field = field.copyWith(
+          nestedFields: allNested[field.key]!,
+          type: FieldType.array,
+        );
+      }
+      allFieldDefinitions.add(field);
+    }
+
     final effectiveProj = projection.replaceAll('/', '').trim();
 
     formFields = formFields.map((f) {
@@ -177,7 +205,11 @@ class RecordActionExecutor {
       return;
     }
 
-    final initialVals = <String, dynamic>{...defaults, ...record};
+    final initialVals = <String, dynamic>{
+      for (final entry in defaults.entries)
+        if (!entry.key.contains('.')) entry.key: entry.value,
+      ...record,
+    };
 
     if (isFullScreen) {
       Navigator.of(context).push(
@@ -187,6 +219,8 @@ class RecordActionExecutor {
             projection: projection,
             actionName: actionName,
             fields: formFields,
+            allFieldDefinitions: allFieldDefinitions,
+            paramDefaults: defaults,
             initialValues: initialVals,
             onRefresh: onRefresh,
           ),
@@ -201,8 +235,14 @@ class RecordActionExecutor {
       actionLabel: 'Submit',
       fields: formFields,
       initialValues: initialVals,
+      paramDefaults: defaults,
       onSubmit: (values) async {
-        final payload = PayloadUtils.sanitize(<String, dynamic>{...defaults, ...record, ...values});
+        final rawCombined = <String, dynamic>{...defaults, ...record, ...values};
+        final payload = PayloadUtils.formatActionPayload(
+          rawValues: rawCombined,
+          allFieldDefs: allFieldDefinitions,
+          defaultValues: defaults,
+        );
         try {
           if (onExecuteAction != null) {
             await onExecuteAction(actionName, payload);

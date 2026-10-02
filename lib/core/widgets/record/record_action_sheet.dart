@@ -10,6 +10,7 @@ class RecordActionSheet extends StatefulWidget {
   final String actionLabel;
   final List<EntityFieldMetadata> fields;
   final Map<String, dynamic> initialValues;
+  final Map<String, dynamic> paramDefaults;
   final Future<void> Function(Map<String, dynamic> values) onSubmit;
 
   const RecordActionSheet({
@@ -18,6 +19,7 @@ class RecordActionSheet extends StatefulWidget {
     this.actionLabel = 'Submit',
     required this.fields,
     this.initialValues = const {},
+    this.paramDefaults = const {},
     required this.onSubmit,
   });
 
@@ -27,6 +29,7 @@ class RecordActionSheet extends StatefulWidget {
     String actionLabel = 'Submit',
     required List<EntityFieldMetadata> fields,
     Map<String, dynamic> initialValues = const {},
+    Map<String, dynamic> paramDefaults = const {},
     required Future<void> Function(Map<String, dynamic> values) onSubmit,
   }) {
     return showModalBottomSheet(
@@ -38,6 +41,7 @@ class RecordActionSheet extends StatefulWidget {
         actionLabel: actionLabel,
         fields: fields,
         initialValues: initialValues,
+        paramDefaults: paramDefaults,
         onSubmit: onSubmit,
       ),
     );
@@ -141,6 +145,7 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
                     ? RecordArrayField(
                         field: f,
                         initialItems: (_values[f.key] as List<dynamic>?) ?? const [],
+                        defaultValues: widget.paramDefaults,
                         onChanged: (val) => _values[f.key] = val,
                       )
                     : RecordFormField(

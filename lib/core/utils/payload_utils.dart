@@ -15,6 +15,152 @@ class PayloadUtils {
     return cleaned;
   }
 
+  /// Formats an action payload by:
+  /// 1. Sanitizing internal OData metadata keys.
+  /// 2. Converting String values of [FieldType.number] to [num] (int or double).
+  /// 3. Populating hidden/missing fields with configured defaults or sensible empty values.
+  /// 4. Recursively formatting nested structures/arrays (e.g. ReqLines).
+  static Map<String, dynamic> formatActionPayload({
+    required Map<String, dynamic> rawValues,
+    required List<dynamic> allFieldDefs, // Can accept List<EntityFieldMetadata>
+    Map<String, dynamic> defaultValues = const {},
+  }) {
+    final sanitized = sanitize(rawValues);
+    final result = <String, dynamic>{};
+
+    // Index field definitions by key (case-insensitive)
+    final fieldMap = <String, dynamic>{};
+    for (final f in allFieldDefs) {
+      if (f.key != null) {
+        fieldMap[f.key.toString().toLowerCase()] = f;
+      }
+    }
+
+    // Merge defaults for missing top-level keys
+    for (final entry in defaultValues.entries) {
+      if (!entry.key.contains('.')) {
+        if (!sanitized.containsKey(entry.key) &&
+            !sanitized.keys.any((k) => k.toLowerCase() == entry.key.toLowerCase())) {
+          sanitized[entry.key] = entry.value;
+        }
+      }
+    }
+
+    // Process all defined fields or provided values (exclude dot-notation keys from top-level)
+    final allKeys = <String>{
+      ...fieldMap.keys.where((k) => !k.contains('.')),
+      ...sanitized.keys.where((k) => !k.contains('.')).map((k) => k.toLowerCase()),
+    };
+
+    for (final lowerKey in allKeys) {
+      final meta = fieldMap[lowerKey];
+      final actualKey = meta?.key as String? ??
+          sanitized.keys.firstWhere((k) => k.toLowerCase() == lowerKey, orElse: () => lowerKey);
+
+      dynamic val = sanitized[actualKey] ??
+          sanitized.entries
+              .firstWhere((e) => e.key.toLowerCase() == lowerKey, orElse: () => const MapEntry('', null))
+              .value;
+
+      // Check if there is a default
+      if ((val == null || (val is String && val.isEmpty)) && defaultValues.containsKey(actualKey)) {
+        val = defaultValues[actualKey];
+      }
+
+      final isNumberType = meta != null && meta.type?.toString().contains('number') == true;
+      final isArrayType = meta != null && meta.type?.toString().contains('array') == true;
+
+      if (isArrayType || val is List) {
+        final nestedDefs = (meta?.nestedFields as List<dynamic>?) ?? const [];
+        final list = (val as List<dynamic>?) ?? const [];
+        result[actualKey] = list.map((item) {
+          if (item is Map<String, dynamic>) {
+            return _formatNestedItem(
+              parentKey: actualKey,
+              rawItem: item,
+              nestedDefs: nestedDefs,
+              defaultValues: defaultValues,
+            );
+          }
+          return item;
+        }).toList();
+      } else if (isNumberType) {
+        result[actualKey] = _parseNumber(val);
+      } else {
+        result[actualKey] = val ?? '';
+      }
+    }
+
+    return result;
+  }
+
+  static Map<String, dynamic> _formatNestedItem({
+    required String parentKey,
+    required Map<String, dynamic> rawItem,
+    required List<dynamic> nestedDefs,
+    required Map<String, dynamic> defaultValues,
+  }) {
+    final sanitized = sanitize(rawItem);
+    final result = <String, dynamic>{};
+
+    final childMap = <String, dynamic>{};
+    for (final child in nestedDefs) {
+      if (child.key != null) {
+        childMap[child.key.toString().toLowerCase()] = child;
+      }
+    }
+
+    // Check defaults prefixed with parent or direct child key
+    for (final entry in defaultValues.entries) {
+      final k = entry.key;
+      if (k.toLowerCase().startsWith('${parentKey.toLowerCase()}.')) {
+        final subKey = k.substring(parentKey.length + 1);
+        if (!sanitized.containsKey(subKey) &&
+            !sanitized.keys.any((sk) => sk.toLowerCase() == subKey.toLowerCase())) {
+          sanitized[subKey] = entry.value;
+        }
+      }
+    }
+
+    final allChildKeys = <String>{
+      ...childMap.keys,
+      ...sanitized.keys.map((k) => k.toLowerCase()),
+    };
+
+    for (final lowerKey in allChildKeys) {
+      final childMeta = childMap[lowerKey];
+      final actualKey = childMeta?.key as String? ??
+          sanitized.keys.firstWhere((k) => k.toLowerCase() == lowerKey, orElse: () => lowerKey);
+
+      dynamic val = sanitized[actualKey] ??
+          sanitized.entries
+              .firstWhere((e) => e.key.toLowerCase() == lowerKey, orElse: () => const MapEntry('', null))
+              .value;
+
+      final isNumber = childMeta != null && childMeta.type?.toString().contains('number') == true;
+
+      if (isNumber) {
+        result[actualKey] = _parseNumber(val);
+      } else {
+        result[actualKey] = val ?? '';
+      }
+    }
+
+    return result;
+  }
+
+  static dynamic _parseNumber(dynamic val) {
+    if (val == null) return 0;
+    if (val is num) return val;
+    final str = val.toString().trim();
+    if (str.isEmpty) return 0;
+    final intVal = int.tryParse(str);
+    if (intVal != null) return intVal;
+    final doubleVal = double.tryParse(str);
+    if (doubleVal != null) return doubleVal;
+    return 0;
+  }
+
   static String extractErrorMessage(dynamic error) {
     if (error is DioException && error.response?.data is Map) {
       final map = error.response!.data as Map;
