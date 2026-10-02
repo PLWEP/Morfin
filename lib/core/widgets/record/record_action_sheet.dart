@@ -13,10 +13,13 @@ class RecordActionSheet extends StatefulWidget {
   final Map<String, dynamic> paramDefaults;
   final Future<void> Function(Map<String, dynamic> values) onSubmit;
 
+  final String? projection;
+
   const RecordActionSheet({
     super.key,
     required this.title,
     this.actionLabel = 'Submit',
+    this.projection,
     required this.fields,
     this.initialValues = const {},
     this.paramDefaults = const {},
@@ -27,6 +30,7 @@ class RecordActionSheet extends StatefulWidget {
     BuildContext context, {
     required String title,
     String actionLabel = 'Submit',
+    String? projection,
     required List<EntityFieldMetadata> fields,
     Map<String, dynamic> initialValues = const {},
     Map<String, dynamic> paramDefaults = const {},
@@ -39,6 +43,7 @@ class RecordActionSheet extends StatefulWidget {
       builder: (_) => RecordActionSheet(
         title: title,
         actionLabel: actionLabel,
+        projection: projection,
         fields: fields,
         initialValues: initialValues,
         paramDefaults: paramDefaults,
@@ -140,22 +145,35 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
                 ),
               ),
               const SizedBox(height: 16),
-              ...widget.fields.map(
-                (f) => f.type == FieldType.array
+              ...widget.fields.map((f) {
+                final resolvedField = (f.lovProjection == null || f.lovProjection!.isEmpty)
+                    ? (widget.projection != null ? f.copyWith(lovProjection: widget.projection) : f)
+                    : f;
+
+                return resolvedField.type == FieldType.array
                     ? RecordArrayField(
-                        field: f,
-                        initialItems: (_values[f.key] as List<dynamic>?) ?? const [],
+                        field: resolvedField,
+                        initialItems: (_values[resolvedField.key] as List<dynamic>?) ?? const [],
                         defaultValues: widget.paramDefaults,
                         parentValues: _values,
-                        onChanged: (val) => _values[f.key] = val,
+                        onChanged: (val) {
+                          setState(() {
+                            _values[resolvedField.key] = val;
+                          });
+                        },
                       )
                     : RecordFormField(
-                        field: f,
-                        initialValue: _values[f.key],
-                        onChanged: (val) => _values[f.key] = val,
-                        onSaved: (val) => _values[f.key] = val?.trim() ?? '',
-                      ),
-              ),
+                        field: resolvedField,
+                        initialValue: _values[resolvedField.key],
+                        contextualValues: _values,
+                        onChanged: (val) {
+                          setState(() {
+                            _values[resolvedField.key] = val;
+                          });
+                        },
+                        onSaved: (val) => _values[resolvedField.key] = val?.trim() ?? '',
+                      );
+              }),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _handleSubmit,

@@ -10,6 +10,7 @@ class RecordFormField extends StatefulWidget {
   final ValueChanged<dynamic> onChanged;
   final FormFieldSetter<String> onSaved;
   final String? contextFilter;
+  final Map<String, dynamic> contextualValues;
 
   const RecordFormField({
     super.key,
@@ -18,6 +19,7 @@ class RecordFormField extends StatefulWidget {
     required this.onChanged,
     required this.onSaved,
     this.contextFilter,
+    this.contextualValues = const {},
   });
 
   @override
@@ -49,6 +51,7 @@ class _RecordFormFieldState extends State<RecordFormField> {
       lovReference: widget.field.lovReference ?? '',
       contextFilter: widget.contextFilter,
       targetFieldKey: widget.field.key,
+      contextualValues: widget.contextualValues,
       onRecordSelected: (code, display) {
         setState(() {
           _selectedValue = code;

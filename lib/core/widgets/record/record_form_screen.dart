@@ -138,22 +138,35 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      ...widget.fields.map(
-                        (f) => f.type == FieldType.array
+                      ...widget.fields.map((f) {
+                        final resolvedField = (f.lovProjection == null || f.lovProjection!.isEmpty)
+                            ? f.copyWith(lovProjection: widget.projection)
+                            : f;
+
+                        return resolvedField.type == FieldType.array
                             ? RecordArrayField(
-                                field: f,
-                                initialItems: (_values[f.key] as List<dynamic>?) ?? const [],
+                                field: resolvedField,
+                                initialItems: (_values[resolvedField.key] as List<dynamic>?) ?? const [],
                                 defaultValues: widget.paramDefaults,
                                 parentValues: _values,
-                                onChanged: (val) => _values[f.key] = val,
+                                onChanged: (val) {
+                                  setState(() {
+                                    _values[resolvedField.key] = val;
+                                  });
+                                },
                               )
                             : RecordFormField(
-                                field: f,
-                                initialValue: _values[f.key],
-                                onChanged: (val) => _values[f.key] = val,
-                                onSaved: (val) => _values[f.key] = val?.trim() ?? '',
-                              ),
-                      ),
+                                field: resolvedField,
+                                initialValue: _values[resolvedField.key],
+                                contextualValues: _values,
+                                onChanged: (val) {
+                                  setState(() {
+                                    _values[resolvedField.key] = val;
+                                  });
+                                },
+                                onSaved: (val) => _values[resolvedField.key] = val?.trim() ?? '',
+                              );
+                      }),
                       const SizedBox(height: 24),
                     ],
                   ),

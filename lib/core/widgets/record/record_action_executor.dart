@@ -233,6 +233,7 @@ class RecordActionExecutor {
       context,
       title: title,
       actionLabel: 'Submit',
+      projection: projection,
       fields: formFields,
       initialValues: initialVals,
       paramDefaults: defaults,

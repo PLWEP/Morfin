@@ -4,7 +4,7 @@ import '../../../theme/app_colors.dart';
 import '../../metadata/entity_metadata.dart';
 import 'record_form_field.dart';
 
-class RecordArrayItemDialog extends StatelessWidget {
+class RecordArrayItemDialog extends StatefulWidget {
   final EntityFieldMetadata parentField;
   final Map<String, dynamic>? existingItem;
   final Map<String, dynamic> defaultValues;
@@ -39,43 +39,54 @@ class RecordArrayItemDialog extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
-    final formKey = GlobalKey<FormState>();
-    final draft = Map<String, dynamic>.from(existingItem ?? {});
+  State<RecordArrayItemDialog> createState() => _RecordArrayItemDialogState();
+}
+
+class _RecordArrayItemDialogState extends State<RecordArrayItemDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final Map<String, dynamic> _draft;
+
+  @override
+  void initState() {
+    super.initState();
+    _draft = Map<String, dynamic>.from(widget.existingItem ?? {});
 
     // Prefill for child fields if creating a new item
-    if (existingItem == null) {
+    if (widget.existingItem == null) {
       // 1. Generic Auto-Cascade: inherit values from parent/header if field names match
-      for (final sf in parentField.nestedFields) {
-        final matchParentEntry = parentValues.entries.firstWhere(
+      for (final sf in widget.parentField.nestedFields) {
+        final matchParentEntry = widget.parentValues.entries.firstWhere(
           (e) => e.key.toLowerCase() == sf.key.toLowerCase() && e.value != null && e.value.toString().isNotEmpty,
           orElse: () => const MapEntry('', null),
         );
         if (matchParentEntry.key.isNotEmpty) {
-          draft[sf.key] = matchParentEntry.value;
+          _draft[sf.key] = matchParentEntry.value;
         }
       }
 
       // 2. Prefill configured default values (prefixed or direct match)
-      final parentPrefix = '${parentField.key.toLowerCase()}.';
-      for (final entry in defaultValues.entries) {
+      final parentPrefix = '${widget.parentField.key.toLowerCase()}.';
+      for (final entry in widget.defaultValues.entries) {
         final k = entry.key.toLowerCase();
         if (k.startsWith(parentPrefix)) {
-          final subKey = entry.key.substring(parentField.key.length + 1);
-          draft[subKey] = entry.value;
-        } else if (parentField.nestedFields.any((nf) => nf.key.toLowerCase() == k)) {
-          final matchedField = parentField.nestedFields.firstWhere((nf) => nf.key.toLowerCase() == k);
-          draft[matchedField.key] = entry.value;
+          final subKey = entry.key.substring(widget.parentField.key.length + 1);
+          _draft[subKey] = entry.value;
+        } else if (widget.parentField.nestedFields.any((nf) => nf.key.toLowerCase() == k)) {
+          final matchedField = widget.parentField.nestedFields.firstWhere((nf) => nf.key.toLowerCase() == k);
+          _draft[matchedField.key] = entry.value;
         }
       }
     }
+  }
 
-    final rawSubFields = parentField.nestedFields;
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final rawSubFields = widget.parentField.nestedFields;
 
     final subFields = rawSubFields.map((sf) {
       if (sf.lovProjection == null || sf.lovProjection!.isEmpty) {
-        return sf.copyWith(lovProjection: parentField.lovProjection);
+        return sf.copyWith(lovProjection: widget.parentField.lovProjection);
       }
       return sf;
     }).toList();
@@ -90,7 +101,7 @@ class RecordArrayItemDialog extends StatelessWidget {
       ),
       padding: EdgeInsets.fromLTRB(20, 16, 20, 24 + insets),
       child: Form(
-        key: formKey,
+        key: _formKey,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -108,7 +119,7 @@ class RecordArrayItemDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                existingItem != null ? 'Edit ${parentField.label} Item' : 'Add ${parentField.label} Item',
+                widget.existingItem != null ? 'Edit ${widget.parentField.label} Item' : 'Add ${widget.parentField.label} Item',
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -129,11 +140,21 @@ class RecordArrayItemDialog extends StatelessWidget {
               else
                 ...subFields.map(
                   (sf) {
+                    final combinedContext = <String, dynamic>{
+                      ...widget.parentValues,
+                      ..._draft,
+                    };
+
                     return RecordFormField(
                       field: sf,
-                      initialValue: draft[sf.key],
-                      onChanged: (val) => draft[sf.key] = val,
-                      onSaved: (val) => draft[sf.key] = val?.trim() ?? '',
+                      initialValue: _draft[sf.key],
+                      contextualValues: combinedContext,
+                      onChanged: (val) {
+                        setState(() {
+                          _draft[sf.key] = val;
+                        });
+                      },
+                      onSaved: (val) => _draft[sf.key] = val?.trim() ?? '',
                     );
                   },
                 ),
@@ -141,16 +162,16 @@ class RecordArrayItemDialog extends StatelessWidget {
               if (subFields.isNotEmpty)
                 FilledButton(
                   onPressed: () {
-                    if (!formKey.currentState!.validate()) return;
-                    formKey.currentState!.save();
-                    Navigator.of(context).pop(draft);
+                    if (!_formKey.currentState!.validate()) return;
+                    _formKey.currentState!.save();
+                    Navigator.of(context).pop(_draft);
                   },
                   style: FilledButton.styleFrom(
                     backgroundColor: colors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: Text(existingItem != null ? 'Update' : 'Add Item'),
+                  child: Text(widget.existingItem != null ? 'Update' : 'Add Item'),
                 ),
             ],
           ),

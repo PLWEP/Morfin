@@ -122,6 +122,50 @@ class SchemaCatalogService {
     return fields;
   }
 
+  Future<List<String>> fetchEntityKeys({
+    required String projection,
+    required String entitySetOrName,
+  }) async {
+    final xml = await _getMetadataXml(projection);
+    if (xml == null) return [];
+
+    var entityName = entitySetOrName.split('/').last.split('?').first;
+    if (entityName.startsWith('Reference_')) {
+      entityName = entityName.substring('Reference_'.length);
+    }
+    if (entityName.endsWith('Set')) {
+      final esRegex = RegExp('<EntitySet\\s+Name="$entityName"\\s+EntityType="([^"]+)"', caseSensitive: false);
+      final esMatch = esRegex.firstMatch(xml);
+      if (esMatch != null) {
+        entityName = esMatch.group(1)!.split('.').last;
+      } else {
+        entityName = entityName.substring(0, entityName.length - 3);
+      }
+    }
+
+    final etRegex = RegExp('<EntityType\\s+Name="$entityName"[^>]*>', caseSensitive: false);
+    final match = etRegex.firstMatch(xml);
+    if (match == null) return [];
+
+    final startIdx = match.start;
+    final endIdx = xml.indexOf('</EntityType>', startIdx);
+    if (endIdx == -1) return [];
+
+    final snippet = xml.substring(startIdx, endIdx + 13);
+    final keyBlockMatch = RegExp(r'<Key>(.*?)</Key>', dotAll: true).firstMatch(snippet);
+    if (keyBlockMatch == null) return [];
+
+    final propRefRegex = RegExp(r'<PropertyRef\s+Name="([^"]+)"');
+    final keys = <String>[];
+    for (final m in propRefRegex.allMatches(keyBlockMatch.group(1)!)) {
+      final keyName = m.group(1);
+      if (keyName != null && keyName.isNotEmpty) {
+        keys.add(keyName);
+      }
+    }
+    return keys;
+  }
+
   static FieldType _resolveFieldType(String typeName) {
     final t = typeName.toLowerCase();
     if (t.contains('decimal') || t.contains('int') || t.contains('double')) return FieldType.number;
@@ -137,3 +181,4 @@ class SchemaCatalogService {
     return key.replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m[1]}').trim();
   }
 }
+
