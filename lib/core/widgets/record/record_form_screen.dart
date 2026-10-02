@@ -86,7 +86,16 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
             content: Row(children: [
               const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 16),
               const SizedBox(width: 8),
-              Expanded(child: Text(successMsg, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500))),
+              Expanded(
+                child: Text(
+                  successMsg,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.of(context).onSurface,
+                  ),
+                ),
+              ),
             ]),
             backgroundColor: cardColor,
             behavior: SnackBarBehavior.floating,
