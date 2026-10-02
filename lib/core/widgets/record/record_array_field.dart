@@ -151,47 +151,121 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colors.surfaceCard,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colors.surfaceBorder),
-      ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${widget.field.label}${widget.field.isRequired ? ' *' : ''} (${_items.length})',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: colors.onSurface,
+              Expanded(
+                child: Divider(
+                  color: colors.surfaceBorder,
+                  thickness: 1,
                 ),
               ),
-              TextButton.icon(
-                onPressed: () => _openItemDialog(),
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add Line', style: TextStyle(fontSize: 12)),
-                style: TextButton.styleFrom(
-                  foregroundColor: colors.primary,
-                  visualDensity: VisualDensity.compact,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.format_list_bulleted_rounded, size: 16, color: colors.primary),
+                    const SizedBox(width: 6),
+                    Text(
+                      widget.field.label,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: colors.onSurface,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    if (widget.field.isRequired)
+                      Text(
+                        ' *',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: colors.statusCritical,
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: _items.isNotEmpty
+                            ? colors.primary.withValues(alpha: 0.15)
+                            : colors.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '${_items.length}',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: _items.isNotEmpty ? colors.primary : colors.outline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Divider(
+                  color: colors.surfaceBorder,
+                  thickness: 1,
                 ),
               ),
             ],
           ),
-          if (_items.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Center(
-                child: Text(
-                  'No items added yet. Click "+ Add Line" to add.',
-                  style: GoogleFonts.inter(fontSize: 12, color: colors.outline),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Line Items',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: colors.outline,
                 ),
+              ),
+              FilledButton.tonalIcon(
+                onPressed: () => _openItemDialog(),
+                icon: const Icon(Icons.add_rounded, size: 16),
+                label: const Text('Add Line', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                style: FilledButton.styleFrom(
+                  backgroundColor: colors.primary.withValues(alpha: 0.12),
+                  foregroundColor: colors.primary,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (_items.isEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              decoration: BoxDecoration(
+                color: colors.surfaceCard.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: colors.surfaceBorder.withValues(alpha: 0.6),
+                  style: BorderStyle.solid,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.playlist_add_rounded, size: 28, color: colors.outlineVariant),
+                  const SizedBox(height: 8),
+                  Text(
+                    'No lines added yet',
+                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: colors.outline),
+                  ),
+                ],
               ),
             )
           else
@@ -199,23 +273,42 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _items.length,
-              separatorBuilder: (ctx, i) => const SizedBox(height: 6),
+              separatorBuilder: (ctx, i) => const SizedBox(height: 8),
               itemBuilder: (ctx, idx) {
                 final it = _items[idx];
                 final primary = it['PartNo'] ?? it['Description'] ?? 'Item #${idx + 1}';
                 final qty = it['Quantity'] != null ? 'Qty: ${it['Quantity']}' : '';
                 final uom = it['UnitMeasure'] ?? '';
-                final subtitle = [qty, uom].where((s) => s.isNotEmpty).join(' ');
+                final price = it['Price'] != null ? 'Price: ${it['Price']}' : '';
+                final subtitle = [qty, uom, price].where((s) => s.isNotEmpty).join(' • ');
 
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: colors.surfaceDeep,
+                    color: colors.surfaceCard,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: colors.surfaceBorder.withValues(alpha: 0.5)),
+                    border: Border.all(color: colors.surfaceBorder),
                   ),
                   child: Row(
                     children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${idx + 1}',
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: colors.outline,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,9 +322,12 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
                               ),
                             ),
                             if (subtitle.isNotEmpty)
-                              Text(
-                                subtitle,
-                                style: GoogleFonts.inter(fontSize: 11, color: colors.outline),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  subtitle,
+                                  style: GoogleFonts.inter(fontSize: 11, color: colors.outline),
+                                ),
                               ),
                           ],
                         ),
@@ -243,7 +339,7 @@ class _RecordArrayFieldState extends State<RecordArrayField> {
                         visualDensity: VisualDensity.compact,
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline, size: 16),
+                        icon: const Icon(Icons.delete_outline_rounded, size: 16),
                         color: colors.statusCritical,
                         onPressed: () => _removeItem(idx),
                         visualDensity: VisualDensity.compact,
