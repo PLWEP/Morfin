@@ -11,6 +11,7 @@ class RecordLookupSheet extends StatefulWidget {
   final String projection;
   final String lovReference;
   final String? contextFilter;
+  final String? targetFieldKey;
   final ValueChanged<String>? onSelected;
   final void Function(String code, String display)? onRecordSelected;
 
@@ -20,6 +21,7 @@ class RecordLookupSheet extends StatefulWidget {
     required this.projection,
     required this.lovReference,
     this.contextFilter,
+    this.targetFieldKey,
     this.onSelected,
     this.onRecordSelected,
   });
@@ -30,6 +32,7 @@ class RecordLookupSheet extends StatefulWidget {
     required String projection,
     required String lovReference,
     String? contextFilter,
+    String? targetFieldKey,
     ValueChanged<String>? onSelected,
     void Function(String code, String display)? onRecordSelected,
   }) => showModalBottomSheet(
@@ -41,6 +44,7 @@ class RecordLookupSheet extends StatefulWidget {
       projection: projection,
       lovReference: lovReference,
       contextFilter: contextFilter,
+      targetFieldKey: targetFieldKey,
       onSelected: onSelected,
       onRecordSelected: onRecordSelected,
     ),
@@ -163,8 +167,24 @@ class _RecordLookupSheetState extends State<RecordLookupSheet> {
                               itemCount: displayed.length,
                               separatorBuilder: (_, _) => const Divider(height: 1),
                               itemBuilder: (_, index) {
-                                final rows = RecordDisplayUtils.extractDisplayRows(displayed[index]);
-                                final code = rows.isNotEmpty ? rows.first.$2 : '';
+                                final rawItem = displayed[index];
+                                final rows = RecordDisplayUtils.extractDisplayRows(rawItem);
+                                
+                                // Resolve code: Match targetFieldKey if present in rawItem, otherwise fallback to first display row
+                                String code = '';
+                                if (widget.targetFieldKey != null && widget.targetFieldKey!.isNotEmpty) {
+                                  final matchKey = rawItem.keys.firstWhere(
+                                    (k) => k.toLowerCase() == widget.targetFieldKey!.toLowerCase(),
+                                    orElse: () => '',
+                                  );
+                                  if (matchKey.isNotEmpty && rawItem[matchKey] != null) {
+                                    code = rawItem[matchKey].toString();
+                                  }
+                                }
+                                if (code.isEmpty && rows.isNotEmpty) {
+                                  code = rows.first.$2;
+                                }
+
                                 final label = rows.length > 1 ? '${rows[0].$2} - ${rows[1].$2}' : code;
                                 return RecordLookupTile(
                                   rows: rows,

@@ -48,6 +48,7 @@ class _RecordFormFieldState extends State<RecordFormField> {
       projection: widget.field.lovProjection ?? '',
       lovReference: widget.field.lovReference ?? '',
       contextFilter: widget.contextFilter,
+      targetFieldKey: widget.field.key,
       onRecordSelected: (code, display) {
         setState(() {
           _selectedValue = code;
