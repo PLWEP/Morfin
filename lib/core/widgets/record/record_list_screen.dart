@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import '../../services/navigator_service.dart';
 import '../../services/schema_catalog_service.dart';
 import 'record_action_sheet.dart';
@@ -10,7 +10,7 @@ import 'record_item_handler.dart';
 import 'record_list_content.dart';
 
 class RecordListScreen extends StatefulWidget {
-  final EntitySchemaMetadata schema;
+  final RecordSchemaMetadata schema;
   final Future<List<Map<String, dynamic>>> Function({int skip, int top}) fetchRecords;
   final Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
   final int pageSize;
@@ -72,7 +72,7 @@ class _RecordListScreenState extends State<RecordListScreen> {
   void _triggerCreateAction() {
     final createAction = widget.schema.actions.firstWhere(
       (a) => a.scope == ActionScope.global,
-      orElse: () => EntityActionMetadata(name: 'Create', label: 'Create ${widget.schema.title}', formFields: widget.schema.fields),
+      orElse: () => RecordActionMetadata(name: 'Create', label: 'Create ${widget.schema.title}', formFields: widget.schema.fields),
     );
     RecordActionSheet.show(
       context, title: createAction.label, actionLabel: 'Create', fields: createAction.formFields,

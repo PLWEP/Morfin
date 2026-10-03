@@ -2,7 +2,7 @@ import 'dart:convert';
 import '../models/navigation_node.dart';
 import '../network/api_client.dart';
 import '../network/data_query.dart';
-import '../widgets/record/record_action_executor.dart';
+import '../utils/payload_utils.dart';
 
 class BackendService {
   static final BackendService instance = BackendService._();
@@ -10,37 +10,37 @@ class BackendService {
 
   BackendService._();
 
-  Future<List<Map<String, dynamic>>> fetchEntitySet({
+  Future<List<Map<String, dynamic>>> fetchCollection({
     required String projection,
     required String entitySet,
     DataQuery? query,
   }) async {
-    return _client.getEntitySet(projection, entitySet, query: query);
+    return _client.getCollection(projection, entitySet, query: query);
   }
 
-  Future<Map<String, dynamic>> fetchEntityRecord({
+  Future<Map<String, dynamic>> fetchRecord({
     required String projection,
     required String entitySet,
     required String key,
   }) async {
-    return _client.getEntity(projection, entitySet, key);
+    return _client.getRecord(projection, entitySet, key);
   }
 
-  Future<Map<String, dynamic>> createEntityRecord({
+  Future<Map<String, dynamic>> createRecord({
     required String projection,
     required String entitySet,
     required Map<String, dynamic> data,
   }) async {
-    return _client.postEntity(projection, entitySet, data);
+    return _client.postRecord(projection, entitySet, data);
   }
 
-  Future<Map<String, dynamic>> updateEntityRecord({
+  Future<Map<String, dynamic>> updateRecord({
     required String projection,
     required String entitySet,
     required String key,
     required Map<String, dynamic> data,
   }) async {
-    return _client.patchEntity(projection, entitySet, key, data);
+    return _client.patchRecord(projection, entitySet, key, data);
   }
 
   Future<Map<String, dynamic>> executeAction({
@@ -56,7 +56,7 @@ class BackendService {
     required String actionName,
     required List<Map<String, dynamic>> items,
   }) async {
-    final keyListJson = jsonEncode(items.map((r) => RecordActionExecutor.sanitizePayload(r)).toList());
+    final keyListJson = jsonEncode(items.map(PayloadUtils.sanitize).toList());
     return executeAction(
       projection: 'MobileNavMenuHandling',
       actionName: 'ExecuteBatchAction',

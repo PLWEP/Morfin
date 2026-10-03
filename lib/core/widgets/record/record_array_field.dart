@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import 'record_array_item_dialog.dart';
 import 'record_array_item_tile.dart';
 
 class RecordArrayField extends StatefulWidget {
-  final EntityFieldMetadata field;
+  final RecordFieldMetadata field;
   final List<dynamic> initialItems;
   final Map<String, dynamic> defaultValues;
   final Map<String, dynamic> parentValues;

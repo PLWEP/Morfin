@@ -1,17 +1,17 @@
 import 'dart:convert';
-import '../metadata/entity_metadata.dart';
+import '../metadata/record_metadata.dart';
 
 /// Helper utility for extracting and decoding parameter configs.
 class ParamConfigParser {
   const ParamConfigParser._();
 
-  static (Map<String, dynamic>, Set<String>, List<EntityFieldMetadata>, Set<String>, Set<String>) parse(String? cfg) {
+  static (Map<String, dynamic>, Set<String>, List<RecordFieldMetadata>, Set<String>, Set<String>) parse(String? cfg) {
     if (cfg == null || cfg.isEmpty) return (const {}, const {}, const [], const {}, const {});
     final defaults = <String, dynamic>{};
     final hidden = <String>{};
     final mandatory = <String>{};
     final optional = <String>{};
-    final explicit = <EntityFieldMetadata>[];
+    final explicit = <RecordFieldMetadata>[];
 
     final trimmed = cfg.trim();
     if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
@@ -21,7 +21,7 @@ class ParamConfigParser {
           final fieldsList = decoded['fields'] as List;
           for (final f in fieldsList) {
             if (f is Map) {
-              explicit.add(EntityFieldMetadata.fromJson(Map<String, dynamic>.from(f)));
+              explicit.add(RecordFieldMetadata.fromJson(Map<String, dynamic>.from(f)));
             }
           }
         }

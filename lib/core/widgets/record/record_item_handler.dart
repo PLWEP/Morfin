@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import '../../services/backend_service.dart';
 import '../../services/navigator_service.dart';
 import 'record_action_runner.dart';
@@ -12,7 +12,7 @@ class RecordItemHandler {
 
   static Future<void> handleTap(
     BuildContext context, {
-    required EntitySchemaMetadata schema,
+    required RecordSchemaMetadata schema,
     required Map<String, dynamic> record,
     String? nodeId,
     String? itemClickAction,
@@ -21,11 +21,9 @@ class RecordItemHandler {
     Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,
   }) async {
-    debugPrint('RecordItemHandler.handleTap called with nodeId: "$nodeId"');
     final childActions = (nodeId != null && nodeId.isNotEmpty)
         ? NavigatorService.instance.getChildActions(nodeId)
         : <Map<String, dynamic>>[];
-    debugPrint('RecordItemHandler.handleTap found ${childActions.length} childActions');
 
     if (childActions.isNotEmpty) {
       RecordActionRunner.showChildActionsSheet(
@@ -41,12 +39,12 @@ class RecordItemHandler {
 
     final action = itemClickAction?.toUpperCase();
     if (action == 'BOTTOM_SHEET_FORM') {
-      List<EntityFieldMetadata> formFields = [];
+      List<RecordFieldMetadata> formFields = [];
       if (itemClickFields != null && itemClickFields.isNotEmpty) {
         try {
           final decoded = jsonDecode(itemClickFields) as List;
           formFields = decoded
-              .map((f) => EntityFieldMetadata.fromJson(Map<String, dynamic>.from(f as Map)))
+              .map((f) => RecordFieldMetadata.fromJson(Map<String, dynamic>.from(f as Map)))
               .toList();
         } catch (e) {
           debugPrint('Error parsing itemClickFields JSON: $e');
@@ -93,7 +91,7 @@ class RecordItemHandler {
 
   static Future<void> openDetail(
     BuildContext context, {
-    required EntitySchemaMetadata schema,
+    required RecordSchemaMetadata schema,
     required Map<String, dynamic> record,
     Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,

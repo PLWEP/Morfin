@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import 'record_form_field.dart';
 
 class RecordArrayItemDialog extends StatefulWidget {
-  final EntityFieldMetadata parentField;
+  final RecordFieldMetadata parentField;
   final Map<String, dynamic>? existingItem;
   final Map<String, dynamic> defaultValues;
   final Map<String, dynamic> parentValues;
@@ -22,7 +22,7 @@ class RecordArrayItemDialog extends StatefulWidget {
 
   static Future<Map<String, dynamic>?> show(
     BuildContext context, {
-    required EntityFieldMetadata parentField,
+    required RecordFieldMetadata parentField,
     Map<String, dynamic>? existingItem,
     Map<String, dynamic> defaultValues = const {},
     Map<String, dynamic> parentValues = const {},
@@ -76,7 +76,7 @@ class _RecordArrayItemDialogState extends State<RecordArrayItemDialog> {
     }
   }
 
-  void _handleRecordSelection(EntityFieldMetadata sf, Map<String, dynamic> rec) {
+  void _handleRecordSelection(RecordFieldMetadata sf, Map<String, dynamic> rec) {
     setState(() {
       for (final childFld in widget.parentField.nestedFields) {
         if (childFld.key == sf.key) continue;

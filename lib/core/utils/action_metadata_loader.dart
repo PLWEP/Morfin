@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../metadata/action_param_metadata.dart';
-import '../metadata/entity_metadata.dart';
+import '../metadata/record_metadata.dart';
 import '../network/data_query.dart';
 import '../services/backend_service.dart';
 import '../services/schema_catalog_service.dart';
@@ -8,15 +8,15 @@ import '../services/schema_catalog_service.dart';
 class ActionMetadataLoader {
   const ActionMetadataLoader._();
 
-  static Future<(List<EntityFieldMetadata>, List<Map<String, dynamic>>)> load({
+  static Future<(List<RecordFieldMetadata>, List<Map<String, dynamic>>)> load({
     required String projection,
     required String actionName,
-    required EntitySchemaMetadata schema,
+    required RecordSchemaMetadata schema,
   }) async {
-    List<EntityFieldMetadata> formFields = [];
+    List<RecordFieldMetadata> formFields = [];
     List<Map<String, dynamic>> rawParams = [];
     try {
-      rawParams = await BackendService.instance.fetchEntitySet(
+      rawParams = await BackendService.instance.fetchCollection(
         projection: 'MobileNavMenuHandling',
         entitySet: 'ActionParamSet',
         query: DataQuery(filter: "ProjectionName eq '$projection' and ActionName eq '$actionName'"),
@@ -29,7 +29,7 @@ class ActionMetadataLoader {
         if (formFields.isEmpty) {
           formFields = await SchemaCatalogService.instance.fetchRecordFields(
             projection: projection,
-            entitySetOrName: schema.entitySet.isNotEmpty ? schema.entitySet : actionName,
+            collectionOrType: schema.entitySet.isNotEmpty ? schema.entitySet : actionName,
           );
         }
       }

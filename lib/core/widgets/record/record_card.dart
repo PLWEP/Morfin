@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import '../../utils/column_config_parser.dart';
 import 'record_status_badge.dart';
 
 class RecordCard extends StatelessWidget {
-  final EntitySchemaMetadata schema;
+  final RecordSchemaMetadata schema;
   final Map<String, dynamic> record;
   final String? columnConfig;
   final VoidCallback? onTap;

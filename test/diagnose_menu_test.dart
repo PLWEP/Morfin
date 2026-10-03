@@ -69,7 +69,7 @@ void main() {
     // Check ActionParamSet
     // Check ActionParamSet
     try {
-      final res = await ApiClient.instance.getEntitySet('MobileNavMenuHandling', 'ActionParamSet');
+      final res = await ApiClient.instance.getCollection('MobileNavMenuHandling', 'ActionParamSet');
       print('ActionParamSet count: ${res.length}');
       if (res.isNotEmpty) {
         print('ActionParamSet item 0: ${res[0]}');

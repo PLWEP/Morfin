@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import 'record_array_field.dart';
 import 'record_form_field.dart';
 
 class RecordActionSheet extends StatefulWidget {
   final String title;
   final String actionLabel;
-  final List<EntityFieldMetadata> fields;
+  final List<RecordFieldMetadata> fields;
   final Map<String, dynamic> initialValues;
   final Map<String, dynamic> paramDefaults;
   final Future<void> Function(Map<String, dynamic> values) onSubmit;
@@ -31,7 +31,7 @@ class RecordActionSheet extends StatefulWidget {
     required String title,
     String actionLabel = 'Submit',
     String? projection,
-    required List<EntityFieldMetadata> fields,
+    required List<RecordFieldMetadata> fields,
     Map<String, dynamic> initialValues = const {},
     Map<String, dynamic> paramDefaults = const {},
     required Future<void> Function(Map<String, dynamic> values) onSubmit,

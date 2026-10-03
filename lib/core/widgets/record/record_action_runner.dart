@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import '../../utils/icon_resolver.dart';
 import 'record_action_executor.dart';
 
@@ -10,7 +10,7 @@ class RecordActionRunner {
 
   static void showChildActionsSheet(
     BuildContext context, {
-    required EntitySchemaMetadata schema,
+    required RecordSchemaMetadata schema,
     required Map<String, dynamic> record,
     required List<Map<String, dynamic>> actions,
     Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
@@ -66,14 +66,10 @@ class RecordActionRunner {
                   title: Text(label, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colors.onSurface)),
                   trailing: Icon(Icons.chevron_right_rounded, size: 20, color: colors.outline),
                   onTap: () {
-                    debugPrint('Available action tapped: $label, actType: $actType, actionName: $actionName, projection: $projection');
                     Navigator.of(sheetCtx).pop();
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (!context.mounted) {
-                        debugPrint('Context not mounted after sheet pop!');
-                        return;
-                      }
-                      if (actType == 'FORM' || actType == 'FORM_DIALOG' || actType.contains('FORM')) {
+                      if (!context.mounted) return;
+                      if (actType.contains('FORM')) {
                         RecordActionExecutor.triggerFormAction(
                           context,
                           schema: schema,

@@ -39,7 +39,7 @@ void main() {
     expect(loginOk, isTrue);
 
     // 1. Let's fetch 1 released PR line to test with
-    final prLines = await ApiClient.instance.getEntitySet(
+    final prLines = await ApiClient.instance.getCollection(
       'MorfinApiHandling',
       'ReleasedPurchaseReqLineSet',
     );

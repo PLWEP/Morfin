@@ -15,7 +15,7 @@ class _TestHttpOverrides extends HttpOverrides {
 }
 
 /// Helper to parse keys of an EntityType from OData $metadata XML
-List<String> extractEntityKeys(String xml, String entityName) {
+List<String> extractKeyFields(String xml, String entityName) {
   // Find <EntityType Name="entityName" ...> ... </EntityType>
   final etRegex = RegExp('<EntityType\\s+Name="$entityName"[^>]*>', caseSensitive: false);
   final match = etRegex.firstMatch(xml);
@@ -42,7 +42,7 @@ List<String> extractEntityKeys(String xml, String entityName) {
 
 /// Resolve dynamic filter URL based on metadata keys and available form values
 String? buildMetadataDrivenFilter({
-  required List<String> entityKeys,
+  required List<String> keyFields,
   required String targetFieldKey,
   required Map<String, dynamic> availableValues,
 }) {
@@ -51,7 +51,7 @@ String? buildMetadataDrivenFilter({
 
   // For each key of the LOV entity, check if it's NOT the target field itself,
   // and see if the form has a value for this key!
-  for (final key in entityKeys) {
+  for (final key in keyFields) {
     if (key.toLowerCase() == targetLower) continue;
 
     // Check if availableValues has this key
@@ -119,9 +119,9 @@ void main() {
     final xml = response.data!;
 
     // 2. Extract keys for PurchasePartLov, IsoUnit, IsoCurrency
-    final partKeys = extractEntityKeys(xml, 'PurchasePartLov');
-    final unitKeys = extractEntityKeys(xml, 'IsoUnit');
-    final currencyKeys = extractEntityKeys(xml, 'IsoCurrency');
+    final partKeys = extractKeyFields(xml, 'PurchasePartLov');
+    final unitKeys = extractKeyFields(xml, 'IsoUnit');
+    final currencyKeys = extractKeyFields(xml, 'IsoCurrency');
 
     print('================ METADATA KEYS ================');
     print('PurchasePartLov keys: $partKeys');
@@ -145,7 +145,7 @@ void main() {
 
     // 4. Test filter generation for PartNo
     final partFilter = buildMetadataDrivenFilter(
-      entityKeys: partKeys,
+      keyFields: partKeys,
       targetFieldKey: 'PartNo',
       availableValues: formValues,
     );
@@ -154,7 +154,7 @@ void main() {
 
     // 5. Test filter generation for UnitMeasure (Should be NULL!)
     final unitFilter = buildMetadataDrivenFilter(
-      entityKeys: unitKeys,
+      keyFields: unitKeys,
       targetFieldKey: 'UnitMeasure',
       availableValues: formValues,
     );
@@ -163,7 +163,7 @@ void main() {
 
     // 6. Test filter generation for CurrencyCode (Should be NULL!)
     final currFilter = buildMetadataDrivenFilter(
-      entityKeys: currencyKeys,
+      keyFields: currencyKeys,
       targetFieldKey: 'CurrencyCode',
       availableValues: formValues,
     );
@@ -248,11 +248,11 @@ void main() {
     final metaUrl = '${ApiConfig.instance.projectionBaseUrl}/MorfinApiHandling.svc/\$metadata';
     final response = await dio.get<String>(metaUrl);
     final xml = response.data!;
-    final partKeys = extractEntityKeys(xml, 'PurchasePartLov');
+    final partKeys = extractKeyFields(xml, 'PurchasePartLov');
 
     // 5. Build dynamic filter secara generik
     final dynamicFilter = buildMetadataDrivenFilter(
-      entityKeys: partKeys,
+      keyFields: partKeys,
       targetFieldKey: 'PartNo',
       availableValues: combinedContext,
     );

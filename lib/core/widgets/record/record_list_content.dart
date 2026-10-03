@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import 'record_card.dart';
 
 class RecordListContent extends StatelessWidget {
   final ScrollController scrollController;
-  final EntitySchemaMetadata schema;
+  final RecordSchemaMetadata schema;
   final String? columnConfig;
   final List<Map<String, dynamic>> displayed;
   final bool isLoading;

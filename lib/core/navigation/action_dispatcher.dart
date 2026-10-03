@@ -3,8 +3,8 @@ import '../../features/menu/sub_menu_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/shell/main_shell_screen.dart';
 import '../metadata/action_metadata.dart';
-import '../metadata/entity_metadata.dart';
-import '../metadata/entity_schema_registry.dart';
+import '../metadata/record_metadata.dart';
+import '../metadata/record_schema_registry.dart';
 import '../network/data_query.dart';
 import '../services/backend_service.dart';
 import '../widgets/menu/module_info_sheet.dart';
@@ -88,13 +88,13 @@ class AppActionDispatcher {
     final targetEndpoint = (params['targetEndpoint'] as String?) ?? entitySet ?? title;
 
     if (actionType == 'FORM_DIALOG' || actionType == 'FORM DIALOG' || actionType == 'FORM') {
-      final fallback = EntitySchemaMetadata(
+      final fallback = RecordSchemaMetadata(
         entityName: title, title: title, icon: 'edit_note', projection: projection, entitySet: entitySet ?? '',
-        fields: const [], listCard: const EntityListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
+        fields: const [], listCard: const RecordListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
       );
       RecordActionExecutor.triggerFormAction(
         context,
-        schema: EntitySchemaRegistry.findByTarget(projection) ?? fallback,
+        schema: RecordSchemaRegistry.findByTarget(projection) ?? fallback,
         record: const {},
         title: title,
         projection: projection,
@@ -113,12 +113,12 @@ class AppActionDispatcher {
       return;
     }
 
-    final schema = EntitySchemaRegistry.findByTarget(target) ??
-        EntitySchemaRegistry.findByTarget(projection) ??
+    final schema = RecordSchemaRegistry.findByTarget(target) ??
+        RecordSchemaRegistry.findByTarget(projection) ??
         (entitySet != null
-            ? EntitySchemaMetadata(
+            ? RecordSchemaMetadata(
                 entityName: title, title: title, icon: 'layers', projection: projection, entitySet: entitySet, fields: const [],
-                listCard: const EntityListCardMetadata(codeField: 'OrderNo', primaryField: 'Description', secondaryField: 'Status'),
+                listCard: const RecordListCardMetadata(codeField: 'OrderNo', primaryField: 'Description', secondaryField: 'Status'),
               )
             : null);
 
@@ -131,7 +131,7 @@ class AppActionDispatcher {
           itemClickAction: itemClickAction,
           itemClickTarget: itemClickTarget,
           itemClickFields: itemClickFields,
-          fetchRecords: ({int skip = 0, int top = 20}) => BackendService.instance.fetchEntitySet(
+          fetchRecords: ({int skip = 0, int top = 20}) => BackendService.instance.fetchCollection(
             projection: schema.projection,
             entitySet: schema.entitySet,
             query: DataQuery(filter: DataQuery.combineFilters(defaultFilter: defaultFilter), top: top, skip: skip),

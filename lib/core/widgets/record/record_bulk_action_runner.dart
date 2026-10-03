@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/backend_service.dart';
-import 'record_action_executor.dart';
+import '../../utils/payload_utils.dart';
 
 class RecordBulkActionRunner {
   const RecordBulkActionRunner._();
@@ -61,7 +61,7 @@ class RecordBulkActionRunner {
       }
     } catch (e) {
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
-      final errorMsg = RecordActionExecutor.extractErrorMessage(e);
+      final errorMsg = PayloadUtils.extractErrorMessage(e);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

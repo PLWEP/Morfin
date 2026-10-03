@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import '../../services/schema_catalog_service.dart';
 import '../../utils/icon_resolver.dart';
 import 'record_action_sheet.dart';
 
 class RecordDetailScreen extends StatefulWidget {
-  final EntitySchemaMetadata schema;
+  final RecordSchemaMetadata schema;
   final Map<String, dynamic> record;
   final Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
 
@@ -24,7 +24,7 @@ class RecordDetailScreen extends StatefulWidget {
 
 class _RecordDetailScreenState extends State<RecordDetailScreen> {
   late Map<String, dynamic> _record;
-  List<EntityFieldMetadata> _fields = [];
+  List<RecordFieldMetadata> _fields = [];
   bool _isLoadingFields = false;
 
   @override
@@ -42,7 +42,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     try {
       final fetched = await SchemaCatalogService.instance.fetchRecordFields(
         projection: widget.schema.projection,
-        entitySetOrName: widget.schema.entitySet.isNotEmpty ? widget.schema.entitySet : widget.schema.entityName,
+        collectionOrType: widget.schema.entitySet.isNotEmpty ? widget.schema.entitySet : widget.schema.entityName,
       );
       if (mounted && fetched.isNotEmpty) {
         setState(() => _fields = fetched);
@@ -52,7 +52,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     }
   }
 
-  void _triggerAction(EntityActionMetadata action) {
+  void _triggerAction(RecordActionMetadata action) {
     RecordActionSheet.show(
       context,
       title: action.label,
@@ -145,13 +145,13 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     );
   }
 
-  List<EntityFieldMetadata> _buildFallbackFieldsFromRecord() {
+  List<RecordFieldMetadata> _buildFallbackFieldsFromRecord() {
     const internalKeys = {'luname', 'objid', 'objversion', 'rowkey', 'rowstate', 'rowtype', 'objsite', 'objstate', 'objgrants'};
     return _record.entries
         .where((e) => !e.key.startsWith('@') && !internalKeys.contains(e.key.toLowerCase()))
         .map((e) {
           final label = e.key.replaceAllMapped(RegExp(r'(?<=[a-z])[A-Z]'), (m) => ' ${m.group(0)}').replaceAll('_', ' ').trim();
-          return EntityFieldMetadata(key: e.key, label: label);
+          return RecordFieldMetadata(key: e.key, label: label);
         })
         .toList();
   }

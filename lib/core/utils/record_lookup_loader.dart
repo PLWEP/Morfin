@@ -33,15 +33,15 @@ class RecordLookupLoader {
           contextualValues.isNotEmpty &&
           targetFieldKey != null &&
           targetFieldKey.isNotEmpty) {
-        final entityKeys = await SchemaCatalogService.instance.fetchEntityKeys(
+        final keyFields = await SchemaCatalogService.instance.fetchKeyFields(
           projection: proj,
-          entitySetOrName: entitySet,
+          collectionOrType: entitySet,
         );
 
         final targetLower = targetFieldKey.toLowerCase();
         final dynamicParts = <String>[];
 
-        for (final k in entityKeys) {
+        for (final k in keyFields) {
           if (k.toLowerCase() == targetLower) continue;
 
           final match = contextualValues.entries.firstWhere(
@@ -62,7 +62,7 @@ class RecordLookupLoader {
         }
       }
 
-      final res = await BackendService.instance.fetchEntitySet(
+      final res = await BackendService.instance.fetchCollection(
         projection: proj,
         entitySet: entitySet,
         query: DataQuery(top: 50, filter: effectiveFilter),

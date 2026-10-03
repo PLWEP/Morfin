@@ -38,7 +38,7 @@ void main() {
     );
     expect(loginOk, isTrue, reason: 'Login must succeed');
 
-    final header = await ApiClient.instance.getEntity(
+    final header = await ApiClient.instance.getRecord(
       'PurchaseRequisitionHandling',
       'PurchaseRequisitionSet',
       "RequisitionNo='1574'",
@@ -51,7 +51,7 @@ void main() {
     expect(header['RequisitionNo'], equals('1574'));
     expect(header['Contract'], equals('2WFCC'));
 
-    final linesRes = await ApiClient.instance.getEntitySet(
+    final linesRes = await ApiClient.instance.getCollection(
       'PurchaseRequisitionHandling',
       'PurchaseReqLinePartSet',
       query: DataQuery(filter: "RequisitionNo eq '1574'"),

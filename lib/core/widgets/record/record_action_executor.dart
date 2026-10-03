@@ -1,6 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import '../../services/backend_service.dart';
 import '../../utils/action_field_consolidator.dart';
 import '../../utils/action_metadata_loader.dart';
@@ -53,7 +52,7 @@ class RecordActionExecutor {
 
   static Future<void> triggerFormAction(
     BuildContext context, {
-    required EntitySchemaMetadata schema,
+    required RecordSchemaMetadata schema,
     required Map<String, dynamic> record,
     required String title,
     required String projection,
@@ -77,7 +76,7 @@ class RecordActionExecutor {
       schema: schema,
     );
     if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
-    List<EntityFieldMetadata> formFields = loadedFields;
+    List<RecordFieldMetadata> formFields = loadedFields;
 
     final (defaults, hiddenFields, explicitFields, mandatoryFields, optionalFields) = ParamConfigParser.parse(paramConfig);
     if (explicitFields.isNotEmpty) {
@@ -96,17 +95,7 @@ class RecordActionExecutor {
       rawParams: rawParams,
       projection: projection,
     );
-
-    final effectiveProj = projection.replaceAll('/', '').trim();
-    formFields = formFields.map((f) {
-      final updatedNested = f.nestedFields.map((nf) => nf.copyWith(
-        lovProjection: (nf.lovProjection == null || nf.lovProjection!.isEmpty) ? effectiveProj : nf.lovProjection,
-      )).toList();
-      return f.copyWith(
-        lovProjection: (f.lovProjection == null || f.lovProjection!.isEmpty) ? effectiveProj : f.lovProjection,
-        nestedFields: updatedNested,
-      );
-    }).toList();
+    formFields = ActionFieldConsolidator.applyLovProjection(formFields, projection);
 
     if (!context.mounted) return;
     if (formFields.isEmpty) {
@@ -114,35 +103,7 @@ class RecordActionExecutor {
       return;
     }
 
-    final initialVals = <String, dynamic>{};
-    for (final f in formFields) {
-      final fKeyLower = f.key.toLowerCase();
-      // Check defaults
-      final defaultEntry = defaults.entries.firstWhere(
-        (e) => e.key.toLowerCase() == fKeyLower,
-        orElse: () => const MapEntry('', null),
-      );
-      if (defaultEntry.key.isNotEmpty && defaultEntry.value != null) {
-        initialVals[f.key] = defaultEntry.value;
-        continue;
-      }
-      // Check record
-      final recordEntry = record.entries.firstWhere(
-        (e) => e.key.toLowerCase() == fKeyLower,
-        orElse: () => const MapEntry('', null),
-      );
-      if (recordEntry.key.isNotEmpty && recordEntry.value != null) {
-        initialVals[f.key] = recordEntry.value;
-        continue;
-      }
-    }
-    // Also include any other record/default keys
-    for (final entry in defaults.entries) {
-      if (!entry.key.contains('.')) initialVals.putIfAbsent(entry.key, () => entry.value);
-    }
-    for (final entry in record.entries) {
-      initialVals.putIfAbsent(entry.key, () => entry.value);
-    }
+    final initialVals = ActionFieldConsolidator.resolveInitialValues(fields: formFields, defaults: defaults, record: record);
 
     if (isFullScreen) {
       Navigator.of(context).push(
@@ -177,28 +138,19 @@ class RecordActionExecutor {
           allFieldDefs: allFieldDefinitions,
           defaultValues: defaults,
         );
-        debugPrint('RecordActionExecutor calling $projection.$actionName with payload: $payload');
         try {
           final res = onExecuteAction != null
               ? await onExecuteAction(actionName, payload)
               : await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
-          debugPrint('RecordActionExecutor response: $res');
           final resMap = res is Map<String, dynamic> ? res : <String, dynamic>{};
           final msg = PayloadUtils.extractSuccessMessage(resMap, fallback: '"$title" submitted successfully');
           messenger.showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
           onRefresh();
-        } catch (e, stack) {
-          debugPrint('RecordActionExecutor error: $e\n$stack');
-          if (e is DioException) {
-            debugPrint('RecordActionExecutor Dio response data: ${e.response?.data}');
-          }
+        } catch (e) {
           final errorMsg = PayloadUtils.extractErrorMessage(e);
           messenger.showSnackBar(SnackBar(content: Text('Error: $errorMsg'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
         }
       },
     );
   }
-
-  static Map<String, dynamic> sanitizePayload(Map<String, dynamic> raw) => PayloadUtils.sanitize(raw);
-  static String extractErrorMessage(dynamic error) => PayloadUtils.extractErrorMessage(error);
 }

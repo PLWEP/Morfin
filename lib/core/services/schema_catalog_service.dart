@@ -1,4 +1,4 @@
-import '../metadata/entity_metadata.dart';
+import '../metadata/record_metadata.dart';
 import '../network/api_client.dart';
 import '../network/api_config.dart';
 
@@ -26,7 +26,7 @@ class SchemaCatalogService {
     return null;
   }
 
-  Future<List<EntityFieldMetadata>> fetchActionFields({
+  Future<List<RecordFieldMetadata>> fetchActionFields({
     required String projection,
     required String actionName,
   }) async {
@@ -38,12 +38,12 @@ class SchemaCatalogService {
     final jsonMatch = jsonRegex.firstMatch(meta);
     if (jsonMatch != null) {
       final pRegex = RegExp(r'"\$Name"\s*:\s*"([^"]+)"[^}]*"\$Type"\s*:\s*"([^"]+)"');
-      final fields = <EntityFieldMetadata>[];
+      final fields = <RecordFieldMetadata>[];
       for (final m in pRegex.allMatches(jsonMatch.group(1)!)) {
         final name = m.group(1) ?? '';
         final type = m.group(2) ?? 'Edm.String';
         if (name.isEmpty || name == 'FullSelection' || name == 'Selection') continue;
-        fields.add(EntityFieldMetadata(key: name, label: _humanize(name), type: _resolveFieldType(type)));
+        fields.add(RecordFieldMetadata(key: name, label: _humanize(name), type: _resolveFieldType(type)));
       }
       if (fields.isNotEmpty) return fields;
     }
@@ -57,27 +57,27 @@ class SchemaCatalogService {
     final snippet = actEnd != -1 ? meta.substring(actIdx, actEnd + 9) : meta.substring(actIdx);
 
     final paramRegex = RegExp(r'<Parameter\s+Name="([^"]+)"\s+Type="([^"]+)"([^>]*)/>|<Parameter\s+Name="([^"]+)"\s+Type="([^"]+)"([^>]*)></Parameter>');
-    final fields = <EntityFieldMetadata>[];
+    final fields = <RecordFieldMetadata>[];
     for (final m in paramRegex.allMatches(snippet)) {
       final name = m.group(1) ?? m.group(4) ?? '';
       final type = m.group(2) ?? m.group(5) ?? 'Edm.String';
       final attr = m.group(3) ?? m.group(6) ?? '';
       if (name.isEmpty || name == 'FullSelection' || name == 'Selection') continue;
-      fields.add(EntityFieldMetadata(
+      fields.add(RecordFieldMetadata(
         key: name, label: _humanize(name), type: _resolveFieldType(type), isRequired: !attr.contains('Nullable="true"'),
       ));
     }
     return fields;
   }
 
-  Future<List<EntityFieldMetadata>> fetchRecordFields({
+  Future<List<RecordFieldMetadata>> fetchRecordFields({
     required String projection,
-    required String entitySetOrName,
+    required String collectionOrType,
   }) async {
     final xml = await _getMetadataXml(projection);
     if (xml == null) return [];
 
-    var entityName = entitySetOrName.split('/').last.split('?').first;
+    var entityName = collectionOrType.split('/').last.split('?').first;
     if (entityName.endsWith('Set')) {
       final esRegex = RegExp('<EntitySet\\s+Name="$entityName"\\s+EntityType="([^"]+)"', caseSensitive: false);
       final esMatch = esRegex.firstMatch(xml);
@@ -102,7 +102,7 @@ class SchemaCatalogService {
     final snippet = etEnd != -1 ? xml.substring(etIdx, etEnd + 13) : xml.substring(etIdx);
 
     final propRegex = RegExp(r'<Property\s+Name="([^"]+)"\s+Type="([^"]+)"([^>]*)');
-    final fields = <EntityFieldMetadata>[];
+    final fields = <RecordFieldMetadata>[];
     const systemFields = {'luname', 'keyref', 'objsite', 'objstate', 'objgrants'};
 
     for (final m in propRegex.allMatches(snippet)) {
@@ -111,21 +111,21 @@ class SchemaCatalogService {
       final attr = m.group(3) ?? '';
       if (name.isEmpty || systemFields.contains(name.toLowerCase())) continue;
 
-      fields.add(EntityFieldMetadata(
+      fields.add(RecordFieldMetadata(
         key: name, label: _humanize(name), type: _resolveFieldType(type), isRequired: attr.contains('Nullable="false"'),
       ));
     }
     return fields;
   }
 
-  Future<List<String>> fetchEntityKeys({
+  Future<List<String>> fetchKeyFields({
     required String projection,
-    required String entitySetOrName,
+    required String collectionOrType,
   }) async {
     final xml = await _getMetadataXml(projection);
     if (xml == null) return [];
 
-    var entityName = entitySetOrName.split('/').last.split('?').first;
+    var entityName = collectionOrType.split('/').last.split('?').first;
     if (entityName.startsWith('Reference_')) {
       entityName = entityName.substring('Reference_'.length);
     }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import 'record_lookup_sheet.dart';
 
 class RecordFormField extends StatefulWidget {
-  final EntityFieldMetadata field;
+  final RecordFieldMetadata field;
   final dynamic initialValue;
   final ValueChanged<dynamic> onChanged;
   final FormFieldSetter<String> onSaved;

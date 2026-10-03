@@ -37,7 +37,7 @@ void main() {
     );
     expect(loginOk, isTrue);
 
-    final existing = await ApiClient.instance.getEntitySet(
+    final existing = await ApiClient.instance.getCollection(
       'MobileNavMenuHandling',
       'MobileNavMenuSet',
     );
@@ -49,7 +49,7 @@ void main() {
     final hasList = existing.any((m) => m['Label'] == 'Released PR Lines' || m['NodeId'] == 15);
     if (!hasList) {
       print('Inserting Node 15 (Released PR Lines)...');
-      final resList = await ApiClient.instance.postEntity(
+      final resList = await ApiClient.instance.postRecord(
         'MobileNavMenuHandling',
         'MobileNavMenuSet',
         {
@@ -70,7 +70,7 @@ void main() {
     }
 
     // Refresh existing list to get exact NodeId of Released PR Lines
-    final refreshed = await ApiClient.instance.getEntitySet(
+    final refreshed = await ApiClient.instance.getCollection(
       'MobileNavMenuHandling',
       'MobileNavMenuSet',
     );
@@ -81,7 +81,7 @@ void main() {
     final hasAction = refreshed.any((m) => m['Label'] == 'Convert to PO');
     if (!hasAction) {
       print('Inserting Action Convert to PO under Node $prLineNodeId...');
-      final resAction = await ApiClient.instance.postEntity(
+      final resAction = await ApiClient.instance.postRecord(
         'MobileNavMenuHandling',
         'MobileNavMenuSet',
         {

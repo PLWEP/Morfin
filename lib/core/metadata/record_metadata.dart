@@ -4,7 +4,7 @@ enum FieldType { text, number, status, priority, date, boolean, currency, array 
 enum ActionScope { global, record }
 
 @immutable
-class EntityFieldMetadata {
+class RecordFieldMetadata {
   final String key;
   final String label;
   final FieldType type;
@@ -13,9 +13,9 @@ class EntityFieldMetadata {
   final List<String> options;
   final String? lovReference;
   final String? lovProjection;
-  final List<EntityFieldMetadata> nestedFields;
+  final List<RecordFieldMetadata> nestedFields;
 
-  const EntityFieldMetadata({
+  const RecordFieldMetadata({
     required this.key,
     required this.label,
     this.type = FieldType.text,
@@ -27,7 +27,7 @@ class EntityFieldMetadata {
     this.nestedFields = const [],
   });
 
-  factory EntityFieldMetadata.fromJson(Map<String, dynamic> json) {
+  factory RecordFieldMetadata.fromJson(Map<String, dynamic> json) {
     final typeStr = json['type'] as String? ?? 'text';
     final fieldType = FieldType.values.firstWhere(
       (e) => e.name == typeStr,
@@ -39,7 +39,7 @@ class EntityFieldMetadata {
     final isReq = json['isRequired'] == true || json['required'] == true ||
         json['isRequired'] == 'TRUE' || json['required'] == 'TRUE';
 
-    return EntityFieldMetadata(
+    return RecordFieldMetadata(
       key: json['key'] as String? ?? '',
       label: json['label'] as String? ?? '',
       type: fieldType,
@@ -48,11 +48,11 @@ class EntityFieldMetadata {
       options: rawOpts.map((e) => e.toString()).toList(),
       lovReference: json['lovReference'] as String?,
       lovProjection: json['lovProjection'] as String?,
-      nestedFields: rawNested.map((e) => EntityFieldMetadata.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+      nestedFields: rawNested.map((e) => RecordFieldMetadata.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
     );
   }
 
-  EntityFieldMetadata copyWith({
+  RecordFieldMetadata copyWith({
     String? key,
     String? label,
     FieldType? type,
@@ -61,9 +61,9 @@ class EntityFieldMetadata {
     List<String>? options,
     String? lovReference,
     String? lovProjection,
-    List<EntityFieldMetadata>? nestedFields,
+    List<RecordFieldMetadata>? nestedFields,
   }) {
-    return EntityFieldMetadata(
+    return RecordFieldMetadata(
       key: key ?? this.key,
       label: label ?? this.label,
       type: type ?? this.type,
@@ -78,14 +78,14 @@ class EntityFieldMetadata {
 }
 
 @immutable
-class EntityActionMetadata {
+class RecordActionMetadata {
   final String name;
   final String label;
   final String? icon;
   final ActionScope scope;
-  final List<EntityFieldMetadata> formFields;
+  final List<RecordFieldMetadata> formFields;
 
-  const EntityActionMetadata({
+  const RecordActionMetadata({
     required this.name,
     required this.label,
     this.icon,
@@ -93,23 +93,23 @@ class EntityActionMetadata {
     this.formFields = const [],
   });
 
-  factory EntityActionMetadata.fromJson(Map<String, dynamic> json) {
+  factory RecordActionMetadata.fromJson(Map<String, dynamic> json) {
     final scopeStr = json['scope'] as String? ?? 'record';
     final rawFields = json['formFields'] as List<dynamic>? ?? [];
-    return EntityActionMetadata(
+    return RecordActionMetadata(
       name: json['name'] as String? ?? '',
       label: json['label'] as String? ?? '',
       icon: json['icon'] as String?,
       scope: scopeStr == 'global' ? ActionScope.global : ActionScope.record,
       formFields: rawFields
-          .map((f) => EntityFieldMetadata.fromJson(f as Map<String, dynamic>))
+          .map((f) => RecordFieldMetadata.fromJson(f as Map<String, dynamic>))
           .toList(),
     );
   }
 }
 
 @immutable
-class EntityListCardMetadata {
+class RecordListCardMetadata {
   final String codeField;
   final String primaryField;
   final String? secondaryField;
@@ -118,7 +118,7 @@ class EntityListCardMetadata {
   final String? priorityField;
   final String? metricField;
 
-  const EntityListCardMetadata({
+  const RecordListCardMetadata({
     required this.codeField,
     required this.primaryField,
     this.secondaryField,
@@ -128,7 +128,7 @@ class EntityListCardMetadata {
     this.metricField,
   });
 
-  factory EntityListCardMetadata.fromJson(Map<String, dynamic> json) => EntityListCardMetadata(
+  factory RecordListCardMetadata.fromJson(Map<String, dynamic> json) => RecordListCardMetadata(
     codeField: json['codeField'] as String? ?? 'code',
     primaryField: json['primaryField'] as String? ?? 'title',
     secondaryField: json['secondaryField'] as String?,
@@ -140,17 +140,17 @@ class EntityListCardMetadata {
 }
 
 @immutable
-class EntitySchemaMetadata {
+class RecordSchemaMetadata {
   final String entityName;
   final String title;
   final String icon;
   final String projection;
   final String entitySet;
-  final List<EntityFieldMetadata> fields;
-  final List<EntityActionMetadata> actions;
-  final EntityListCardMetadata listCard;
+  final List<RecordFieldMetadata> fields;
+  final List<RecordActionMetadata> actions;
+  final RecordListCardMetadata listCard;
 
-  const EntitySchemaMetadata({
+  const RecordSchemaMetadata({
     required this.entityName,
     required this.title,
     this.icon = 'assignment',
@@ -161,18 +161,18 @@ class EntitySchemaMetadata {
     required this.listCard,
   });
 
-  factory EntitySchemaMetadata.fromJson(Map<String, dynamic> json) {
+  factory RecordSchemaMetadata.fromJson(Map<String, dynamic> json) {
     final rawFields = json['fields'] as List<dynamic>? ?? [];
     final rawActions = json['actions'] as List<dynamic>? ?? [];
-    return EntitySchemaMetadata(
+    return RecordSchemaMetadata(
       entityName: json['entityName'] as String? ?? '',
       title: json['title'] as String? ?? '',
       icon: json['icon'] as String? ?? 'assignment',
       projection: json['projection'] as String? ?? '',
       entitySet: json['entitySet'] as String? ?? '',
-      fields: rawFields.map((f) => EntityFieldMetadata.fromJson(f as Map<String, dynamic>)).toList(),
-      actions: rawActions.map((a) => EntityActionMetadata.fromJson(a as Map<String, dynamic>)).toList(),
-      listCard: EntityListCardMetadata.fromJson(json['listCard'] as Map<String, dynamic>? ?? {}),
+      fields: rawFields.map((f) => RecordFieldMetadata.fromJson(f as Map<String, dynamic>)).toList(),
+      actions: rawActions.map((a) => RecordActionMetadata.fromJson(a as Map<String, dynamic>)).toList(),
+      listCard: RecordListCardMetadata.fromJson(json['listCard'] as Map<String, dynamic>? ?? {}),
     );
   }
 }

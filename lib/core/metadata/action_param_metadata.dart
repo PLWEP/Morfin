@@ -1,4 +1,4 @@
-import 'entity_metadata.dart';
+import 'record_metadata.dart';
 
 class ActionParamMetadata {
   final String paramName;
@@ -27,11 +27,11 @@ class ActionParamMetadata {
     );
   }
 
-  EntityFieldMetadata toFormField({String? projection}) {
+  RecordFieldMetadata toFormField({String? projection}) {
     final resolvedType = _resolveType(dataType);
     final isStructureOrArray = resolvedType == FieldType.array;
 
-    return EntityFieldMetadata(
+    return RecordFieldMetadata(
       key: paramName,
       label: _humanize(paramName),
       type: resolvedType,

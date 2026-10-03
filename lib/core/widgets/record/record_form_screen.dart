@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
-import '../../metadata/entity_metadata.dart';
+import '../../metadata/record_metadata.dart';
 import '../../services/backend_service.dart';
 import '../../utils/payload_utils.dart';
 import 'record_array_field.dart';
@@ -12,8 +12,8 @@ class RecordFormScreen extends StatefulWidget {
   final String title;
   final String projection;
   final String actionName;
-  final List<EntityFieldMetadata> fields;
-  final List<EntityFieldMetadata> allFieldDefinitions;
+  final List<RecordFieldMetadata> fields;
+  final List<RecordFieldMetadata> allFieldDefinitions;
   final Map<String, dynamic> paramDefaults;
   final Map<String, dynamic> initialValues;
   final VoidCallback onRefresh;
@@ -58,21 +58,19 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
-    for (final field in widget.fields) {
-      if (field.type == FieldType.array && field.isRequired) {
-        final items = _values[field.key] as List<dynamic>?;
-        if (items == null || items.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please add at least one item to "${field.label}"'), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating),
-          );
-          return;
-        }
-      }
+    final emptyArray = widget.fields
+        .where((f) => f.type == FieldType.array && f.isRequired && ((_values[f.key] as List<dynamic>?)?.isEmpty ?? true))
+        .firstOrNull;
+    if (emptyArray != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please add at least one item to "${emptyArray.label}"'), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating),
+      );
+      return;
     }
 
     final messenger = ScaffoldMessenger.of(context);
     final nav = Navigator.of(context);
-    final cardColor = AppColors.of(context).surfaceCard;
+    final palette = AppColors.of(context);
     setState(() => _isSubmitting = true);
     try {
       final effectiveDefs = widget.allFieldDefinitions.isNotEmpty ? widget.allFieldDefinitions : widget.fields;
@@ -86,18 +84,9 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
             content: Row(children: [
               const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 16),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  successMsg,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.of(context).onSurface,
-                  ),
-                ),
-              ),
+              Expanded(child: Text(successMsg, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: palette.onSurface))),
             ]),
-            backgroundColor: cardColor,
+            backgroundColor: palette.surfaceCard,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -112,7 +101,7 @@ class _RecordFormScreenState extends State<RecordFormScreen> {
     }
   }
 
-  Widget _buildFieldItem(EntityFieldMetadata f) {
+  Widget _buildFieldItem(RecordFieldMetadata f) {
     final resolved = (f.lovProjection == null || f.lovProjection!.isEmpty) ? f.copyWith(lovProjection: widget.projection) : f;
     return resolved.type == FieldType.array
         ? RecordArrayField(
