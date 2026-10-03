@@ -5,7 +5,7 @@ class RecordBulkActionBar extends StatelessWidget {
   final List<Map<String, dynamic>> childActions;
   final List<Map<String, dynamic>> selectedRecords;
   final String fallbackProjection;
-  final Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
+  final Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
   final VoidCallback onSuccess;
 
   const RecordBulkActionBar({

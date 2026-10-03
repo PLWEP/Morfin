@@ -13,7 +13,7 @@ class RecordActionRunner {
     required EntitySchemaMetadata schema,
     required Map<String, dynamic> record,
     required List<Map<String, dynamic>> actions,
-    Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
+    Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,
   }) {
     final colors = AppColors.of(context);
@@ -66,30 +66,37 @@ class RecordActionRunner {
                   title: Text(label, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colors.onSurface)),
                   trailing: Icon(Icons.chevron_right_rounded, size: 20, color: colors.outline),
                   onTap: () {
+                    debugPrint('Available action tapped: $label, actType: $actType, actionName: $actionName, projection: $projection');
                     Navigator.of(sheetCtx).pop();
-                    if (actType == 'FORM' || actType == 'FORM_DIALOG' || actType.contains('FORM')) {
-                      RecordActionExecutor.triggerFormAction(
-                        context,
-                        schema: schema,
-                        record: record,
-                        title: label,
-                        projection: projection,
-                        actionName: actionName,
-                        paramConfig: paramConfig,
-                        onExecuteAction: onExecuteAction,
-                        onRefresh: onRefresh,
-                      );
-                    } else {
-                      RecordActionExecutor.triggerDirectAction(
-                        context,
-                        label: label,
-                        record: record,
-                        projection: projection,
-                        actionName: actionName,
-                        onExecuteAction: onExecuteAction,
-                        onRefresh: onRefresh,
-                      );
-                    }
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!context.mounted) {
+                        debugPrint('Context not mounted after sheet pop!');
+                        return;
+                      }
+                      if (actType == 'FORM' || actType == 'FORM_DIALOG' || actType.contains('FORM')) {
+                        RecordActionExecutor.triggerFormAction(
+                          context,
+                          schema: schema,
+                          record: record,
+                          title: label,
+                          projection: projection,
+                          actionName: actionName,
+                          paramConfig: paramConfig,
+                          onExecuteAction: onExecuteAction,
+                          onRefresh: onRefresh,
+                        );
+                      } else {
+                        RecordActionExecutor.triggerDirectAction(
+                          context,
+                          label: label,
+                          record: record,
+                          projection: projection,
+                          actionName: actionName,
+                          onExecuteAction: onExecuteAction,
+                          onRefresh: onRefresh,
+                        );
+                      }
+                    });
                   },
                 );
               }),

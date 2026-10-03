@@ -18,12 +18,14 @@ class RecordItemHandler {
     String? itemClickAction,
     String? itemClickTarget,
     String? itemClickFields,
-    Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
+    Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,
   }) async {
+    debugPrint('RecordItemHandler.handleTap called with nodeId: "$nodeId"');
     final childActions = (nodeId != null && nodeId.isNotEmpty)
         ? NavigatorService.instance.getChildActions(nodeId)
         : <Map<String, dynamic>>[];
+    debugPrint('RecordItemHandler.handleTap found ${childActions.length} childActions');
 
     if (childActions.isNotEmpty) {
       RecordActionRunner.showChildActionsSheet(
@@ -93,7 +95,7 @@ class RecordItemHandler {
     BuildContext context, {
     required EntitySchemaMetadata schema,
     required Map<String, dynamic> record,
-    Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
+    Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,
   }) async {
     await Navigator.of(context).push(

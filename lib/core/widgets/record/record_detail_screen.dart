@@ -9,7 +9,7 @@ import 'record_action_sheet.dart';
 class RecordDetailScreen extends StatefulWidget {
   final EntitySchemaMetadata schema;
   final Map<String, dynamic> record;
-  final Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
+  final Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
 
   const RecordDetailScreen({
     super.key,

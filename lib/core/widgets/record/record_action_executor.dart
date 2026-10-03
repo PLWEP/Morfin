@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../../metadata/entity_metadata.dart';
 import '../../services/backend_service.dart';
@@ -17,7 +18,7 @@ class RecordActionExecutor {
     required Map<String, dynamic> record,
     required String projection,
     required String actionName,
-    Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
+    Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,
   }) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -36,12 +37,13 @@ class RecordActionExecutor {
 
     try {
       final payload = PayloadUtils.sanitize(record);
-      if (onExecuteAction != null) {
-        await onExecuteAction(actionName, payload);
-      } else {
-        await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
-      }
-      messenger.showSnackBar(SnackBar(content: Text('"$label" completed successfully'), behavior: SnackBarBehavior.floating));
+      final res = onExecuteAction != null
+          ? await onExecuteAction(actionName, payload)
+          : await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
+      final msg = res is Map<String, dynamic>
+          ? PayloadUtils.extractSuccessMessage(res, fallback: '"$label" completed successfully')
+          : '"$label" completed successfully';
+      messenger.showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
       onRefresh();
     } catch (e) {
       final errorMsg = PayloadUtils.extractErrorMessage(e);
@@ -58,7 +60,7 @@ class RecordActionExecutor {
     required String actionName,
     String? paramConfig,
     bool isFullScreen = false,
-    Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
+    Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onRefresh,
   }) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -112,10 +114,35 @@ class RecordActionExecutor {
       return;
     }
 
-    final initialVals = <String, dynamic>{
-      for (final entry in defaults.entries) if (!entry.key.contains('.')) entry.key: entry.value,
-      ...record,
-    };
+    final initialVals = <String, dynamic>{};
+    for (final f in formFields) {
+      final fKeyLower = f.key.toLowerCase();
+      // Check defaults
+      final defaultEntry = defaults.entries.firstWhere(
+        (e) => e.key.toLowerCase() == fKeyLower,
+        orElse: () => const MapEntry('', null),
+      );
+      if (defaultEntry.key.isNotEmpty && defaultEntry.value != null) {
+        initialVals[f.key] = defaultEntry.value;
+        continue;
+      }
+      // Check record
+      final recordEntry = record.entries.firstWhere(
+        (e) => e.key.toLowerCase() == fKeyLower,
+        orElse: () => const MapEntry('', null),
+      );
+      if (recordEntry.key.isNotEmpty && recordEntry.value != null) {
+        initialVals[f.key] = recordEntry.value;
+        continue;
+      }
+    }
+    // Also include any other record/default keys
+    for (final entry in defaults.entries) {
+      if (!entry.key.contains('.')) initialVals.putIfAbsent(entry.key, () => entry.value);
+    }
+    for (final entry in record.entries) {
+      initialVals.putIfAbsent(entry.key, () => entry.value);
+    }
 
     if (isFullScreen) {
       Navigator.of(context).push(
@@ -150,17 +177,21 @@ class RecordActionExecutor {
           allFieldDefs: allFieldDefinitions,
           defaultValues: defaults,
         );
+        debugPrint('RecordActionExecutor calling $projection.$actionName with payload: $payload');
         try {
           final res = onExecuteAction != null
-              ? await () async {
-                  await onExecuteAction(actionName, payload);
-                  return <String, dynamic>{};
-                }()
+              ? await onExecuteAction(actionName, payload)
               : await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
-          final msg = PayloadUtils.extractSuccessMessage(res, fallback: '"$title" submitted successfully');
+          debugPrint('RecordActionExecutor response: $res');
+          final resMap = res is Map<String, dynamic> ? res : <String, dynamic>{};
+          final msg = PayloadUtils.extractSuccessMessage(resMap, fallback: '"$title" submitted successfully');
           messenger.showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
           onRefresh();
-        } catch (e) {
+        } catch (e, stack) {
+          debugPrint('RecordActionExecutor error: $e\n$stack');
+          if (e is DioException) {
+            debugPrint('RecordActionExecutor Dio response data: ${e.response?.data}');
+          }
           final errorMsg = PayloadUtils.extractErrorMessage(e);
           messenger.showSnackBar(SnackBar(content: Text('Error: $errorMsg'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
         }

@@ -32,10 +32,11 @@ class PayloadUtils {
       }
     }
 
-    final allKeys = <String>{
-      ...fieldMap.keys.where((k) => !k.contains('.')),
-      ...sanitized.keys.where((k) => !k.contains('.')).map((k) => k.toLowerCase()),
-    };
+    final allKeys = fieldMap.isNotEmpty
+        ? fieldMap.keys.where((k) => !k.contains('.')).toSet()
+        : <String>{
+            ...sanitized.keys.where((k) => !k.contains('.')).map((k) => k.toLowerCase()),
+          };
 
     for (final lowerKey in allKeys) {
       final meta = fieldMap[lowerKey];
@@ -48,6 +49,7 @@ class PayloadUtils {
 
       final isNumberType = meta != null && meta.type?.toString().contains('number') == true;
       final isArrayType = meta != null && meta.type?.toString().contains('array') == true;
+      final isBoolType = meta != null && meta.type?.toString().contains('boolean') == true;
 
       if (isArrayType || val is List) {
         final nestedDefs = (meta?.nestedFields as List<dynamic>?) ?? const [];
@@ -55,8 +57,19 @@ class PayloadUtils {
         result[actualKey] = list.map((item) => item is Map<String, dynamic> ? _formatNestedItem(parentKey: actualKey, rawItem: item, nestedDefs: nestedDefs, defaultValues: defaultValues) : item).toList();
       } else if (isNumberType) {
         result[actualKey] = _parseNumber(val);
+      } else if (isBoolType) {
+        if (val == null) {
+          result[actualKey] = null;
+        } else {
+          result[actualKey] = (val == true || val.toString().toUpperCase() == 'TRUE');
+        }
       } else {
-        result[actualKey] = val ?? '';
+        if (val == null || (val is String && val.trim().isEmpty)) {
+          final isReq = meta?.isRequired ?? false;
+          result[actualKey] = isReq ? '' : null;
+        } else {
+          result[actualKey] = val;
+        }
       }
     }
     return result;
@@ -107,7 +120,15 @@ class PayloadUtils {
     if (error is DioException && error.response?.data is Map) {
       final map = error.response!.data as Map;
       final err = map['error'];
-      if (err is Map && err['message'] != null) return err['message'].toString();
+      if (err is Map) {
+        if (err['details'] is List && (err['details'] as List).isNotEmpty) {
+          final firstDetail = (err['details'] as List).first;
+          if (firstDetail is Map && firstDetail['message'] != null) {
+            return firstDetail['message'].toString();
+          }
+        }
+        if (err['message'] != null) return err['message'].toString();
+      }
     }
     return error.toString();
   }

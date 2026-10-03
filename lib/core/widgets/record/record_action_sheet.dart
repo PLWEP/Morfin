@@ -138,11 +138,11 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
                         onChanged: (val) => setState(() => _values[resolved.key] = val),
                       )
                     : RecordFormField(
-                        key: ValueKey('action_${resolved.key}_${_values[resolved.key]}'),
+                        key: ValueKey('action_${resolved.key}'),
                         field: resolved,
                         initialValue: _values[resolved.key],
                         contextualValues: _values,
-                        onChanged: (val) => setState(() => _values[resolved.key] = val),
+                        onChanged: (val) => _values[resolved.key] = val,
                         onSaved: (val) => _values[resolved.key] = val?.trim() ?? '',
                       );
               }),

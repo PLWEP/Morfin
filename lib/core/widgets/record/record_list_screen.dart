@@ -12,7 +12,7 @@ import 'record_list_content.dart';
 class RecordListScreen extends StatefulWidget {
   final EntitySchemaMetadata schema;
   final Future<List<Map<String, dynamic>>> Function({int skip, int top}) fetchRecords;
-  final Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
+  final Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction;
   final int pageSize;
   final String? nodeId, columnConfig, itemClickAction, itemClickTarget, itemClickFields;
 

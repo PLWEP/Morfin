@@ -44,9 +44,9 @@ class _RecordFormFieldState extends State<RecordFormField> {
     super.didUpdateWidget(oldWidget);
     if (widget.initialValue != oldWidget.initialValue) {
       final newVal = widget.initialValue?.toString() ?? '';
-      if (_controller.text != newVal) {
+      if (_controller.text != newVal && !FocusScope.of(context).hasFocus) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _controller.text != newVal) {
+          if (mounted && _controller.text != newVal && !FocusScope.of(context).hasFocus) {
             _controller.text = newVal;
           }
         });

@@ -50,12 +50,13 @@ class RecordCard extends StatelessWidget {
 
     final status = cardMeta.statusField != null ? record[cardMeta.statusField]?.toString() : null;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isSelected ? colors.primary.withValues(alpha: 0.08) : colors.surfaceCard,
+    return Material(
+      color: isSelected ? colors.primary.withValues(alpha: 0.08) : colors.surfaceCard,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isSelected ? colors.primary : colors.surfaceBorder, width: isSelected ? 1.5 : 1),
+        side: BorderSide(color: isSelected ? colors.primary : colors.surfaceBorder, width: isSelected ? 1.5 : 1),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

@@ -11,7 +11,7 @@ class RecordBulkActionRunner {
     required String actionName,
     required String projection,
     required List<Map<String, dynamic>> records,
-    Future<void> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
+    Future<dynamic> Function(String actionName, Map<String, dynamic> data)? onExecuteAction,
     required VoidCallback onSuccess,
   }) async {
     final count = records.length;
