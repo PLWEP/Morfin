@@ -17,30 +17,38 @@ class LobbyGrid extends StatelessWidget {
     while (i < elements.length) {
       final current = elements[i];
 
-      // If full width (col span >= 2 or charts/indicators by default)
-      if (current.span.col >= 2 || current.type == LobbyElementType.barChart || current.type == LobbyElementType.lineChart) {
+      // If full width (col span >= 2 or charts by default)
+      if (current.span.col >= 2 ||
+          current.type == LobbyElementType.barChart ||
+          current.type == LobbyElementType.lineChart) {
         widgets.add(LobbyElementTile(metadata: current));
-        widgets.add(const SizedBox(height: 10));
+        widgets.add(const SizedBox(height: 12));
         i++;
       } else {
-        // Check if there is a next element that can share a 2-column row
-        if (i + 1 < elements.length && elements[i + 1].span.col < 2 && elements[i + 1].type == LobbyElementType.counter) {
+        // Pair two 1-column items side-by-side (e.g. Counter and Indicator)
+        if (i + 1 < elements.length &&
+            elements[i + 1].span.col < 2 &&
+            elements[i + 1].type != LobbyElementType.barChart &&
+            elements[i + 1].type != LobbyElementType.lineChart) {
           final next = elements[i + 1];
           widgets.add(
-            Row(
-              children: [
-                Expanded(child: LobbyElementTile(metadata: current)),
-                const SizedBox(width: 10),
-                Expanded(child: LobbyElementTile(metadata: next)),
-              ],
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: LobbyElementTile(metadata: current)),
+                  const SizedBox(width: 12),
+                  Expanded(child: LobbyElementTile(metadata: next)),
+                ],
+              ),
             ),
           );
-          widgets.add(const SizedBox(height: 10));
+          widgets.add(const SizedBox(height: 12));
           i += 2;
         } else {
           // Single element in row
           widgets.add(LobbyElementTile(metadata: current));
-          widgets.add(const SizedBox(height: 10));
+          widgets.add(const SizedBox(height: 12));
           i++;
         }
       }

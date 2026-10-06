@@ -70,55 +70,82 @@ class AppMetadataService {
   static LobbyPageMetadata get defaultLobby => LobbyPageMetadata.fromJson({
         'pageId': 'lobby_plant_overview',
         'title': 'Plant Performance',
-        'subtitle': 'Real-time telemetry and equipment KPIs',
+        'subtitle': 'Operational KPIs & Real-time Trends',
         'elements': [
           {
-            'id': 'elem_active_wo',
+            'id': 'elem_released_pr',
             'type': 'counter',
-            'title': 'Active Work Orders',
+            'title': 'Released PRs',
+            'subtitle': 'Lines awaiting PO',
             'icon': 'assignment',
             'value': 'Live',
-            'unit': 'jobs',
+            'unit': 'lines',
             'change': 'Tap to view',
             'isPositive': true,
-            'benchmark': 'Live Cloud Projections',
+            'benchmark': 'Live Cloud Metrics',
             'colorToken': 'warning',
+            'span': {'col': 1, 'row': 1},
+            'targetProjection': 'MorfinApiHandling',
+            'targetEndpoint': 'ReleasedPurchaseReqLineSet',
+            'filterConditions': "Objstate eq 'Released'",
+            'action': {
+              'type': 'navigate',
+              'target': '/record_list',
+              'params': {
+                'projection': 'MorfinApiHandling',
+                'endpoint': 'ReleasedPurchaseReqLineSet',
+                'filter': "Objstate eq 'Released'",
+                'title': 'Released PRs',
+              }
+            }
+          },
+          {
+            'id': 'elem_budget_indicator',
+            'type': 'indicator',
+            'title': 'Budget Compliance',
+            'subtitle': 'PR spend vs monthly limit',
+            'icon': 'pie_chart_outline',
+            'percentage': 84.5,
+            'target': 90.0,
+            'colorToken': 'success',
             'span': {'col': 1, 'row': 1},
             'action': {'type': 'navigate', 'target': '/work_orders'}
           },
           {
-            'id': 'elem_critical_spares',
-            'type': 'counter',
-            'title': 'Warehouse Parts',
-            'icon': 'inventory_2',
-            'value': 'Live',
-            'unit': 'items',
-            'change': 'Tap to view',
-            'isPositive': true,
-            'benchmark': 'Live Cloud Projections',
+            'id': 'elem_po_bar_chart',
+            'type': 'barchart',
+            'title': 'Monthly PO Volume',
+            'subtitle': 'Recent 5 months volume (units)',
+            'icon': 'bar_chart_rounded',
             'colorToken': 'primary',
-            'span': {'col': 1, 'row': 1},
-            'action': {'type': 'navigate', 'target': '/inventory'}
-          },
-          {
-            'id': 'elem_link_wo',
-            'type': 'link_tile',
-            'title': 'Open Work Orders',
-            'subtitle': 'View scheduled preventive and corrective maintenance tasks',
-            'icon': 'assignment',
-            'colorToken': 'warning',
             'span': {'col': 2, 'row': 1},
+            'chartPoints': [
+              {'label': 'May', 'value': 45},
+              {'label': 'Jun', 'value': 72},
+              {'label': 'Jul', 'value': 58},
+              {'label': 'Aug', 'value': 89},
+              {'label': 'Sep', 'value': 110},
+            ],
             'action': {'type': 'navigate', 'target': '/work_orders'}
           },
           {
-            'id': 'elem_link_inv',
-            'type': 'link_tile',
-            'title': 'Inspect Warehouse Spare Parts',
-            'subtitle': 'Check bin locations and adjust inventory stocks',
-            'icon': 'inventory_2',
-            'colorToken': 'primary',
+            'id': 'elem_pr_line_chart',
+            'type': 'linechart',
+            'title': 'Requisition Flow Trend',
+            'subtitle': 'Daily requisition throughput',
+            'icon': 'show_chart_rounded',
+            'colorToken': 'accent',
             'span': {'col': 2, 'row': 1},
-            'action': {'type': 'navigate', 'target': '/inventory'}
+            'chartPoints': [
+              {'label': 'Mon', 'value': 12},
+              {'label': 'Tue', 'value': 18},
+              {'label': 'Wed', 'value': 15},
+              {'label': 'Thu', 'value': 24},
+              {'label': 'Fri', 'value': 28},
+              {'label': 'Sat', 'value': 22},
+              {'label': 'Sun', 'value': 35},
+            ],
+            'action': {'type': 'navigate', 'target': '/work_orders'}
           }
         ]
       });

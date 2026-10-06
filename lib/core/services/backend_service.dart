@@ -1,3 +1,5 @@
+import '../metadata/lobby_metadata.dart';
+import '../metadata/metadata_service.dart';
 import 'dart:convert';
 import '../models/navigation_node.dart';
 import '../network/api_client.dart';
@@ -91,5 +93,43 @@ class BackendService {
       }
     } catch (_) {}
     return [];
+  }
+  Future<LobbyPageMetadata> fetchLobbyMetadata() async {
+    try {
+      final res = await executeFunction(
+        projection: 'MobileLobbyHandling',
+        functionName: 'GetMobileLobby()',
+      );
+      final val = res['value'];
+      if (val is List && val.isNotEmpty) {
+        final elements = <LobbyElementMetadata>[];
+        for (final item in val) {
+          try {
+            if (item is Map) {
+              elements.add(LobbyElementMetadata.fromJson(Map<String, dynamic>.from(item)));
+            }
+          } catch (e) {
+            // Isolates single element failure so whole lobby is preserved
+          }
+        }
+        if (elements.isNotEmpty) {
+          return LobbyPageMetadata(
+            pageId: 'lobby_main',
+            title: 'Plant Performance',
+            subtitle: 'Operational KPIs & Real-time Trends',
+            elements: elements,
+          );
+        }
+      }
+    } catch (_) {}
+    return AppMetadataService.defaultLobby;
+  }
+
+  Future<int> fetchEntityCount({
+    required String projection,
+    required String entitySet,
+    String? filter,
+  }) async {
+    return _client.getCount(projection, entitySet, filter: filter);
   }
 }

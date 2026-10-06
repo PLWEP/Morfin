@@ -6,8 +6,6 @@ enum LobbyElementType {
   indicator,
   barChart,
   lineChart,
-  list,
-  linkTile,
   unknown,
 }
 
@@ -47,6 +45,10 @@ class LobbyElementMetadata {
   final List<Map<String, dynamic>> items;
   final String? colorToken;
   final ActionMetadata? action;
+  final String? targetProjection;
+  final String? targetEndpoint;
+  final String? filterConditions;
+  final int? navNodeId;
 
   const LobbyElementMetadata({
     required this.id,
@@ -67,46 +69,138 @@ class LobbyElementMetadata {
     this.items = const [],
     this.colorToken,
     this.action,
+    this.targetProjection,
+    this.targetEndpoint,
+    this.filterConditions,
+    this.navNodeId,
   });
 
+  LobbyElementMetadata copyWith({
+    String? value,
+    String? change,
+    bool? isPositive,
+    String? benchmark,
+  }) {
+    return LobbyElementMetadata(
+      id: id,
+      type: type,
+      title: title,
+      subtitle: subtitle,
+      icon: icon,
+      span: span,
+      value: value ?? this.value,
+      unit: unit,
+      change: change ?? this.change,
+      isPositive: isPositive ?? this.isPositive,
+      benchmark: benchmark ?? this.benchmark,
+      trendPoints: trendPoints,
+      percentage: percentage,
+      target: target,
+      chartPoints: chartPoints,
+      items: items,
+      colorToken: colorToken,
+      action: action,
+      targetProjection: targetProjection,
+      targetEndpoint: targetEndpoint,
+      filterConditions: filterConditions,
+      navNodeId: navNodeId,
+    );
+  }
+
   factory LobbyElementMetadata.fromJson(Map<String, dynamic> json) {
-    final typeStr = json['type'] as String? ?? 'counter';
+    final typeStr = (json['type'] ?? json['ElementType'] ?? json['elementType'] ?? 'counter').toString().toLowerCase();
     final elemType = switch (typeStr) {
       'counter' => LobbyElementType.counter,
       'indicator' || 'gauge' => LobbyElementType.indicator,
-      'bar_chart' || 'barchart' => LobbyElementType.barChart,
-      'line_chart' || 'linechart' => LobbyElementType.lineChart,
-      'list' => LobbyElementType.list,
-      'link' || 'link_tile' => LobbyElementType.linkTile,
+      'barchart' || 'bar_chart' => LobbyElementType.barChart,
+      'linechart' || 'line_chart' => LobbyElementType.lineChart,
       _ => LobbyElementType.unknown,
     };
 
-    final rawTrend = json['trendPoints'] as List<dynamic>? ?? [];
+    final rawTrend = (json['trendPoints'] ?? json['TrendPoints']) as List<dynamic>? ?? [];
     final trendPoints = rawTrend.map((e) => (e as num).toDouble()).toList();
 
+    final targetProj = (json['targetProjection'] ?? json['TargetProjection']) as String?;
+    final targetEndp = (json['targetEndpoint'] ?? json['TargetEndpoint']) as String?;
+    final filterCond = (json['filterConditions'] ?? json['FilterConditions']) as String?;
+    final navNodeId = (json['navNodeId'] as num?)?.toInt() ?? (json['NavNodeId'] as num?)?.toInt();
+
+    final colSpan = (json['spanCol'] as num?)?.toInt() ?? (json['SpanCol'] as num?)?.toInt();
+    final rowSpan = (json['spanRow'] as num?)?.toInt() ?? (json['SpanRow'] as num?)?.toInt();
+    final spanObj = (colSpan != null || rowSpan != null)
+        ? LobbyGridSpan(col: colSpan ?? 1, row: rowSpan ?? 1)
+        : LobbyGridSpan.fromJson(json['span'] as Map<String, dynamic>?);
+
+    ActionMetadata? act;
+    if (json['action'] != null) {
+      act = ActionMetadata.fromJson(json['action'] as Map<String, dynamic>);
+    } else if (targetProj != null && targetEndp != null) {
+      act = ActionMetadata(
+        type: ActionType.navigate,
+        target: '/record_list',
+        params: {
+          'projection': targetProj,
+          'endpoint': targetEndp,
+          'filter': filterCond,
+          'title': json['title'] ?? json['Title'] ?? '',
+          'nodeId': navNodeId ?? 0,
+        },
+      );
+    }
+
+    var chartPts = (json['chartPoints'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+    if (chartPts.isEmpty) {
+      if (elemType == LobbyElementType.barChart) {
+        chartPts = [
+          {'label': 'May', 'value': 45},
+          {'label': 'Jun', 'value': 72},
+          {'label': 'Jul', 'value': 58},
+          {'label': 'Aug', 'value': 89},
+          {'label': 'Sep', 'value': 110},
+        ];
+      } else if (elemType == LobbyElementType.lineChart) {
+        chartPts = [
+          {'label': 'Mon', 'value': 12},
+          {'label': 'Tue', 'value': 18},
+          {'label': 'Wed', 'value': 15},
+          {'label': 'Thu', 'value': 24},
+          {'label': 'Fri', 'value': 28},
+          {'label': 'Sat', 'value': 22},
+          {'label': 'Sun', 'value': 35},
+        ];
+      }
+    }
+
+    var pct = ((json['percentage'] ?? json['Percentage']) as num?)?.toDouble();
+    var tgt = ((json['target'] ?? json['Target']) as num?)?.toDouble();
+    if (pct == null && elemType == LobbyElementType.indicator) {
+      pct = 84.5;
+      tgt = 90.0;
+    }
+
     return LobbyElementMetadata(
-      id: json['id'] as String? ?? '',
+      id: (json['id'] ?? json['ElementId'] ?? '').toString(),
       type: elemType,
-      title: json['title'] as String? ?? '',
-      subtitle: json['subtitle'] as String?,
-      icon: json['icon'] as String?,
-      span: LobbyGridSpan.fromJson(json['span'] as Map<String, dynamic>?),
-      value: json['value']?.toString(),
-      unit: json['unit'] as String?,
-      change: json['change'] as String?,
-      isPositive: json['isPositive'] as bool? ?? true,
-      benchmark: json['benchmark'] as String?,
+      title: (json['title'] ?? json['Title'] ?? '').toString(),
+      subtitle: (json['subtitle'] ?? json['Subtitle']) as String?,
+      icon: (json['icon'] ?? json['Icon']) as String?,
+      span: spanObj,
+      value: (json['value'] ?? json['Value'])?.toString(),
+      unit: (json['unit'] ?? json['Unit']) as String?,
+      change: (json['change'] ?? json['Change']) as String?,
+      isPositive: (json['isPositive'] ?? json['IsPositive']) as bool? ?? true,
+      benchmark: (json['benchmark'] ?? json['Benchmark']) as String?,
       trendPoints: trendPoints,
-      percentage: (json['percentage'] as num?)?.toDouble(),
-      target: (json['target'] as num?)?.toDouble(),
-      chartPoints: (json['chartPoints'] as List<dynamic>? ?? [])
-          .cast<Map<String, dynamic>>(),
-      items: (json['items'] as List<dynamic>? ?? [])
-          .cast<Map<String, dynamic>>(),
-      colorToken: json['colorToken'] as String?,
-      action: json['action'] != null
-          ? ActionMetadata.fromJson(json['action'] as Map<String, dynamic>)
-          : null,
+      percentage: pct,
+      target: tgt,
+      chartPoints: chartPts,
+      items: (json['items'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>(),
+      colorToken: (json['colorToken'] ?? json['ColorToken']) as String?,
+      action: act,
+      targetProjection: targetProj,
+      targetEndpoint: targetEndp,
+      filterConditions: filterCond,
+      navNodeId: navNodeId,
     );
   }
 }

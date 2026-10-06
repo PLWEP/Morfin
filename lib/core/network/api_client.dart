@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
@@ -57,6 +58,16 @@ class ApiClient {
   Future<Map<String, dynamic>> callAction(String proj, String actionName, Map<String, dynamic> params) async => (await _dio.post<Map<String, dynamic>>('${_config.projectionBaseUrl}/$proj.svc/$actionName', data: params)).data ?? {};
   Future<Map<String, dynamic>> callFunction(String proj, String funcName, {Map<String, dynamic>? query}) async => (await _dio.get<Map<String, dynamic>>('${_config.projectionBaseUrl}/$proj.svc/$funcName', queryParameters: query)).data ?? {};
 
+    Future<int> getCount(String proj, String entitySet, {String? filter}) async {
+    var url = '${_config.projectionBaseUrl}/$proj.svc/$entitySet/\$count';
+    if (filter != null && filter.isNotEmpty) {
+      final enc = Uri.encodeComponent(filter).replaceAll('+', '%20').replaceAll('%27', "'").replaceAll('%28', '(').replaceAll('%29', ')').replaceAll('%3A', ':').replaceAll('%2C', ',');
+      url += '?\$filter=$enc';
+    }
+    final res = await _dio.get<String>(url, options: Options(responseType: ResponseType.plain));
+    return int.tryParse(res.data?.trim() ?? '') ?? 0;
+  }
+
   Future<String?> getRawXml(String url) async {
     try {
       return (await _dio.get<String>(url, options: Options(responseType: ResponseType.plain, headers: {'Accept': 'application/xml, text/xml, */*'}))).data;
@@ -76,13 +87,15 @@ class ApiClient {
     }
   }
 
-  Future<bool> authenticateOAuth({required String username, required String password, String scope = 'openid', String? responseType = 'id_token'}) async {
+  Future<bool> authenticateOAuth({required String username, required String password, String scope = 'openid', String? responseType}) async {
     lastAuthError = null;
     try {
       final payload = <String, dynamic>{
-        'grant_type': 'password', 'client_id': _config.activeServer.clientId,
+        'grant_type': 'password',
+        'client_id': _config.activeServer.clientId,
         if (_config.activeServer.clientSecret.isNotEmpty) 'client_secret': _config.activeServer.clientSecret,
-        'username': username, 'password': password,
+        'username': username,
+        'password': password,
         if (scope.isNotEmpty) 'scope': scope,
         if (responseType != null && responseType.isNotEmpty) 'response_type': responseType,
       };
@@ -95,9 +108,28 @@ class ApiClient {
       lastAuthError = 'No access token received from server';
       return false;
     } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
       final data = e.response?.data;
-      final desc = data is Map ? (data['error_description'] ?? data['error']) : null;
-      lastAuthError = desc?.toString() ?? e.message ?? 'Authentication request failed';
+      String? desc;
+      if (data is Map) {
+        desc = (data['error_description'] ?? data['error'])?.toString();
+      } else if (data is String) {
+        try {
+          final decoded = jsonDecode(data);
+          if (decoded is Map) {
+            desc = (decoded['error_description'] ?? decoded['error'])?.toString();
+          }
+        } catch (_) {
+          if (!data.contains('<html') && data.length < 200) {
+            desc = data.trim();
+          }
+        }
+      }
+      if (desc != null && desc.isNotEmpty) {
+        lastAuthError = statusCode != null ? '[$statusCode] $desc' : desc;
+      } else {
+        lastAuthError = statusCode != null ? 'HTTP $statusCode: ${e.message}' : (e.message ?? 'Authentication request failed');
+      }
       debugPrint('ApiClient.authenticateOAuth error: $lastAuthError');
       return false;
     } catch (e) {
@@ -107,7 +139,7 @@ class ApiClient {
     }
   }
 
-  Future<bool> refreshTokenOAuth({String grantType = 'refresh_token', String scope = 'openid', String? responseType = 'id_token'}) async {
+  Future<bool> refreshTokenOAuth({String grantType = 'refresh_token', String scope = 'openid', String? responseType}) async {
     if (_isRefreshing) {
       int attempts = 0;
       while (_isRefreshing && attempts < 20) {

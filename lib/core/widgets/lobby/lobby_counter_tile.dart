@@ -14,18 +14,26 @@ class LobbyCounterTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-    final iconData = IconResolver.resolve(metadata.icon, fallback: Icons.analytics_outlined);
-    final accentColor = ColorResolver.resolve(metadata.colorToken, context, fallback: colors.primary);
+    final iconData = IconResolver.resolve(metadata.icon, fallback: Icons.assignment_outlined);
+    final accentColor = ColorResolver.resolve(metadata.colorToken, context, fallback: colors.statusWarning);
 
     return InkWell(
       onTap: () => AppActionDispatcher.dispatch(context, metadata.action, fallbackTitle: metadata.title),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        constraints: const BoxConstraints(minHeight: 126),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(
           color: colors.surfaceCard,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colors.surfaceBorder),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: colors.surfaceBorder.withValues(alpha: 0.8)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: colors.isDark ? 0.25 : 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,14 +49,22 @@ class LobbyCounterTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: colors.onSurfaceVariant,
                     ),
                   ),
                 ),
-                Icon(iconData, size: 16, color: accentColor),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(iconData, size: 14, color: accentColor),
+                ),
               ],
             ),
+            const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
@@ -56,14 +72,14 @@ class LobbyCounterTile extends StatelessWidget {
                 Text(
                   metadata.value ?? '0',
                   style: GoogleFonts.inter(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
                     color: colors.onSurface,
-                    letterSpacing: -0.5,
+                    letterSpacing: -0.6,
                   ),
                 ),
                 if (metadata.unit != null && metadata.unit!.isNotEmpty) ...[
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 5),
                   Text(
                     metadata.unit!,
                     style: GoogleFonts.inter(
@@ -75,38 +91,37 @@ class LobbyCounterTile extends StatelessWidget {
                 ],
               ],
             ),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (metadata.change != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: (metadata.isPositive ? colors.statusSuccess : colors.statusCritical)
-                          .withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      metadata.change!,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: (metadata.isPositive ? colors.statusSuccess : colors.statusCritical)
+                        .withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        metadata.isPositive ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                        size: 11,
                         color: metadata.isPositive ? colors.statusSuccess : colors.statusCritical,
                       ),
-                    ),
-                  )
-                else
-                  const SizedBox.shrink(),
-                if (metadata.benchmark != null)
-                  Expanded(
-                    child: Text(
-                      metadata.benchmark!,
-                      textAlign: TextAlign.end,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(fontSize: 10, color: colors.onSurfaceMuted),
-                    ),
+                      const SizedBox(width: 4),
+                      Text(
+                        metadata.change ?? 'Live metrics',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: metadata.isPositive ? colors.statusSuccess : colors.statusCritical,
+                        ),
+                      ),
+                    ],
                   ),
+                ),
               ],
             ),
           ],
