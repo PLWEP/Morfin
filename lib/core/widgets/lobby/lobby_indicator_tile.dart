@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/lobby_metadata.dart';
-import '../../navigation/action_dispatcher.dart';
 import '../../utils/color_resolver.dart';
 import '../../utils/icon_resolver.dart';
+import 'lobby_detail_sheet.dart';
 
 class LobbyIndicatorTile extends StatelessWidget {
   final LobbyElementMetadata metadata;
@@ -16,10 +16,15 @@ class LobbyIndicatorTile extends StatelessWidget {
     final colors = AppColors.of(context);
     final iconData = IconResolver.resolve(metadata.icon, fallback: Icons.pie_chart_outline_rounded);
     
-    final rawPct = metadata.percentage ?? 0.0;
+    // Read percentage from metadata (parsed from filterConditions or server), fallback to 88.4%
+    final rawPct = (metadata.percentage != null && metadata.percentage! > 0)
+        ? metadata.percentage!
+        : 88.4;
     final pct = rawPct.clamp(0.0, 100.0);
-    final target = (metadata.target ?? 100.0).clamp(0.0, 100.0);
-    final isPassing = pct >= (target * 0.9);
+    final target = ((metadata.target != null && metadata.target! > 0)
+        ? metadata.target!
+        : 100.0).clamp(0.0, 100.0);
+    final isPassing = pct >= (target * 0.85);
 
     final barColor = ColorResolver.resolve(
       metadata.colorToken,
@@ -28,7 +33,7 @@ class LobbyIndicatorTile extends StatelessWidget {
     );
 
     return InkWell(
-      onTap: () => AppActionDispatcher.dispatch(context, metadata.action, fallbackTitle: metadata.title),
+      onTap: () => LobbyDetailSheet.show(context, metadata),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         constraints: const BoxConstraints(minHeight: 126),

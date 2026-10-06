@@ -39,17 +39,32 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     try {
       await ref.read(lobbyProvider.notifier).refresh();
       if (mounted) {
+        final colors = AppColors.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            backgroundColor: colors.surfaceCard,
+            elevation: 4,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: colors.surfaceBorder.withValues(alpha: 0.9)),
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             content: Row(
               children: [
-                const Icon(Icons.sync_rounded, color: Colors.white, size: 16),
-                const SizedBox(width: 8),
-                Text('Lobby synchronized', style: GoogleFonts.inter(fontSize: 12)),
+                Icon(Icons.check_circle_rounded, color: colors.statusSuccess, size: 16),
+                const SizedBox(width: 10),
+                Text(
+                  'Lobby synchronized',
+                  style: GoogleFonts.inter(
+                    color: colors.onSurface,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
             duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
           ),
         );
       }

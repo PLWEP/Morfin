@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/lobby_metadata.dart';
-import '../../navigation/action_dispatcher.dart';
 import '../../utils/color_resolver.dart';
 import '../../utils/icon_resolver.dart';
+import 'lobby_detail_sheet.dart';
 
 class LobbyCounterTile extends StatelessWidget {
   final LobbyElementMetadata metadata;
@@ -18,7 +18,7 @@ class LobbyCounterTile extends StatelessWidget {
     final accentColor = ColorResolver.resolve(metadata.colorToken, context, fallback: colors.statusWarning);
 
     return InkWell(
-      onTap: () => AppActionDispatcher.dispatch(context, metadata.action, fallbackTitle: metadata.title),
+      onTap: () => LobbyDetailSheet.show(context, metadata),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         constraints: const BoxConstraints(minHeight: 126),
@@ -92,39 +92,38 @@ class LobbyCounterTile extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            if (metadata.change != null && metadata.change!.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: (metadata.isPositive ? colors.statusSuccess : colors.statusCritical)
-                          .withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          metadata.isPositive ? Icons.check_circle_rounded : Icons.info_outline_rounded,
-                          size: 11,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: (metadata.isPositive ? colors.statusSuccess : colors.statusCritical)
+                        .withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        metadata.isPositive ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+                        size: 11,
+                        color: metadata.isPositive ? colors.statusSuccess : colors.statusCritical,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        metadata.change ?? 'Live metrics',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
                           color: metadata.isPositive ? colors.statusSuccess : colors.statusCritical,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          metadata.change!,
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: metadata.isPositive ? colors.statusSuccess : colors.statusCritical,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

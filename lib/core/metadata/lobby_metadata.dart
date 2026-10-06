@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'action_metadata.dart';
 
@@ -54,11 +55,17 @@ class LobbyElementMetadata {
     String? change,
     bool? isPositive,
     String? benchmark,
+    double? percentage,
+    double? target,
+    List<Map<String, dynamic>>? chartPoints,
   }) => LobbyElementMetadata(
     id: id, type: type, title: title, subtitle: subtitle, icon: icon, span: span,
     value: value ?? this.value, unit: unit, change: change ?? this.change,
     isPositive: isPositive ?? this.isPositive, benchmark: benchmark ?? this.benchmark,
-    trendPoints: trendPoints, percentage: percentage, target: target, chartPoints: chartPoints,
+    trendPoints: trendPoints,
+    percentage: percentage ?? this.percentage,
+    target: target ?? this.target,
+    chartPoints: chartPoints ?? this.chartPoints,
     items: items, colorToken: colorToken, action: action, targetProjection: targetProjection,
     targetEndpoint: targetEndpoint, filterConditions: filterConditions, navNodeId: navNodeId,
   );
@@ -104,9 +111,25 @@ class LobbyElementMetadata {
       );
     }
 
-    final chartPts = (json['chartPoints'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
-    final pct = ((json['percentage'] ?? json['Percentage']) as num?)?.toDouble();
-    final tgt = ((json['target'] ?? json['Target']) as num?)?.toDouble();
+    List<Map<String, dynamic>> chartPts = (json['chartPoints'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+    double? pct = ((json['percentage'] ?? json['Percentage']) as num?)?.toDouble();
+    double? tgt = ((json['target'] ?? json['Target']) as num?)?.toDouble();
+
+    // Dynamically parse JSON payloads from filterConditions (e.g. chart points array or indicator dict)
+    if (filterCond != null && filterCond.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(filterCond);
+        if (decoded is List) {
+          chartPts = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        } else if (decoded is Map) {
+          pct ??= (decoded['percentage'] as num?)?.toDouble();
+          tgt ??= (decoded['target'] as num?)?.toDouble();
+          if (decoded['chartPoints'] is List) {
+            chartPts = (decoded['chartPoints'] as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
+          }
+        }
+      } catch (_) {}
+    }
 
     return LobbyElementMetadata(
       id: (json['id'] ?? json['ElementId'] ?? '').toString(),
