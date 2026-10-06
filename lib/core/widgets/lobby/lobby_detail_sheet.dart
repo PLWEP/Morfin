@@ -139,51 +139,36 @@ class LobbyDetailSheet extends StatelessWidget {
           colors: colors,
           accentColor: accentColor,
           label: 'Total Count',
-          value: metadata.value ?? '0',
+          value: metadata.value ?? '-',
           unit: metadata.unit ?? 'Records',
-          badgeText: metadata.change ?? 'Live metrics',
+          badgeText: metadata.isPositive ? '${metadata.value ?? 0} Records' : 'Sync error',
           badgeColor: metadata.isPositive ? colors.statusSuccess : colors.statusCritical,
           isPassing: metadata.isPositive,
         );
       case LobbyElementType.indicator:
         final hasPct = metadata.percentage != null;
         final pct = (metadata.percentage ?? 0.0).clamp(0.0, 100.0);
-        final tgt = (metadata.target ?? 100.0).clamp(0.0, 100.0);
-        final isPassing = pct >= (tgt * 0.85);
         return _buildMetricCard(
           colors: colors,
           accentColor: accentColor,
           label: 'Current Ratio',
           value: hasPct ? '${pct.toStringAsFixed(1)}%' : '-',
-          unit: 'Target: ${tgt.toInt()}%',
+          unit: metadata.subtitle ?? 'Proportion',
           badgeText: hasPct ? (metadata.change ?? '${pct.toStringAsFixed(1)}%') : 'No Data',
-          badgeColor: isPassing ? colors.statusSuccess : colors.statusWarning,
-          isPassing: isPassing,
+          badgeColor: hasPct ? colors.statusSuccess : colors.statusCritical,
+          isPassing: hasPct,
         );
       case LobbyElementType.barChart:
-        final pts = metadata.chartPoints;
-        final total = pts.fold<double>(0.0, (s, p) => s + ((p['value'] as num?)?.toDouble() ?? 0.0));
-        return _buildMetricCard(
-          colors: colors,
-          accentColor: accentColor,
-          label: 'Cumulative Volume',
-          value: total.toInt().toString(),
-          unit: 'Units (All Periods)',
-          badgeText: '${pts.length} Recorded Periods',
-          badgeColor: colors.primary,
-          isPassing: true,
-        );
       case LobbyElementType.lineChart:
         final pts = metadata.chartPoints;
-        final total = pts.fold<double>(0.0, (s, p) => s + ((p['value'] as num?)?.toDouble() ?? 0.0));
-        final avg = pts.isEmpty ? 0 : (total / pts.length).round();
+        final countVal = metadata.value != null && metadata.value != '-' ? metadata.value! : '0';
         return _buildMetricCard(
           colors: colors,
           accentColor: accentColor,
-          label: 'Throughput',
-          value: '$avg',
-          unit: 'Avg Lines / Day',
-          badgeText: '7-Day Flow Period',
+          label: 'Total Records',
+          value: countVal,
+          unit: metadata.subtitle ?? 'Records',
+          badgeText: pts.isNotEmpty ? '${pts.length} Recorded Periods' : '$countVal Records',
           badgeColor: colors.primary,
           isPassing: true,
         );
@@ -203,9 +188,9 @@ class LobbyDetailSheet extends StatelessWidget {
     required bool isPassing,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerLow.withValues(alpha: 0.6),
+        color: colors.surfaceContainerLow.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: colors.surfaceBorder.withValues(alpha: 0.6)),
       ),
@@ -217,9 +202,13 @@ class LobbyDetailSheet extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: colors.onSurfaceMuted),
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: colors.onSurfaceMuted,
+                ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
@@ -227,23 +216,26 @@ class LobbyDetailSheet extends StatelessWidget {
                   Text(
                     value,
                     style: GoogleFonts.inter(
-                      fontSize: 28,
+                      fontSize: 32,
                       fontWeight: FontWeight.w800,
                       color: colors.onSurface,
-                      letterSpacing: -0.6,
+                      letterSpacing: -1,
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   Text(
                     unit,
-                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant),
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: colors.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: badgeColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
@@ -284,9 +276,8 @@ class LobbyDetailSheet extends StatelessWidget {
   }
 
   Widget _buildIndicatorDetails(AppPalette colors, Color barColor) {
+    final hasPct = metadata.percentage != null;
     final pct = (metadata.percentage ?? 0.0).clamp(0.0, 100.0);
-    final tgt = (metadata.target ?? 100.0).clamp(0.0, 100.0);
-    final variance = pct - tgt;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -299,7 +290,7 @@ class LobbyDetailSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Compliance Progress & Variance',
+            'Proportion Breakdown',
             style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface),
           ),
           const SizedBox(height: 12),
@@ -313,7 +304,7 @@ class LobbyDetailSheet extends StatelessWidget {
                 ),
               ),
               FractionallySizedBox(
-                widthFactor: (pct / 100).clamp(0.0, 1.0),
+                widthFactor: hasPct ? (pct / 100).clamp(0.0, 1.0) : 0.0,
                 child: Container(
                   height: 8,
                   decoration: BoxDecoration(
@@ -328,13 +319,13 @@ class LobbyDetailSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _detailRowItem(colors, 'Target Limit', '${tgt.toInt()}%'),
-              _detailRowItem(colors, 'Achieved', '${pct.toStringAsFixed(1)}%'),
+              _detailRowItem(colors, 'Filtered Count', metadata.value ?? '-'),
+              _detailRowItem(colors, 'Proportion', hasPct ? '${pct.toStringAsFixed(1)}%' : '-'),
               _detailRowItem(
                 colors,
-                'Variance',
-                '${variance >= 0 ? '+' : ''}${variance.toStringAsFixed(1)}%',
-                valColor: variance >= 0 ? colors.statusSuccess : colors.statusWarning,
+                'Population Ratio',
+                metadata.benchmark ?? (hasPct ? 'Filtered / Total' : 'No data'),
+                valColor: hasPct ? colors.statusSuccess : colors.statusCritical,
               ),
             ],
           ),
@@ -345,7 +336,6 @@ class LobbyDetailSheet extends StatelessWidget {
 
   Widget _buildChartBreakdown(AppPalette colors, Color accentColor) {
     final pts = metadata.chartPoints;
-    if (pts.isEmpty) return const SizedBox.shrink();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -357,49 +347,20 @@ class LobbyDetailSheet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Data Points Breakdown',
-                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface),
-              ),
-              Text(
-                '${pts.length} Entries',
-                style: GoogleFonts.inter(fontSize: 11, color: colors.onSurfaceMuted),
-              ),
-            ],
+          Text(
+            'Period Data Status',
+            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface),
           ),
           const SizedBox(height: 12),
-          ...pts.map((p) {
-            final label = p['label']?.toString() ?? '-';
-            final val = (p['value'] as num?)?.toDouble() ?? 0.0;
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    label,
-                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: colors.onSurface),
-                  ),
-                  const Spacer(),
-                  Text(
-                    val.toInt().toString(),
-                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colors.onSurface),
-                  ),
-                ],
-              ),
-            );
-          }),
+          if (pts.isEmpty)
+            Text(
+              'No time-series periods configured on endpoint ${metadata.targetEndpoint ?? ""}. Showing total record volume.',
+              style: GoogleFonts.inter(fontSize: 11, color: colors.onSurfaceMuted),
+            )
+          else
+            ...pts.map((pt) {
+              return _detailRow(colors, pt['label']?.toString() ?? '', '${pt['value'] ?? 0}');
+            }),
         ],
       ),
     );
@@ -423,7 +384,7 @@ class LobbyDetailSheet extends StatelessWidget {
           const SizedBox(height: 8),
           _detailRow(colors, 'Target Projection', metadata.targetProjection ?? 'IFS Cloud'),
           _detailRow(colors, 'Entity Set', metadata.targetEndpoint ?? 'PurchaseRequisitionSet'),
-          _detailRow(colors, 'Filter Conditions', metadata.filterConditions ?? "Objstate eq 'Released'"),
+          _detailRow(colors, 'Filter Conditions', metadata.filterConditions ?? "No filter"),
           _detailRow(colors, 'Refresh Interval', 'On Demand / Pull-to-refresh'),
         ],
       ),

@@ -16,20 +16,13 @@ class LobbyIndicatorTile extends StatelessWidget {
     final colors = AppColors.of(context);
     final iconData = IconResolver.resolve(metadata.icon, fallback: Icons.pie_chart_outline_rounded);
     
-    // Read percentage from metadata (parsed from filterConditions or server), fallback to 88.4%
-    final rawPct = (metadata.percentage != null && metadata.percentage! > 0)
-        ? metadata.percentage!
-        : 88.4;
-    final pct = rawPct.clamp(0.0, 100.0);
-    final target = ((metadata.target != null && metadata.target! > 0)
-        ? metadata.target!
-        : 100.0).clamp(0.0, 100.0);
-    final isPassing = pct >= (target * 0.85);
+    final hasData = metadata.percentage != null;
+    final pct = (metadata.percentage ?? 0.0).clamp(0.0, 100.0);
 
     final barColor = ColorResolver.resolve(
       metadata.colorToken,
       context,
-      fallback: isPassing ? colors.statusSuccess : colors.statusWarning,
+      fallback: colors.statusSuccess,
     );
 
     return InkWell(
@@ -85,7 +78,7 @@ class LobbyIndicatorTile extends StatelessWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  '${pct.toStringAsFixed(1)}%',
+                  hasData ? '${pct.toStringAsFixed(1)}%' : '-',
                   style: GoogleFonts.inter(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -93,22 +86,24 @@ class LobbyIndicatorTile extends StatelessWidget {
                     letterSpacing: -0.6,
                   ),
                 ),
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: barColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    isPassing ? 'On Track' : 'Needs Review',
-                    style: GoogleFonts.inter(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w600,
-                      color: barColor,
+                if (metadata.change != null && metadata.change!.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: (metadata.isPositive ? barColor : colors.statusCritical).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      metadata.change!,
+                      style: GoogleFonts.inter(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w600,
+                        color: metadata.isPositive ? barColor : colors.statusCritical,
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
             const SizedBox(height: 8),
@@ -125,7 +120,7 @@ class LobbyIndicatorTile extends StatelessWidget {
                       ),
                     ),
                     FractionallySizedBox(
-                      widthFactor: (pct / 100).clamp(0.0, 1.0),
+                      widthFactor: hasData ? (pct / 100).clamp(0.0, 1.0) : 0.0,
                       child: Container(
                         height: 5,
                         decoration: BoxDecoration(
@@ -138,7 +133,9 @@ class LobbyIndicatorTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Target: ${target.toInt()}%',
+                  metadata.subtitle ?? (hasData ? 'Ratio' : 'No data configured'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(fontSize: 10, color: colors.onSurfaceMuted),
                 ),
               ],

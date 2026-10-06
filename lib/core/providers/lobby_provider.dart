@@ -20,31 +20,54 @@ class LobbyNotifier extends AsyncNotifier<LobbyPageMetadata> {
 
     for (int i = 0; i < elements.length; i++) {
       final elem = elements[i];
-      if (elem.type == LobbyElementType.counter &&
-          elem.targetProjection != null &&
-          elem.targetEndpoint != null) {
-        final index = i;
-        tasks.add(() async {
-          try {
-            final count = await BackendService.instance.fetchEntityCount(
-              projection: elem.targetProjection!,
-              entitySet: elem.targetEndpoint!,
-              filter: elem.filterConditions,
-            );
+      if (elem.targetProjection == null || elem.targetEndpoint == null) continue;
+
+      final index = i;
+      tasks.add(() async {
+        try {
+          // Fetch count with filter
+          final count = await BackendService.instance.fetchEntityCount(
+            projection: elem.targetProjection!,
+            entitySet: elem.targetEndpoint!,
+            filter: elem.filterConditions,
+          );
+
+          if (elem.type == LobbyElementType.counter) {
             elements[index] = elem.copyWith(
               value: count.toString(),
-              change: 'Live metrics',
+              change: '$count records',
               isPositive: true,
             );
-          } catch (_) {
+          } else if (elem.type == LobbyElementType.indicator) {
+            // Fetch total count without filter to compute authentic ratio
+            final total = await BackendService.instance.fetchEntityCount(
+              projection: elem.targetProjection!,
+              entitySet: elem.targetEndpoint!,
+            );
+            final pct = total > 0 ? (count / total) * 100.0 : 0.0;
             elements[index] = elem.copyWith(
-              value: elem.value ?? '-',
-              change: 'Sync error',
-              isPositive: false,
+              value: count.toString(),
+              percentage: pct,
+              benchmark: '$count of $total',
+              change: '$count of $total',
+              isPositive: true,
+            );
+          } else if (elem.type == LobbyElementType.barChart || elem.type == LobbyElementType.lineChart) {
+            elements[index] = elem.copyWith(
+              value: count.toString(),
+              change: '$count records',
+              isPositive: true,
             );
           }
-        }());
-      }
+        } catch (_) {
+          elements[index] = elem.copyWith(
+            value: '-',
+            change: 'Sync error',
+            percentage: null,
+            isPositive: false,
+          );
+        }
+      }());
     }
 
     if (tasks.isNotEmpty) {
