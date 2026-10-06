@@ -118,7 +118,7 @@ class AppActionDispatcher {
         (entitySet != null
             ? RecordSchemaMetadata(
                 entityName: title, title: title, icon: 'layers', projection: projection, entitySet: entitySet, fields: const [],
-                listCard: const RecordListCardMetadata(codeField: 'OrderNo', primaryField: 'Description', secondaryField: 'Status'),
+                listCard: const RecordListCardMetadata(codeField: '', primaryField: '', secondaryField: ''),
               )
             : null);
 

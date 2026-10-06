@@ -16,15 +16,10 @@ class LobbyIndicatorTile extends StatelessWidget {
     final colors = AppColors.of(context);
     final iconData = IconResolver.resolve(metadata.icon, fallback: Icons.pie_chart_outline_rounded);
     
-    // Fallback sensible values if backend didn't supply them or returned 0
-    final rawPct = (metadata.percentage != null && metadata.percentage! > 0)
-        ? metadata.percentage!
-        : 84.5;
+    final rawPct = metadata.percentage ?? 0.0;
     final pct = rawPct.clamp(0.0, 100.0);
-    final target = ((metadata.target != null && metadata.target! > 0)
-        ? metadata.target!
-        : 90.0).clamp(0.0, 100.0);
-    final isPassing = pct >= (target * 0.9); // Within 90% of target is passing
+    final target = (metadata.target ?? 100.0).clamp(0.0, 100.0);
+    final isPassing = pct >= (target * 0.9);
 
     final barColor = ColorResolver.resolve(
       metadata.colorToken,

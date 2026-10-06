@@ -19,11 +19,9 @@ class RecordArrayItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-    final primary = item['PartNo'] ?? item['Description'] ?? 'Item #${index + 1}';
-    final qty = item['Quantity'] != null ? 'Qty: ${item['Quantity']}' : '';
-    final uom = item['UnitMeasure'] ?? '';
-    final price = item['Price'] != null ? 'Price: ${item['Price']}' : '';
-    final subtitle = [qty, uom, price].where((s) => s.isNotEmpty).join(' • ');
+    final validEntries = item.entries.where((e) => e.value != null && e.value.toString().isNotEmpty).toList();
+    final primary = validEntries.isNotEmpty ? validEntries.first.value.toString() : 'Item #${index + 1}';
+    final subtitle = validEntries.skip(1).take(3).map((e) => '${e.key}: ${e.value}').join(' • ');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

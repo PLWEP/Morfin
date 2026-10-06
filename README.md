@@ -69,11 +69,10 @@ lib/
 ├── core/
 │   ├── metadata/            # SDUI Data Models (Schemas, Cards, Actions, Lobby, Menu)
 │   │   ├── action_metadata.dart
-│   │   ├── entity_metadata.dart
-│   │   ├── entity_schema_registry.dart # Registered entity schemas & route lookup
+│   │   ├── record_metadata.dart
+│   │   ├── record_schema_registry.dart # Dynamic record schemas & route lookup
 │   │   ├── lobby_metadata.dart
-│   │   ├── menu_metadata.dart
-│   │   └── metadata_service.dart
+│   │   └── menu_metadata.dart
 │   ├── models/              # Core Domain Data Models
 │   │   ├── navigation_node.dart        # Dynamic navigator node & param config
 │   │   └── user_profile.dart           # User profile model

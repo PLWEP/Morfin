@@ -73,7 +73,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     final cardMeta = widget.schema.listCard;
-    final code = (_record[cardMeta.codeField] ?? _record['OrderNo'] ?? _record['PartNo'] ?? _record['RequisitionNo'] ?? '').toString();
+    final code = (_record[cardMeta.codeField] ?? _record['Id'] ?? (_record.isNotEmpty ? _record.values.first : '')).toString();
     final recordActions = widget.schema.actions.where((a) => a.scope == ActionScope.record).toList();
 
     final displayFields = _fields.isNotEmpty ? _fields : _buildFallbackFieldsFromRecord();

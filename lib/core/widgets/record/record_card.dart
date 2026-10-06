@@ -33,9 +33,9 @@ class RecordCard extends StatelessWidget {
     final cardMeta = schema.listCard;
     final cfg = (columnConfig != null && columnConfig!.isNotEmpty) ? ColumnConfig.parse(columnConfig) : null;
 
-    final titleKey = cfg?.titleField ?? (cardMeta.codeField.isNotEmpty ? cardMeta.codeField : 'Id');
+    final titleKey = (cfg != null && cfg.titleField.isNotEmpty) ? cfg.titleField : (cardMeta.codeField.isNotEmpty ? cardMeta.codeField : 'Id');
     final titleLabel = _resolveLabel(titleKey);
-    final title = (cfg != null ? record[cfg.titleField] : (record[cardMeta.codeField] ?? record['OrderNo'] ?? record['PartNo'] ?? record['Id'] ?? (record.isNotEmpty ? record.values.first : '')) ?? '').toString();
+    final title = ((cfg != null && cfg.titleField.isNotEmpty) ? record[cfg.titleField] : (record[cardMeta.codeField] ?? record['Id'] ?? (record.isNotEmpty ? record.values.first : '')) ?? '').toString();
 
     final subtitleKey = cfg?.subtitleField ?? (cardMeta.primaryField != cardMeta.codeField ? cardMeta.primaryField : null);
     final subtitleLabel = subtitleKey != null ? _resolveLabel(subtitleKey) : null;

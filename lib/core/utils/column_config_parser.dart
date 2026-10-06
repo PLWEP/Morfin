@@ -11,7 +11,7 @@ class ColumnConfig {
 
   factory ColumnConfig.parse(String? raw) {
     if (raw == null || raw.isEmpty) {
-      return const ColumnConfig(titleField: 'Description');
+      return const ColumnConfig(titleField: '');
     }
     final map = <String, String>{};
     for (final pair in raw.split('^')) {
@@ -25,7 +25,7 @@ class ColumnConfig {
         if (map.containsKey('COL$i') && map['COL$i']!.isNotEmpty) map['COL$i']!
     ];
     return ColumnConfig(
-      titleField: map['TITLE'] ?? 'Description',
+      titleField: map['TITLE'] ?? '',
       subtitleField: map['SUBTITLE'],
       detailFields: details,
     );

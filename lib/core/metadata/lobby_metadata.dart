@@ -27,52 +27,26 @@ class LobbyGridSpan {
 
 @immutable
 class LobbyElementMetadata {
-  final String id;
+  final String id, title;
   final LobbyElementType type;
-  final String title;
-  final String? subtitle;
-  final String? icon;
-  final LobbyGridSpan span;
-  final String? value;
-  final String? unit;
-  final String? change;
+  final String? subtitle, icon, value, unit, change, benchmark, colorToken;
   final bool isPositive;
-  final String? benchmark;
+  final LobbyGridSpan span;
   final List<double> trendPoints;
-  final double? percentage;
-  final double? target;
-  final List<Map<String, dynamic>> chartPoints;
-  final List<Map<String, dynamic>> items;
-  final String? colorToken;
+  final double? percentage, target;
+  final List<Map<String, dynamic>> chartPoints, items;
   final ActionMetadata? action;
-  final String? targetProjection;
-  final String? targetEndpoint;
-  final String? filterConditions;
+  final String? targetProjection, targetEndpoint, filterConditions;
   final int? navNodeId;
 
   const LobbyElementMetadata({
-    required this.id,
-    required this.type,
-    required this.title,
-    this.subtitle,
-    this.icon,
-    this.span = const LobbyGridSpan(),
-    this.value,
-    this.unit,
-    this.change,
-    this.isPositive = true,
-    this.benchmark,
-    this.trendPoints = const [],
-    this.percentage,
-    this.target,
-    this.chartPoints = const [],
-    this.items = const [],
-    this.colorToken,
-    this.action,
-    this.targetProjection,
-    this.targetEndpoint,
-    this.filterConditions,
-    this.navNodeId,
+    required this.id, required this.type, required this.title,
+    this.subtitle, this.icon, this.span = const LobbyGridSpan(),
+    this.value, this.unit, this.change, this.isPositive = true,
+    this.benchmark, this.trendPoints = const [], this.percentage,
+    this.target, this.chartPoints = const [], this.items = const [],
+    this.colorToken, this.action, this.targetProjection,
+    this.targetEndpoint, this.filterConditions, this.navNodeId,
   });
 
   LobbyElementMetadata copyWith({
@@ -80,32 +54,14 @@ class LobbyElementMetadata {
     String? change,
     bool? isPositive,
     String? benchmark,
-  }) {
-    return LobbyElementMetadata(
-      id: id,
-      type: type,
-      title: title,
-      subtitle: subtitle,
-      icon: icon,
-      span: span,
-      value: value ?? this.value,
-      unit: unit,
-      change: change ?? this.change,
-      isPositive: isPositive ?? this.isPositive,
-      benchmark: benchmark ?? this.benchmark,
-      trendPoints: trendPoints,
-      percentage: percentage,
-      target: target,
-      chartPoints: chartPoints,
-      items: items,
-      colorToken: colorToken,
-      action: action,
-      targetProjection: targetProjection,
-      targetEndpoint: targetEndpoint,
-      filterConditions: filterConditions,
-      navNodeId: navNodeId,
-    );
-  }
+  }) => LobbyElementMetadata(
+    id: id, type: type, title: title, subtitle: subtitle, icon: icon, span: span,
+    value: value ?? this.value, unit: unit, change: change ?? this.change,
+    isPositive: isPositive ?? this.isPositive, benchmark: benchmark ?? this.benchmark,
+    trendPoints: trendPoints, percentage: percentage, target: target, chartPoints: chartPoints,
+    items: items, colorToken: colorToken, action: action, targetProjection: targetProjection,
+    targetEndpoint: targetEndpoint, filterConditions: filterConditions, navNodeId: navNodeId,
+  );
 
   factory LobbyElementMetadata.fromJson(Map<String, dynamic> json) {
     final typeStr = (json['type'] ?? json['ElementType'] ?? json['elementType'] ?? 'counter').toString().toLowerCase();
@@ -148,35 +104,9 @@ class LobbyElementMetadata {
       );
     }
 
-    var chartPts = (json['chartPoints'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
-    if (chartPts.isEmpty) {
-      if (elemType == LobbyElementType.barChart) {
-        chartPts = [
-          {'label': 'May', 'value': 45},
-          {'label': 'Jun', 'value': 72},
-          {'label': 'Jul', 'value': 58},
-          {'label': 'Aug', 'value': 89},
-          {'label': 'Sep', 'value': 110},
-        ];
-      } else if (elemType == LobbyElementType.lineChart) {
-        chartPts = [
-          {'label': 'Mon', 'value': 12},
-          {'label': 'Tue', 'value': 18},
-          {'label': 'Wed', 'value': 15},
-          {'label': 'Thu', 'value': 24},
-          {'label': 'Fri', 'value': 28},
-          {'label': 'Sat', 'value': 22},
-          {'label': 'Sun', 'value': 35},
-        ];
-      }
-    }
-
-    var pct = ((json['percentage'] ?? json['Percentage']) as num?)?.toDouble();
-    var tgt = ((json['target'] ?? json['Target']) as num?)?.toDouble();
-    if (pct == null && elemType == LobbyElementType.indicator) {
-      pct = 84.5;
-      tgt = 90.0;
-    }
+    final chartPts = (json['chartPoints'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+    final pct = ((json['percentage'] ?? json['Percentage']) as num?)?.toDouble();
+    final tgt = ((json['target'] ?? json['Target']) as num?)?.toDouble();
 
     return LobbyElementMetadata(
       id: (json['id'] ?? json['ElementId'] ?? '').toString(),
@@ -219,14 +149,21 @@ class LobbyPageMetadata {
     this.elements = const [],
   });
 
+  const LobbyPageMetadata.empty()
+      : pageId = '',
+        title = '',
+        subtitle = null,
+        elements = const [];
+
   factory LobbyPageMetadata.fromJson(Map<String, dynamic> json) {
-    final rawElems = json['elements'] as List<dynamic>? ?? [];
+    final rawElems = (json['elements'] ?? json['Elements'] ?? json['value'] ?? []) as List<dynamic>? ?? [];
     return LobbyPageMetadata(
-      pageId: json['pageId'] as String? ?? '',
-      title: json['title'] as String? ?? '',
-      subtitle: json['subtitle'] as String?,
+      pageId: (json['pageId'] ?? json['PageId'] ?? 'lobby_main').toString(),
+      title: (json['title'] ?? json['Title'] ?? 'Lobby').toString(),
+      subtitle: (json['subtitle'] ?? json['Subtitle']) as String?,
       elements: rawElems
-          .map((e) => LobbyElementMetadata.fromJson(e as Map<String, dynamic>))
+          .whereType<Map>()
+          .map((e) => LobbyElementMetadata.fromJson(Map<String, dynamic>.from(e)))
           .toList(),
     );
   }

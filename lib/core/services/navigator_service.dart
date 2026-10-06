@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../metadata/action_metadata.dart';
 import '../metadata/menu_metadata.dart';
-import '../metadata/metadata_service.dart';
 import '../network/api_config.dart';
 import 'backend_service.dart';
 
@@ -36,13 +35,13 @@ class NavigatorService {
     }
 
     if (!ApiConfig.instance.isAuthenticated) {
-      return AppMetadataService.defaultMenu;
+      return const MenuMetadata(version: 'live', groups: []);
     }
 
     try {
       final nodes = await BackendService.instance.fetchNavigatorNodes();
       if (nodes.isEmpty) {
-        return _cachedMenu ?? AppMetadataService.defaultMenu;
+        return _cachedMenu ?? const MenuMetadata(version: 'live', groups: []);
       }
 
       final menu = _transformNodesToMenu(nodes);
@@ -50,10 +49,11 @@ class NavigatorService {
         _cachedMenu = menu;
         return menu;
       }
-      return _cachedMenu ?? AppMetadataService.defaultMenu;
+      return _cachedMenu ?? const MenuMetadata(version: 'live', groups: []);
     } catch (e) {
       debugPrint('NavigatorService.fetchMenuMetadata error: $e');
-      return _cachedMenu ?? AppMetadataService.defaultMenu;
+      if (_cachedMenu != null) return _cachedMenu!;
+      rethrow;
     }
   }
 
@@ -84,7 +84,7 @@ class NavigatorService {
           MenuGroupMetadata(
             id: rootId,
             title: rootLabel,
-            icon: rootIcon ?? _resolveIcon(rootLabel, null),
+            icon: rootIcon ?? 'folder',
             items: items,
           ),
         );
@@ -125,7 +125,7 @@ class NavigatorService {
         code: '',
         title: childLabel,
         subtitle: projection != null ? 'Projection: $projection' : 'Module',
-        icon: icon ?? _resolveIcon(childLabel, projection),
+        icon: icon ?? 'folder',
         category: key,
         badgeText: actionType == 'FORM' ? 'Form' : null,
         badgeType: actionType == 'FORM' ? 'warning' : 'none',
@@ -160,18 +160,5 @@ class NavigatorService {
     final p = parts[0].replaceAll('/', '').trim();
     final e = parts[1].split('?')[0].replaceAll('/', '').trim();
     return (p.isNotEmpty ? p : null, e.isNotEmpty ? e : null);
-  }
-
-  String _resolveIcon(String label, String? projection) {
-    final l = '$label ${projection ?? ''}'.toLowerCase();
-    if (l.contains('maint') || l.contains('wo') || l.contains('order')) return 'assignment';
-    if (l.contains('inv') || l.contains('part') || l.contains('supply') || l.contains('ware')) return 'inventory_2';
-    if (l.contains('equip') || l.contains('plant') || l.contains('line') || l.contains('mx')) return 'precision_manufacturing';
-    if (l.contains('report') || l.contains('analyt') || l.contains('stat')) return 'analytics';
-    if (l.contains('person') || l.contains('hr') || l.contains('user') || l.contains('train')) return 'person';
-    if (l.contains('config') || l.contains('admin') || l.contains('setup') || l.contains('sys')) return 'settings';
-    if (l.contains('doc')) return 'folder';
-    if (l.contains('lobby') || l.contains('dash')) return 'dashboard';
-    return 'folder';
   }
 }
