@@ -146,16 +146,17 @@ class LobbyDetailSheet extends StatelessWidget {
           isPassing: metadata.isPositive,
         );
       case LobbyElementType.indicator:
-        final pct = (metadata.percentage ?? 88.4).clamp(0.0, 100.0);
+        final hasPct = metadata.percentage != null;
+        final pct = (metadata.percentage ?? 0.0).clamp(0.0, 100.0);
         final tgt = (metadata.target ?? 100.0).clamp(0.0, 100.0);
         final isPassing = pct >= (tgt * 0.85);
         return _buildMetricCard(
           colors: colors,
           accentColor: accentColor,
           label: 'Current Ratio',
-          value: '${pct.toStringAsFixed(1)}%',
+          value: hasPct ? '${pct.toStringAsFixed(1)}%' : '-',
           unit: 'Target: ${tgt.toInt()}%',
-          badgeText: isPassing ? 'On Track' : 'Needs Review',
+          badgeText: hasPct ? (metadata.change ?? '${pct.toStringAsFixed(1)}%') : 'No Data',
           badgeColor: isPassing ? colors.statusSuccess : colors.statusWarning,
           isPassing: isPassing,
         );
@@ -283,7 +284,7 @@ class LobbyDetailSheet extends StatelessWidget {
   }
 
   Widget _buildIndicatorDetails(AppPalette colors, Color barColor) {
-    final pct = (metadata.percentage ?? 88.4).clamp(0.0, 100.0);
+    final pct = (metadata.percentage ?? 0.0).clamp(0.0, 100.0);
     final tgt = (metadata.target ?? 100.0).clamp(0.0, 100.0);
     final variance = pct - tgt;
 
