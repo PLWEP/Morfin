@@ -1,83 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/metadata/lobby_metadata.dart';
 import '../../core/providers/lobby_provider.dart';
 import '../../core/widgets/lobby/lobby_grid.dart';
 import '../../theme/app_colors.dart';
 
-class LobbyScreen extends ConsumerStatefulWidget {
+class LobbyScreen extends ConsumerWidget {
   final LobbyPageMetadata? initialMetadata;
   const LobbyScreen({super.key, this.initialMetadata});
 
   @override
-  ConsumerState<LobbyScreen> createState() => _LobbyScreenState();
-}
-
-class _LobbyScreenState extends ConsumerState<LobbyScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _spinController;
-
-  @override
-  void initState() {
-    super.initState();
-    _spinController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
-  }
-
-  @override
-  void dispose() {
-    _spinController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleRefresh() async {
-    _spinController.repeat();
-    try {
-      await ref.read(lobbyProvider.notifier).refresh();
-      if (mounted) {
-        final colors = AppColors.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: colors.surfaceCard,
-            elevation: 4,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: BorderSide(color: colors.surfaceBorder.withValues(alpha: 0.9)),
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            content: Row(
-              children: [
-                Icon(Icons.check_circle_rounded, color: colors.statusSuccess, size: 16),
-                const SizedBox(width: 10),
-                Text(
-                  'Lobby synchronized',
-                  style: GoogleFonts.inter(
-                    color: colors.onSurface,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        _spinController.stop();
-        _spinController.reset();
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = AppColors.of(context);
     final lobbyAsync = ref.watch(lobbyProvider);
 
@@ -86,8 +20,8 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
       body: SafeArea(
         child: lobbyAsync.when(
           loading: () => _buildLoading(colors),
-          error: (err, _) => _buildError(colors, err.toString()),
-          data: (metadata) => _buildContent(context, metadata),
+          error: (err, _) => _buildError(ref, colors, err.toString()),
+          data: (metadata) => _buildContent(context, ref, metadata, colors),
         ),
       ),
     );
@@ -104,7 +38,7 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     ),
   );
 
-  Widget _buildError(AppPalette colors, String error) => Center(
+  Widget _buildError(WidgetRef ref, AppPalette colors, String error) => Center(
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -126,70 +60,49 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen>
     ),
   );
 
-  Widget _buildContent(BuildContext context, LobbyPageMetadata metadata) {
-    final colors = AppColors.of(context);
-
-    return RefreshIndicator(
-      color: colors.primary,
-      backgroundColor: colors.surfaceCard,
-      onRefresh: () => ref.read(lobbyProvider.notifier).refresh(),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        metadata.title.isNotEmpty ? metadata.title : 'Lobby',
-                        style: GoogleFonts.inter(
-                          fontSize: 20, fontWeight: FontWeight.w700,
-                          color: colors.onSurface, letterSpacing: -0.5,
+  Widget _buildContent(BuildContext context, WidgetRef ref, LobbyPageMetadata metadata, AppPalette colors) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return RefreshIndicator(
+          color: colors.primary,
+          backgroundColor: colors.surfaceCard,
+          onRefresh: () => ref.read(lobbyProvider.notifier).refresh(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+                minWidth: constraints.maxWidth,
+              ),
+              child: Container(
+                color: Colors.transparent, // Ensures empty space at bottom is hit-testable for pull-to-refresh
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (metadata.elements.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 48),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.dashboard_outlined, size: 40, color: colors.outline),
+                              const SizedBox(height: 12),
+                              Text('No lobby widgets configured', style: TextStyle(color: colors.outline, fontSize: 13)),
+                            ],
+                          ),
                         ),
-                      ),
-                      if (metadata.subtitle != null && metadata.subtitle!.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(metadata.subtitle!, style: GoogleFonts.inter(fontSize: 12, color: colors.onSurfaceVariant)),
-                      ],
-                    ],
-                  ),
+                      )
+                    else
+                      LobbyGrid(elements: metadata.elements),
+                  ],
                 ),
-                RotationTransition(
-                  turns: _spinController,
-                  child: IconButton(
-                    icon: Icon(Icons.refresh_rounded, size: 22, color: colors.onSurfaceVariant),
-                    onPressed: _handleRefresh,
-                    splashRadius: 20,
-                    tooltip: 'Refresh Lobby',
-                  ),
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 16),
-            if (metadata.elements.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 48),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.dashboard_outlined, size: 40, color: colors.outline),
-                      const SizedBox(height: 12),
-                      Text('No lobby widgets configured', style: TextStyle(color: colors.outline, fontSize: 13)),
-                    ],
-                  ),
-                ),
-              )
-            else
-              LobbyGrid(elements: metadata.elements),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
