@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/metadata/menu_metadata.dart';
-import '../../../core/utils/icon_resolver.dart';
 import '../../../theme/app_colors.dart';
 
 class MenuFavoritesBar extends StatelessWidget {
@@ -51,7 +50,7 @@ class MenuFavoritesBar extends StatelessWidget {
             separatorBuilder: (_, _) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               final item = items[index];
-              final icon = IconResolver.resolve(item.icon, fallback: Icons.folder_outlined);
+              const icon = Icons.grid_view_rounded;
 
               return InkWell(
                 onTap: () => onItemTap(item),

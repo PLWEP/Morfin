@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/menu_metadata.dart';
 import '../../navigation/action_dispatcher.dart';
-import '../../utils/icon_resolver.dart';
 
 class MenuItemTile extends StatelessWidget {
   final MenuItemMetadata item;
@@ -22,7 +21,7 @@ class MenuItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-    final iconData = IconResolver.resolve(item.icon, fallback: Icons.folder_outlined);
+    const iconData = Icons.grid_view_rounded;
     final (badgeBg, badgeFg) = _resolveBadgeColors(item.badgeType, colors);
 
     return InkWell(
