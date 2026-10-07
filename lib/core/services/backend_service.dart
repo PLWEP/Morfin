@@ -81,7 +81,7 @@ class BackendService {
   }) async {
     final keyListJson = jsonEncode(items.map(PayloadUtils.sanitize).toList());
     return executeAction(
-      projection: 'MobileNavMenuHandling',
+      projection: 'MobileAppDesignHandling',
       actionName: 'ExecuteBatchAction',
       parameters: {
         'TargetProjection': targetProjection,
@@ -105,7 +105,7 @@ class BackendService {
   }) async {
     try {
       final res = await executeFunction(
-        projection: 'MobileNavMenuHandling',
+        projection: 'MobileAppDesignHandling',
         functionName: "GetMobileMenu(ScopeId='$scopeId',DeviceType='$deviceType')",
       );
       final val = res['value'];
@@ -117,7 +117,7 @@ class BackendService {
   }
   Future<LobbyPageMetadata> fetchLobbyMetadata() async {
     final res = await executeFunction(
-      projection: 'MobileLobbyHandling',
+      projection: 'MobileLobbyDesignHandling',
       functionName: 'GetMobileLobby()',
     );
     return LobbyPageMetadata.fromJson(res);
