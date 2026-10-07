@@ -88,6 +88,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 18),
                   SettingsHardwareStorageSection(
                     cacheSizeText: state.cacheSizeText,
+                    isIndustrialMode: state.isIndustrialMode,
+                    isSoundEnabled: state.isSoundEnabled,
+                    onToggleIndustrialMode: (val) {
+                      _viewModel.dispatch(SettingsToggleIndustrialMode(val));
+                    },
+                    onToggleSoundFeedback: (val) {
+                      _viewModel.dispatch(SettingsToggleSoundFeedback(val));
+                    },
                     onClearCache: () {
                       _viewModel.dispatch(const SettingsClearCache());
                     },

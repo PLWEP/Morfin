@@ -65,6 +65,15 @@ class LocalStorageService {
     return servers.first;
   }
 
+  static const _keyIndustrialMode = 'app_industrial_mode_v1';
+  static const _keySoundFeedback = 'app_sound_feedback_v1';
+
+  bool getIndustrialMode() => _prefs.getBool(_keyIndustrialMode) ?? false;
+  Future<bool> saveIndustrialMode(bool enabled) => _prefs.setBool(_keyIndustrialMode, enabled);
+
+  bool getSoundFeedback() => _prefs.getBool(_keySoundFeedback) ?? true;
+  Future<bool> saveSoundFeedback(bool enabled) => _prefs.setBool(_keySoundFeedback, enabled);
+
   static const _keyFavorites = 'app_favorite_menu_ids_v1';
 
   List<String> getFavoriteMenuIds() => _prefs.getStringList(_keyFavorites) ?? [];

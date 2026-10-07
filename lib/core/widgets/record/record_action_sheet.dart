@@ -58,6 +58,8 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
   final _formKey = GlobalKey<FormState>();
   late final Map<String, dynamic> _values;
   bool _isSubmitting = false;
+  int _currentStep = 0;
+  bool _isWizardMode = false;
 
   @override
   void initState() {
@@ -68,6 +70,12 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
         _values[field.key] = field.options.first;
       }
     }
+    // Enable wizard mode if action has multiple fields and at least one barcode field
+    final hasBarcode = widget.fields.any((f) =>
+        f.type == FieldType.barcode ||
+        f.key.toLowerCase().contains('barcode') ||
+        f.key.toLowerCase().contains('scancode'));
+    _isWizardMode = widget.fields.length >= 2 && hasBarcode;
   }
 
   Future<void> _handleSubmit() async {
@@ -123,7 +131,45 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
               const SizedBox(height: 16),
               Text(widget.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: colors.onSurface)),
               const SizedBox(height: 16),
-              ...widget.fields.map((f) {
+              if (_isWizardMode && widget.fields.length > 1) ...[
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: colors.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        'Step ${_currentStep + 1} of ${widget.fields.length}',
+                        style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colors.onPrimaryContainer),
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton.icon(
+                      icon: Icon(_isWizardMode ? Icons.view_agenda_rounded : Icons.linear_scale_rounded, size: 16),
+                      label: Text(_isWizardMode ? 'View All' : 'Wizard', style: GoogleFonts.inter(fontSize: 12)),
+                      onPressed: () => setState(() => _isWizardMode = !_isWizardMode),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(
+                  value: (_currentStep + 1) / widget.fields.length,
+                  backgroundColor: colors.surfaceContainerHigh,
+                  color: colors.primary,
+                  minHeight: 4,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                const SizedBox(height: 16),
+              ],
+              ...widget.fields.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final f = entry.value;
+                if (_isWizardMode && idx != _currentStep) {
+                  return const SizedBox.shrink();
+                }
+
                 final resolved = (f.lovProjection == null || f.lovProjection!.isEmpty)
                     ? (widget.projection != null ? f.copyWith(lovProjection: widget.projection) : f)
                     : f;
@@ -142,23 +188,76 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
                         field: resolved,
                         initialValue: _values[resolved.key],
                         contextualValues: _values,
-                        onChanged: (val) => _values[resolved.key] = val,
+                        onChanged: (val) {
+                          _values[resolved.key] = val;
+                          if (_isWizardMode && _currentStep < widget.fields.length - 1 && val != null && val.toString().trim().isNotEmpty) {
+                            Future.delayed(const Duration(milliseconds: 300), () {
+                              if (mounted && _currentStep < widget.fields.length - 1) {
+                                setState(() => _currentStep++);
+                              }
+                            });
+                          }
+                        },
                         onSaved: (val) => _values[resolved.key] = val?.trim() ?? '',
                       );
               }),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _handleSubmit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.surfaceDeep,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              if (_isWizardMode && widget.fields.length > 1) ...[
+                Row(
+                  children: [
+                    if (_currentStep > 0)
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => setState(() => _currentStep--),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: Text('Back', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+                        ),
+                      ),
+                    if (_currentStep > 0) const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting
+                            ? null
+                            : () {
+                                if (_currentStep < widget.fields.length - 1) {
+                                  setState(() => _currentStep++);
+                                } else {
+                                  _handleSubmit();
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.surfaceDeep,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        child: _isSubmitting
+                            ? SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: colors.surfaceDeep))
+                            : Text(
+                                _currentStep < widget.fields.length - 1 ? 'Next Step' : widget.actionLabel,
+                                style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: _isSubmitting
-                    ? SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: colors.surfaceDeep))
-                    : Text(widget.actionLabel, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
-              ),
+              ] else
+                ElevatedButton(
+                  onPressed: _isSubmitting ? null : _handleSubmit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.primary,
+                    foregroundColor: colors.surfaceDeep,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: _isSubmitting
+                      ? SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: colors.surfaceDeep))
+                      : Text(widget.actionLabel, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+                ),
             ],
           ),
         ),

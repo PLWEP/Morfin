@@ -28,7 +28,7 @@ class ActionParamMetadata {
   }
 
   RecordFieldMetadata toFormField({String? projection}) {
-    final resolvedType = _resolveType(dataType);
+    final resolvedType = _resolveType(dataType, paramName);
     final isStructureOrArray = resolvedType == FieldType.array;
 
     return RecordFieldMetadata(
@@ -42,8 +42,17 @@ class ActionParamMetadata {
     );
   }
 
-  static FieldType _resolveType(String type) {
+  static FieldType _resolveType(String type, [String? paramName]) {
     final upper = type.toUpperCase();
+    if (upper == 'BARCODE' || upper == 'QR' || upper == 'SCAN') {
+      return FieldType.barcode;
+    }
+    if (paramName != null) {
+      final lowerName = paramName.toLowerCase();
+      if (lowerName.contains('barcode') || lowerName.contains('qrcode') || lowerName.contains('scancode') || lowerName.contains('handlingunitid') || lowerName.contains('lotbatchno') || lowerName.contains('serialno')) {
+        return FieldType.barcode;
+      }
+    }
     if (upper == 'NUMBER' || upper == 'INTEGER' || upper == 'DECIMAL') {
       return FieldType.number;
     }

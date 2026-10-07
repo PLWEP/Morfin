@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum FieldType { text, number, status, priority, date, boolean, currency, array }
+enum FieldType { text, number, status, priority, date, boolean, currency, array, barcode }
 enum ActionScope { global, record }
 
 @immutable
