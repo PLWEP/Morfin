@@ -23,27 +23,22 @@ class LobbyNotifier extends AsyncNotifier<LobbyPageMetadata> {
       if (elem.targetProjection == null || elem.targetEndpoint == null) continue;
 
       final index = i;
-      tasks.add(() async {
+      tasks.add((() async {
         try {
-          // Fetch count with filter
-          final count = await BackendService.instance.fetchRecordCount(
-            projection: elem.targetProjection!,
-            entitySet: elem.targetEndpoint!,
-            filter: elem.filterConditions,
-          );
-
-          if (elem.type == LobbyElementType.counter) {
-            elements[index] = elem.copyWith(
-              value: count.toString(),
-              change: '$count records',
-              isPositive: true,
-            );
-          } else if (elem.type == LobbyElementType.indicator) {
-            // Fetch total count without filter to compute authentic ratio
-            final total = await BackendService.instance.fetchRecordCount(
-              projection: elem.targetProjection!,
-              entitySet: elem.targetEndpoint!,
-            );
+          if (elem.type == LobbyElementType.indicator) {
+            final results = await Future.wait([
+              BackendService.instance.fetchRecordCount(
+                projection: elem.targetProjection!,
+                entitySet: elem.targetEndpoint!,
+                filter: elem.filterConditions,
+              ),
+              BackendService.instance.fetchRecordCount(
+                projection: elem.targetProjection!,
+                entitySet: elem.targetEndpoint!,
+              ),
+            ]);
+            final count = results[0];
+            final total = results[1];
             final pct = total > 0 ? (count / total) * 100.0 : 0.0;
             elements[index] = elem.copyWith(
               value: count.toString(),
@@ -52,7 +47,12 @@ class LobbyNotifier extends AsyncNotifier<LobbyPageMetadata> {
               change: '$count of $total',
               isPositive: true,
             );
-          } else if (elem.type == LobbyElementType.barChart || elem.type == LobbyElementType.lineChart) {
+          } else {
+            final count = await BackendService.instance.fetchRecordCount(
+              projection: elem.targetProjection!,
+              entitySet: elem.targetEndpoint!,
+              filter: elem.filterConditions,
+            );
             elements[index] = elem.copyWith(
               value: count.toString(),
               change: '$count records',
@@ -67,7 +67,7 @@ class LobbyNotifier extends AsyncNotifier<LobbyPageMetadata> {
             isPositive: false,
           );
         }
-      }());
+      })());
     }
 
     if (tasks.isNotEmpty) {

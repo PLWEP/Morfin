@@ -77,26 +77,26 @@ class SchemaCatalogService {
     final xml = await _getMetadataXml(projection);
     if (xml == null) return [];
 
-    var entityName = collectionOrType.split('/').last.split('?').first;
-    if (entityName.endsWith('Set')) {
-      final esRegex = RegExp('<EntitySet\\s+Name="$entityName"\\s+EntityType="([^"]+)"', caseSensitive: false);
+    var typeName = collectionOrType.split('/').last.split('?').first;
+    if (typeName.endsWith('Set')) {
+      final esRegex = RegExp('<EntitySet\\s+Name="$typeName"\\s+EntityType="([^"]+)"', caseSensitive: false);
       final esMatch = esRegex.firstMatch(xml);
       if (esMatch != null) {
-        entityName = esMatch.group(1)!.split('.').last;
+        typeName = esMatch.group(1)!.split('.').last;
       } else {
-        entityName = entityName.substring(0, entityName.length - 3);
+        typeName = typeName.substring(0, typeName.length - 3);
       }
     }
 
-    final etRegex = RegExp('<EntityType\\s+Name="$entityName"', caseSensitive: false);
+    final etRegex = RegExp('<EntityType\\s+Name="$typeName"', caseSensitive: false);
     final etMatch = etRegex.firstMatch(xml);
     if (etMatch == null) {
       final firstEtMatch = RegExp(r'<EntityType\s+Name="([^"]+)"').firstMatch(xml);
       if (firstEtMatch == null) return [];
-      entityName = firstEtMatch.group(1)!;
+      typeName = firstEtMatch.group(1)!;
     }
 
-    final etIdx = xml.indexOf(RegExp('<EntityType\\s+Name="$entityName"', caseSensitive: false));
+    final etIdx = xml.indexOf(RegExp('<EntityType\\s+Name="$typeName"', caseSensitive: false));
     if (etIdx == -1) return [];
     final etEnd = xml.indexOf('</EntityType>', etIdx);
     final snippet = etEnd != -1 ? xml.substring(etIdx, etEnd + 13) : xml.substring(etIdx);
@@ -125,21 +125,21 @@ class SchemaCatalogService {
     final xml = await _getMetadataXml(projection);
     if (xml == null) return [];
 
-    var entityName = collectionOrType.split('/').last.split('?').first;
-    if (entityName.startsWith('Reference_')) {
-      entityName = entityName.substring('Reference_'.length);
+    var typeName = collectionOrType.split('/').last.split('?').first;
+    if (typeName.startsWith('Reference_')) {
+      typeName = typeName.substring('Reference_'.length);
     }
-    if (entityName.endsWith('Set')) {
-      final esRegex = RegExp('<EntitySet\\s+Name="$entityName"\\s+EntityType="([^"]+)"', caseSensitive: false);
+    if (typeName.endsWith('Set')) {
+      final esRegex = RegExp('<EntitySet\\s+Name="$typeName"\\s+EntityType="([^"]+)"', caseSensitive: false);
       final esMatch = esRegex.firstMatch(xml);
       if (esMatch != null) {
-        entityName = esMatch.group(1)!.split('.').last;
+        typeName = esMatch.group(1)!.split('.').last;
       } else {
-        entityName = entityName.substring(0, entityName.length - 3);
+        typeName = typeName.substring(0, typeName.length - 3);
       }
     }
 
-    final etRegex = RegExp('<EntityType\\s+Name="$entityName"[^>]*>', caseSensitive: false);
+    final etRegex = RegExp('<EntityType\\s+Name="$typeName"[^>]*>', caseSensitive: false);
     final match = etRegex.firstMatch(xml);
     if (match == null) return [];
 

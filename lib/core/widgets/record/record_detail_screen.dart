@@ -1,9 +1,9 @@
-import '../../utils/condition_evaluator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/record_metadata.dart';
 import '../../services/schema_catalog_service.dart';
+import '../../utils/condition_evaluator.dart';
 import '../../utils/icon_resolver.dart';
 import 'record_action_sheet.dart';
 
@@ -33,9 +33,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     super.initState();
     _record = Map<String, dynamic>.from(widget.record);
     _fields = List.from(widget.schema.fields);
-    if (_fields.isEmpty && widget.schema.projection.isNotEmpty) {
-      _loadDynamicFields();
-    }
+    if (_fields.isEmpty && widget.schema.projection.isNotEmpty) _loadDynamicFields();
   }
 
   Future<void> _loadDynamicFields() async {
@@ -43,11 +41,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     try {
       final fetched = await SchemaCatalogService.instance.fetchRecordFields(
         projection: widget.schema.projection,
-        collectionOrType: widget.schema.entitySet.isNotEmpty ? widget.schema.entitySet : widget.schema.entityName,
+        collectionOrType: widget.schema.entitySet.isNotEmpty ? widget.schema.entitySet : widget.schema.recordType,
       );
-      if (mounted && fetched.isNotEmpty) {
-        setState(() => _fields = fetched);
-      }
+      if (mounted && fetched.isNotEmpty) setState(() => _fields = fetched);
     } catch (_) {} finally {
       if (mounted) setState(() => _isLoadingFields = false);
     }
@@ -62,9 +58,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
       initialValues: _record,
       onSubmit: (values) async {
         final payload = {..._record, ...values};
-        if (widget.onExecuteAction != null) {
-          await widget.onExecuteAction!(action.name, payload);
-        }
+        if (widget.onExecuteAction != null) await widget.onExecuteAction!(action.name, payload);
         if (mounted) setState(() => _record.addAll(values));
       },
     );
@@ -78,8 +72,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     final recordActions = widget.schema.actions
         .where((a) => a.scope == ActionScope.record && ConditionEvaluator.evaluate(a.condition, _record))
         .toList();
-
-    final displayFields = _fields.isNotEmpty ? _fields : _buildFallbackFieldsFromRecord();
+    final displayFields = _fields.isNotEmpty ? _fields : _buildFallbackFields();
 
     return Scaffold(
       backgroundColor: colors.surfaceDeep,
@@ -88,9 +81,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: () {
-              if (widget.schema.projection.isNotEmpty) _loadDynamicFields();
-            },
+            onPressed: () { if (widget.schema.projection.isNotEmpty) _loadDynamicFields(); },
           ),
         ],
       ),
@@ -102,47 +93,39 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
             if (_isLoadingFields)
               const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
             else ...[
-              ...displayFields.map((f) {
-                final val = _record[f.key]?.toString() ?? '-';
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: colors.surfaceCard,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: colors.surfaceBorder),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: Text(f.label, style: GoogleFonts.inter(fontSize: 12, color: colors.outline))),
-                        const SizedBox(width: 12),
-                        Flexible(child: Text(val, textAlign: TextAlign.end, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface))),
-                      ],
-                    ),
+              ...displayFields.map((f) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(color: colors.surfaceCard, borderRadius: BorderRadius.circular(10), border: Border.all(color: colors.surfaceBorder)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: Text(f.label, style: GoogleFonts.inter(fontSize: 12, color: colors.outline))),
+                      const SizedBox(width: 12),
+                      Flexible(child: Text(_record[f.key]?.toString() ?? '-', textAlign: TextAlign.end, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface))),
+                    ],
                   ),
-                );
-              }),
+                ),
+              )),
               ..._buildExpandedLineSections(colors),
             ],
             if (recordActions.isNotEmpty) ...[
               const SizedBox(height: 16),
               ...recordActions.map((act) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: ElevatedButton.icon(
-                      onPressed: () => _triggerAction(act),
-                      icon: Icon(IconResolver.resolve(act.icon)),
-                      label: Text(act.label),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.surfaceContainerHigh,
-                        foregroundColor: colors.onSurface,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                  )),
+                padding: const EdgeInsets.only(bottom: 8),
+                child: ElevatedButton.icon(
+                  onPressed: () => _triggerAction(act),
+                  icon: Icon(IconResolver.resolve(act.icon)),
+                  label: Text(act.label),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.surfaceContainerHigh,
+                    foregroundColor: colors.onSurface,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              )),
             ],
           ],
         ),
@@ -157,43 +140,27 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         final lines = val.cast<Map<String, dynamic>>();
         final label = key.replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m[1]}').trim();
         widgets.add(Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 8),
-          child: Row(
-            children: [
-              Icon(Icons.format_list_bulleted_rounded, size: 16, color: colors.primary),
-              const SizedBox(width: 8),
-              Text('$label (${lines.length})', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: colors.onSurface)),
-            ],
-          ),
+          padding: const EdgeInsets.only(top: 16, bottom: 8),
+          child: Row(children: [
+            Icon(Icons.format_list_bulleted_rounded, size: 16, color: colors.primary),
+            const SizedBox(width: 8),
+            Text('$label (${lines.length})', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: colors.onSurface)),
+          ]),
         ));
-
         for (var i = 0; i < lines.length; i++) {
           final item = lines[i];
           final titleKey = item.keys.firstWhere((k) => k != 'luname' && k != 'keyref', orElse: () => item.keys.first);
-          final title = item[titleKey]?.toString() ?? 'Item #${i + 1}';
-
           widgets.add(Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: colors.surfaceBorder.withValues(alpha: 0.7)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface)),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 4,
-                  children: item.entries.where((e) => e.key != titleKey && e.key != 'luname' && e.key != 'keyref').take(4).map((e) {
-                    return Text('${e.key}: ${e.value}', style: GoogleFonts.inter(fontSize: 11, color: colors.outline));
-                  }).toList(),
-                ),
-              ],
-            ),
+            margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: colors.surfaceContainerLow, borderRadius: BorderRadius.circular(10), border: Border.all(color: colors.surfaceBorder.withValues(alpha: 0.7))),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(item[titleKey]?.toString() ?? 'Item #${i + 1}', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface)),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 12, runSpacing: 4,
+                children: item.entries.where((e) => e.key != titleKey && e.key != 'luname' && e.key != 'keyref').take(4).map((e) => Text('${e.key}: ${e.value}', style: GoogleFonts.inter(fontSize: 11, color: colors.outline))).toList(),
+              ),
+            ]),
           ));
         }
       }
@@ -201,14 +168,13 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     return widgets;
   }
 
-  List<RecordFieldMetadata> _buildFallbackFieldsFromRecord() {
-    const internalKeys = {'luname', 'objid', 'objversion', 'rowkey', 'rowstate', 'rowtype', 'objsite', 'objstate', 'objgrants'};
+  List<RecordFieldMetadata> _buildFallbackFields() {
+    const skip = {'luname', 'objid', 'objversion', 'rowkey', 'rowstate', 'rowtype', 'objsite', 'objstate', 'objgrants'};
     return _record.entries
-        .where((e) => !e.key.startsWith('@') && !internalKeys.contains(e.key.toLowerCase()))
-        .map((e) {
-          final label = e.key.replaceAllMapped(RegExp(r'(?<=[a-z])[A-Z]'), (m) => ' ${m.group(0)}').replaceAll('_', ' ').trim();
-          return RecordFieldMetadata(key: e.key, label: label);
-        })
-        .toList();
+        .where((e) => !e.key.startsWith('@') && !skip.contains(e.key.toLowerCase()))
+        .map((e) => RecordFieldMetadata(
+          key: e.key,
+          label: e.key.replaceAllMapped(RegExp(r'(?<=[a-z])[A-Z]'), (m) => ' ${m.group(0)}').replaceAll('_', ' ').trim(),
+        )).toList();
   }
 }
