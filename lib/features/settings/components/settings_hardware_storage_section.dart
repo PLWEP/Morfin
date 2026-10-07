@@ -5,12 +5,20 @@ import 'industrial_setting_tile.dart';
 
 class SettingsHardwareStorageSection extends StatelessWidget {
   final String cacheSizeText;
+  final bool isIndustrialMode;
+  final bool isSoundEnabled;
+  final ValueChanged<bool>? onToggleIndustrialMode;
+  final ValueChanged<bool>? onToggleSoundFeedback;
   final VoidCallback? onClearCache;
   final VoidCallback? onExportLogs;
 
   const SettingsHardwareStorageSection({
     super.key,
     required this.cacheSizeText,
+    this.isIndustrialMode = false,
+    this.isSoundEnabled = true,
+    this.onToggleIndustrialMode,
+    this.onToggleSoundFeedback,
     this.onClearCache,
     this.onExportLogs,
   });
@@ -82,6 +90,30 @@ class SettingsHardwareStorageSection extends StatelessWidget {
                       ],
                     ),
                   ),
+                ),
+              ),
+              Divider(height: 1, color: colors.surfaceBorder.withValues(alpha: 0.5)),
+              IndustrialSettingTile(
+                icon: Icons.qr_code_scanner_rounded,
+                iconColor: colors.statusActive,
+                title: 'Industrial PDA Mode',
+                subtitle: 'Suppress virtual keyboard for laser scanners',
+                trailing: Switch.adaptive(
+                  value: isIndustrialMode,
+                  onChanged: onToggleIndustrialMode,
+                  activeTrackColor: colors.primary,
+                ),
+              ),
+              Divider(height: 1, color: colors.surfaceBorder.withValues(alpha: 0.5)),
+              IndustrialSettingTile(
+                icon: Icons.volume_up_rounded,
+                iconColor: colors.statusWarning,
+                title: 'Audio Feedback',
+                subtitle: 'Auditory cues on success, error & scan',
+                trailing: Switch.adaptive(
+                  value: isSoundEnabled,
+                  onChanged: onToggleSoundFeedback,
+                  activeTrackColor: colors.primary,
                 ),
               ),
               Divider(height: 1, color: colors.surfaceBorder.withValues(alpha: 0.5)),

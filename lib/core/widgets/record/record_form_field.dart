@@ -1,3 +1,7 @@
+import 'barcode_scanner_sheet.dart';
+import '../../services/industrial_feedback_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../storage/local_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
@@ -31,12 +35,25 @@ class RecordFormField extends StatefulWidget {
 class _RecordFormFieldState extends State<RecordFormField> {
   late final TextEditingController _controller;
   String? _selectedValue;
+  bool _isIndustrialMode = false;
 
   @override
   void initState() {
     super.initState();
     _selectedValue = widget.initialValue?.toString();
     _controller = TextEditingController(text: _selectedValue ?? '');
+    _checkIndustrialMode();
+  }
+
+  void _checkIndustrialMode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (mounted) {
+        setState(() {
+          _isIndustrialMode = LocalStorageService(prefs).getIndustrialMode();
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -108,6 +125,9 @@ class _RecordFormFieldState extends State<RecordFormField> {
 
     final hasLov = widget.field.lovReference != null && widget.field.lovReference!.isNotEmpty;
     final isNum = widget.field.type == FieldType.number;
+    final isBarcode = widget.field.type == FieldType.barcode ||
+        widget.field.key.toLowerCase().contains('barcode') ||
+        widget.field.key.toLowerCase().contains('scancode');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -115,21 +135,50 @@ class _RecordFormFieldState extends State<RecordFormField> {
         controller: _controller,
         readOnly: hasLov,
         onTap: hasLov ? _openLov : null,
-        keyboardType: isNum ? TextInputType.number : TextInputType.text,
+        keyboardType: isNum
+            ? TextInputType.number
+            : (isBarcode && _isIndustrialMode)
+                ? TextInputType.none
+                : TextInputType.text,
         style: GoogleFonts.inter(fontSize: 13, color: colors.onSurface),
         decoration: _decoration(
           colors,
-          suffixIcon: hasLov
+          suffixIcon: isBarcode
               ? IconButton(
-                  icon: const Icon(Icons.arrow_drop_down_circle_outlined, size: 18),
-                  onPressed: _openLov,
+                  icon: Icon(Icons.qr_code_scanner_rounded, size: 20, color: colors.statusActive),
+                  tooltip: 'Scan Barcode',
+                  onPressed: () async {
+                    final code = await BarcodeScannerSheet.scan(
+                      context,
+                      title: 'Scan ${widget.field.label}',
+                      subtitle: 'Align barcode within frame',
+                    );
+                    if (code != null && code.isNotEmpty) {
+                      setState(() {
+                        _controller.text = code;
+                        _selectedValue = code;
+                      });
+                      widget.onChanged(code);
+                    }
+                  },
                 )
-              : null,
+              : hasLov
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_drop_down_circle_outlined, size: 18),
+                      onPressed: _openLov,
+                    )
+                  : null,
         ),
         validator: widget.field.isRequired
             ? (val) => (val == null || val.trim().isEmpty) ? '${widget.field.label} is required' : null
             : null,
         onChanged: widget.onChanged,
+        onFieldSubmitted: (val) {
+          if (isBarcode) {
+            IndustrialFeedbackService.instance.playScan();
+          }
+          widget.onChanged(val);
+        },
         onSaved: (val) {
           if (hasLov && _selectedValue != null) {
             widget.onSaved(_selectedValue);

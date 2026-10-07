@@ -1,3 +1,4 @@
+import '../../services/industrial_feedback_service.dart';
 import 'package:flutter/material.dart';
 import '../../metadata/record_metadata.dart';
 import '../../services/backend_service.dart';
@@ -39,12 +40,14 @@ class RecordActionExecutor {
       final res = onExecuteAction != null
           ? await onExecuteAction(actionName, payload)
           : await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
+      IndustrialFeedbackService.instance.playSuccess();
       final msg = res is Map<String, dynamic>
           ? PayloadUtils.extractSuccessMessage(res, fallback: '"$label" completed successfully')
           : '"$label" completed successfully';
       messenger.showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
       onRefresh();
     } catch (e) {
+      IndustrialFeedbackService.instance.playError();
       final errorMsg = PayloadUtils.extractErrorMessage(e);
       messenger.showSnackBar(SnackBar(content: Text('Error: $errorMsg'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating));
     }
@@ -142,6 +145,7 @@ class RecordActionExecutor {
           final res = onExecuteAction != null
               ? await onExecuteAction(actionName, payload)
               : await BackendService.instance.executeAction(projection: projection, actionName: actionName, parameters: payload);
+          IndustrialFeedbackService.instance.playSuccess();
           final resMap = res is Map<String, dynamic> ? res : <String, dynamic>{};
           final msg = PayloadUtils.extractSuccessMessage(resMap, fallback: '"$title" submitted successfully');
           messenger.showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));

@@ -1,3 +1,4 @@
+import 'transaction_coordinator.dart';
 import '../metadata/lobby_metadata.dart';
 import 'dart:convert';
 import '../models/navigation_node.dart';
@@ -48,8 +49,15 @@ class BackendService {
     required String projection,
     required String actionName,
     required Map<String, dynamic> parameters,
+    bool singleFlight = true,
   }) async {
-    return _client.callAction(projection, actionName, parameters);
+    return TransactionCoordinator.instance.enqueue(
+      projection: projection,
+      actionName: actionName,
+      parameters: parameters,
+      singleFlight: singleFlight,
+      action: () => _client.callAction(projection, actionName, parameters),
+    );
   }
 
   Future<Map<String, dynamic>> executeBatchAction({
