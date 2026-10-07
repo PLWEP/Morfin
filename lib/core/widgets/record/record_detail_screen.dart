@@ -1,3 +1,4 @@
+import '../../utils/condition_evaluator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
@@ -74,7 +75,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
     final colors = AppColors.of(context);
     final cardMeta = widget.schema.listCard;
     final code = (_record[cardMeta.codeField] ?? _record['Id'] ?? (_record.isNotEmpty ? _record.values.first : '')).toString();
-    final recordActions = widget.schema.actions.where((a) => a.scope == ActionScope.record).toList();
+    final recordActions = widget.schema.actions
+        .where((a) => a.scope == ActionScope.record && ConditionEvaluator.evaluate(a.condition, _record))
+        .toList();
 
     final displayFields = _fields.isNotEmpty ? _fields : _buildFallbackFieldsFromRecord();
 
@@ -98,7 +101,7 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
           children: [
             if (_isLoadingFields)
               const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-            else
+            else ...[
               ...displayFields.map((f) {
                 final val = _record[f.key]?.toString() ?? '-';
                 return Padding(
@@ -122,6 +125,8 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                   ),
                 );
               }),
+              ..._buildExpandedLineSections(colors),
+            ],
             if (recordActions.isNotEmpty) ...[
               const SizedBox(height: 16),
               ...recordActions.map((act) => Padding(
@@ -143,6 +148,57 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildExpandedLineSections(AppPalette colors) {
+    final widgets = <Widget>[];
+    _record.forEach((key, val) {
+      if (val is List && val.isNotEmpty && val.first is Map) {
+        final lines = val.cast<Map<String, dynamic>>();
+        final label = key.replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m[1]}').trim();
+        widgets.add(Padding(
+          padding: const EdgeInsets.only(top: 20, bottom: 8),
+          child: Row(
+            children: [
+              Icon(Icons.format_list_bulleted_rounded, size: 16, color: colors.primary),
+              const SizedBox(width: 8),
+              Text('$label (${lines.length})', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: colors.onSurface)),
+            ],
+          ),
+        ));
+
+        for (var i = 0; i < lines.length; i++) {
+          final item = lines[i];
+          final titleKey = item.keys.firstWhere((k) => k != 'luname' && k != 'keyref', orElse: () => item.keys.first);
+          final title = item[titleKey]?.toString() ?? 'Item #${i + 1}';
+
+          widgets.add(Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: colors.surfaceBorder.withValues(alpha: 0.7)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface)),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 4,
+                  children: item.entries.where((e) => e.key != titleKey && e.key != 'luname' && e.key != 'keyref').take(4).map((e) {
+                    return Text('${e.key}: ${e.value}', style: GoogleFonts.inter(fontSize: 11, color: colors.outline));
+                  }).toList(),
+                ),
+              ],
+            ),
+          ));
+        }
+      }
+    });
+    return widgets;
   }
 
   List<RecordFieldMetadata> _buildFallbackFieldsFromRecord() {

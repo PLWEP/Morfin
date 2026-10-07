@@ -84,6 +84,7 @@ class RecordActionMetadata {
   final String? icon;
   final ActionScope scope;
   final List<RecordFieldMetadata> formFields;
+  final String? condition;
 
   const RecordActionMetadata({
     required this.name,
@@ -91,6 +92,7 @@ class RecordActionMetadata {
     this.icon,
     this.scope = ActionScope.record,
     this.formFields = const [],
+    this.condition,
   });
 
   factory RecordActionMetadata.fromJson(Map<String, dynamic> json) {
@@ -104,6 +106,7 @@ class RecordActionMetadata {
       formFields: rawFields
           .map((f) => RecordFieldMetadata.fromJson(f as Map<String, dynamic>))
           .toList(),
+      condition: json['condition'] as String? ?? json['Condition'] as String? ?? json['visible'] as String?,
     );
   }
 }

@@ -74,6 +74,9 @@ class LocalStorageService {
   bool getSoundFeedback() => _prefs.getBool(_keySoundFeedback) ?? true;
   Future<bool> saveSoundFeedback(bool enabled) => _prefs.setBool(_keySoundFeedback, enabled);
 
+  String? getSchemaHash(String key) => _prefs.getString('schema_hash_$key');
+  Future<bool> saveSchemaHash(String key, String hash) => _prefs.setString('schema_hash_$key', hash);
+
   static const _keyFavorites = 'app_favorite_menu_ids_v1';
 
   List<String> getFavoriteMenuIds() => _prefs.getStringList(_keyFavorites) ?? [];

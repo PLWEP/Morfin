@@ -1,3 +1,4 @@
+import '../../services/action_context.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
@@ -136,6 +137,7 @@ class _RecordActionSheetState extends State<RecordActionSheet> {
                         initialValue: _values[res.key], contextualValues: _values,
                         onChanged: (v) {
                           _values[res.key] = v;
+                          ActionContext.instance.set(res.key, v);
                           if (_isWizardMode && _currentStep < widget.fields.length - 1 && v != null && v.toString().trim().isNotEmpty) {
                             Future.delayed(const Duration(milliseconds: 300), () {
                               if (mounted && _currentStep < widget.fields.length - 1) setState(() => _currentStep++);
