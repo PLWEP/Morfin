@@ -1,3 +1,4 @@
+import '../network/odata_filter_builder.dart';
 import 'transaction_coordinator.dart';
 import '../metadata/lobby_metadata.dart';
 import 'dart:convert';
@@ -18,6 +19,19 @@ class BackendService {
     DataQuery? query,
   }) async {
     return _client.getCollection(projection, entitySet, query: query);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFilteredCollection({
+    required String projection,
+    required String entitySet,
+    required List<ODataFilterEntry> filters,
+    DataQuery? baseQuery,
+  }) async {
+    final filterString = ODataFilterBuilder.build(filters);
+    final query = (baseQuery ?? const DataQuery()).copyWith(
+      filter: (filterString != null && filterString.isNotEmpty) ? filterString : baseQuery?.filter,
+    );
+    return fetchCollection(projection: projection, entitySet: entitySet, query: query);
   }
 
   Future<Map<String, dynamic>> fetchRecord({

@@ -1,3 +1,6 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import '../storage/local_storage_service.dart';
+import '../utils/schema_hasher.dart';
 import '../metadata/record_metadata.dart';
 import '../network/api_client.dart';
 import '../network/api_config.dart';
@@ -11,6 +14,10 @@ class SchemaCatalogService {
 
   void clearCache() => _xmlCache.clear();
   void invalidateProjection(String projection) => _xmlCache.remove(projection);
+  Future<String?> getSavedSchemaHash(String projection) async {
+    final prefs = await SharedPreferences.getInstance();
+    return LocalStorageService(prefs).getSchemaHash(projection);
+  }
 
   Future<String?> _getMetadataXml(String projection) async {
     final cached = _xmlCache[projection];
@@ -21,6 +28,8 @@ class SchemaCatalogService {
     final xml = await ApiClient.instance.getRawXml(url);
     if (xml != null && xml.isNotEmpty) {
       _xmlCache[projection] = (DateTime.now(), xml);
+      final hash = SchemaHasher.computeRawHash(xml);
+      SharedPreferences.getInstance().then((prefs) => LocalStorageService(prefs).saveSchemaHash(projection, hash));
       return xml;
     }
     return null;
