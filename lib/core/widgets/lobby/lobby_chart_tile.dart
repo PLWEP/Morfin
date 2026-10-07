@@ -5,6 +5,7 @@ import '../../../theme/app_colors.dart';
 import '../../metadata/lobby_metadata.dart';
 import '../../utils/color_resolver.dart';
 import '../../utils/icon_resolver.dart';
+import '../sparkline_painter.dart';
 import 'lobby_detail_sheet.dart';
 
 class LobbyChartTile extends StatelessWidget {
@@ -57,11 +58,7 @@ class LobbyChartTile extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       metadata.title,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: colors.onSurface,
-                      ),
+                      style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface),
                     ),
                   ],
                 ),
@@ -107,8 +104,8 @@ class LobbyChartTile extends StatelessWidget {
               SizedBox(
                 height: 85,
                 child: isLine
-                    ? _buildLineChart(context, colors, accentColor, points)
-                    : _buildBarChart(context, colors, accentColor, points),
+                    ? _buildLineChart(accentColor, points)
+                    : _buildBarChart(colors, accentColor, points),
               ),
           ],
         ),
@@ -116,7 +113,7 @@ class LobbyChartTile extends StatelessWidget {
     );
   }
 
-  Widget _buildBarChart(BuildContext context, AppPalette colors, Color barColor, List<Map<String, dynamic>> points) {
+  Widget _buildBarChart(AppPalette colors, Color barColor, List<Map<String, dynamic>> points) {
     final maxVal = points.fold<double>(1.0, (prev, p) {
       final val = (p['value'] as num?)?.toDouble() ?? 0.0;
       return math.max(prev, val);
@@ -151,10 +148,7 @@ class LobbyChartTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 5),
-                Text(
-                  label,
-                  style: GoogleFonts.inter(fontSize: 9, color: colors.onSurfaceMuted),
-                ),
+                Text(label, style: GoogleFonts.inter(fontSize: 9, color: colors.onSurfaceMuted)),
               ],
             ),
           ),
@@ -163,69 +157,11 @@ class LobbyChartTile extends StatelessWidget {
     );
   }
 
-  Widget _buildLineChart(BuildContext context, AppPalette colors, Color lineColor, List<Map<String, dynamic>> points) {
+  Widget _buildLineChart(Color lineColor, List<Map<String, dynamic>> points) {
+    final values = points.map((p) => (p['value'] as num?)?.toDouble() ?? 0.0).toList();
     return CustomPaint(
-      painter: _LineChartPainter(points: points, lineColor: lineColor, gradientColor: lineColor.withValues(alpha: 0.15)),
+      painter: SparklinePainter(data: values, lineColor: lineColor, strokeWidth: 2.5),
       child: const SizedBox.expand(),
     );
   }
-}
-
-class _LineChartPainter extends CustomPainter {
-  final List<Map<String, dynamic>> points;
-  final Color lineColor;
-  final Color gradientColor;
-
-  _LineChartPainter({required this.points, required this.lineColor, required this.gradientColor});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (points.isEmpty) return;
-
-    final maxVal = points.fold<double>(1.0, (prev, p) {
-      final val = (p['value'] as num?)?.toDouble() ?? 0.0;
-      return math.max(prev, val);
-    });
-
-    final path = Path();
-    final fillPath = Path();
-
-    final stepX = size.width / (points.length - 1);
-    for (int i = 0; i < points.length; i++) {
-      final val = (points[i]['value'] as num?)?.toDouble() ?? 0.0;
-      final x = i * stepX;
-      final y = size.height - (val / maxVal * (size.height - 10));
-
-      if (i == 0) {
-        path.moveTo(x, y);
-        fillPath.moveTo(x, size.height);
-        fillPath.lineTo(x, y);
-      } else {
-        final prevX = (i - 1) * stepX;
-        final prevVal = (points[i - 1]['value'] as num?)?.toDouble() ?? 0.0;
-        final prevY = size.height - (prevVal / maxVal * (size.height - 10));
-
-        final cp1X = prevX + (x - prevX) / 2;
-        final cp2X = prevX + (x - prevX) / 2;
-        path.cubicTo(cp1X, prevY, cp2X, y, x, y);
-        fillPath.cubicTo(cp1X, prevY, cp2X, y, x, y);
-      }
-    }
-
-    fillPath.lineTo(size.width, size.height);
-    fillPath.close();
-
-    canvas.drawPath(fillPath, Paint()..color = gradientColor);
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = lineColor
-        ..strokeWidth = 2.5
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import '../../../theme/app_colors.dart';
 import '../../services/industrial_feedback_service.dart';
 
 class BarcodeScannerSheet extends StatefulWidget {
   final String title;
   final String? subtitle;
 
-  const BarcodeScannerSheet({
-    super.key,
-    required this.title,
-    this.subtitle,
-  });
+  const BarcodeScannerSheet({super.key, required this.title, this.subtitle});
 
   static Future<String?> scan(BuildContext context, {required String title, String? subtitle}) {
     return showModalBottomSheet<String>(
@@ -27,12 +24,12 @@ class BarcodeScannerSheet extends StatefulWidget {
 }
 
 class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
-  final MobileScannerController _controller = MobileScannerController(
+  final _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
     facing: CameraFacing.back,
     torchEnabled: false,
   );
-  final TextEditingController _manualController = TextEditingController();
+  final _manualController = TextEditingController();
   bool _isTorchOn = false;
   bool _hasDetected = false;
 
@@ -67,13 +64,13 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final size = MediaQuery.of(context).size;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       height: size.height * 0.85,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E2127) : Colors.white,
+        color: colors.surfaceCard,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -83,7 +80,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
             width: 48,
             height: 5,
             decoration: BoxDecoration(
-              color: Colors.grey.withValues(alpha: 0.4),
+              color: colors.outline.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(10),
             ),
           ),
@@ -95,36 +92,21 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.title,
-                        style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700),
-                      ),
+                      Text(widget.title, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: colors.onSurface)),
                       if (widget.subtitle != null) ...[
                         const SizedBox(height: 2),
-                        Text(
-                          widget.subtitle!,
-                          style: GoogleFonts.inter(fontSize: 13, color: Colors.grey),
-                        ),
+                        Text(widget.subtitle!, style: GoogleFonts.inter(fontSize: 13, color: colors.onSurfaceMuted)),
                       ],
                     ],
                   ),
                 ),
                 IconButton(
                   icon: Icon(_isTorchOn ? Icons.flash_on_rounded : Icons.flash_off_rounded),
-                  color: _isTorchOn ? Colors.amber : Colors.grey,
-                  onPressed: () {
-                    _controller.toggleTorch();
-                    setState(() => _isTorchOn = !_isTorchOn);
-                  },
+                  color: _isTorchOn ? colors.statusWarning : colors.onSurfaceMuted,
+                  onPressed: () { _controller.toggleTorch(); setState(() => _isTorchOn = !_isTorchOn); },
                 ),
-                IconButton(
-                  icon: const Icon(Icons.flip_camera_ios_rounded),
-                  onPressed: () => _controller.switchCamera(),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
+                IconButton(icon: Icon(Icons.flip_camera_ios_rounded, color: colors.onSurfaceVariant), onPressed: () => _controller.switchCamera()),
+                IconButton(icon: Icon(Icons.close_rounded, color: colors.onSurfaceVariant), onPressed: () => Navigator.of(context).pop()),
               ],
             ),
           ),
@@ -132,30 +114,17 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                MobileScanner(
-                  controller: _controller,
-                  onDetect: _onDetect,
-                ),
+                MobileScanner(controller: _controller, onDetect: _onDetect),
                 Container(
-                  width: size.width * 0.72,
-                  height: size.width * 0.72,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 2),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  width: size.width * 0.72, height: size.width * 0.72,
+                  decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 2), borderRadius: BorderRadius.circular(16)),
                 ),
                 Positioned(
                   bottom: 24,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.65),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'Align barcode / QR within frame',
-                      style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                    ),
+                    decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.65), borderRadius: BorderRadius.circular(20)),
+                    child: Text('Align barcode / QR within frame', style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
                   ),
                 ),
               ],

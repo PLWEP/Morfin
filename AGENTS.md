@@ -68,11 +68,13 @@ Key architectural hubs:
 - `lib/core/network/auth_interceptor.dart`: Auto-injects bearer token; transparently triggers `refreshTokenOAuth()` upon receiving HTTP 401.
 - `lib/core/network/activity_log_interceptor.dart`: Dio interceptor recording live request/response telemetry for diagnostics.
 - `lib/core/network/data_query.dart`: Fluent builder for query strings (`$filter`, `$select`, `$top`, etc.).
-- `lib/core/services/backend_service.dart`: Core backend integration gateway (`fetchCollection`, `fetchRecord`, `createRecord`, `updateRecord`, `executeAction`, `executeBatchAction`, `fetchNavigatorNodes`).
+- `lib/core/services/backend_service.dart`: Core backend integration gateway (`fetchCollection`, `fetchRecord`, `fetchRecordCount`, `createRecord`, `updateRecord`, `executeAction`, `executeBatchAction`, `fetchNavigatorNodes`).
+- `lib/core/services/industrial_feedback_service.dart`: Audio and haptic feedback service for scanning and mutations.
 - `lib/core/services/schema_catalog_service.dart`: Live projection schema discovery & XML metadata introspection service (`fetchKeyFields`).
 - `lib/core/services/cache_manager_service.dart`: Live cache size calculation and cache clearing service.
 - `lib/core/services/activity_log_service.dart`: In-memory network and system activity logger for diagnostics export.
 - `lib/core/providers/user_profile_provider.dart`: Fetches live user profile data via `FrameworkServices.svc/GetCurrentUserInformation()`.
+- `lib/core/providers/lobby_provider.dart`: AsyncNotifier aggregating and hydrating dynamic dashboard elements and record counts.
 - `lib/core/metadata/record_schema_registry.dart`: Central registry of SDUI record schemas with target route mapping.
 - `lib/core/metadata/record_metadata.dart`: SDUI contracts (`RecordSchemaMetadata`, `RecordFieldMetadata`, `RecordActionMetadata`, `RecordListCardMetadata`).
 - `lib/core/metadata/`: SDUI contracts (`ActionMetadata`, `LobbyPageMetadata`, `MenuMetadata`).
@@ -83,9 +85,9 @@ Key architectural hubs:
 - `lib/core/utils/action_field_consolidator.dart`: Merges dot-notated array fields, resolves LOV projections, and builds complete schema definitions.
 - `lib/core/utils/param_config_parser.dart`: Robust parser for action parameter config strings.
 - `lib/core/utils/record_lookup_loader.dart`: Dynamically loads and filters LOV records using key fields and form context.
-- `lib/core/widgets/record/`: Pure SDUI record components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `RecordFormScreen`, `RecordFormField`, `RecordArrayField`, `RecordLookupSheet`, `RecordFormDiscardDialog`).
-- `lib/core/widgets/lobby/`: Dynamic dashboard tiles (`LobbyGrid`, `LobbyElementTile`, `LobbyCounterTile`, `LobbyChartTile`, etc.).
-- `lib/core/widgets/menu/`: Dynamic menu navigation (`MenuSectionCard`, `MenuItemTile`).
+- `lib/core/widgets/record/`: Pure SDUI record components (`RecordListScreen`, `RecordDetailScreen`, `RecordCard`, `RecordActionSheet`, `RecordActionWizardBar`, `RecordFormScreen`, `RecordFormField`, `RecordArrayField`, `RecordLookupSheet`, `BarcodeScannerSheet`, `RecordFormDiscardDialog`).
+- `lib/core/widgets/lobby/`: Dynamic dashboard tiles (`LobbyGrid`, `LobbyElementTile`, `LobbyCounterTile`, `LobbyChartTile`, `LobbyDetailSheet`, `LobbyDetailSections`).
+- `lib/core/widgets/menu/`: Dynamic menu navigation (`MenuSectionCard`, `MenuItemTile`, `ModuleInfoSheet`).
 - `lib/features/login/models/server_config.dart`: Profile model defining server URL, realm, and OAuth client credentials.
 - `lib/features/shell/main_shell_screen.dart`: 3-tab navigation shell (Lobby, Menu, Settings).
 
