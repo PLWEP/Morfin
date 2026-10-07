@@ -129,7 +129,7 @@ class _ManageServersScreenState extends State<ManageServersScreen> {
                           const SizedBox(height: 8),
                           Text('No servers configured yet', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colors.onSurface)),
                           const SizedBox(height: 4),
-                          Text('Tap below to add your IFS server.', style: GoogleFonts.inter(fontSize: 12, color: colors.onSurfaceVariant)),
+                          Text('Tap below to add a server profile.', style: GoogleFonts.inter(fontSize: 12, color: colors.onSurfaceVariant)),
                         ],
                       ),
                     )

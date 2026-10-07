@@ -55,4 +55,5 @@ test/real_api_config.json
 .env
 .env.*
 !.env.example
-
+
+scratch/*

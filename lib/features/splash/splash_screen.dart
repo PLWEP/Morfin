@@ -85,7 +85,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'IFS Cloud™',
+                      'Morfin',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -94,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Version 24.2 (Build 8842)',
+                      'Version 0.2.0 (Build 116) - Dev',
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         color: colors.outline.withValues(alpha: 0.7),

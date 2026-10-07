@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/metadata/menu_metadata.dart';
 import '../../../theme/app_colors.dart';
 
 class MenuFilterPills extends StatelessWidget {
   final String selectedCategory;
   final ValueChanged<String> onCategorySelected;
+  final List<MenuGroupMetadata> groups;
 
   const MenuFilterPills({
     super.key,
     required this.selectedCategory,
     required this.onCategorySelected,
+    this.groups = const [],
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    final filters = [
-      (key: 'all', label: 'All', color: colors.statusActive, hasIcon: true),
-      (key: 'ops', label: 'Operations', color: colors.statusActive, hasIcon: false),
-      (key: 'supply', label: 'Supply Chain', color: colors.statusWarning, hasIcon: false),
-      (key: 'fin', label: 'Finance', color: colors.statusWarning, hasIcon: false),
-      (key: 'maint', label: 'Maintenance', color: colors.statusSuccess, hasIcon: false),
+    final filters = <({String key, String label, bool hasIcon})>[
+      (key: 'all', label: 'All', hasIcon: true),
+      ...groups.map(
+        (g) => (key: g.id, label: g.title, hasIcon: false),
+      ),
     ];
 
     return SingleChildScrollView(
@@ -40,9 +42,7 @@ class MenuFilterPills extends StatelessWidget {
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? colors.primaryContainer
-                      : colors.surfaceCard,
+                  color: isSelected ? colors.primaryContainer : colors.surfaceCard,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
@@ -69,7 +69,7 @@ class MenuFilterPills extends StatelessWidget {
                           width: 6,
                           height: 6,
                           decoration: BoxDecoration(
-                            color: filter.color,
+                            color: isSelected ? colors.primary : colors.outlineVariant,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -79,9 +79,7 @@ class MenuFilterPills extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                        color: isSelected
-                            ? colors.onPrimaryContainer
-                            : colors.onSurfaceVariant,
+                        color: isSelected ? colors.onPrimaryContainer : colors.onSurfaceVariant,
                       ),
                     ),
                   ],

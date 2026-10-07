@@ -3,7 +3,6 @@ import '../../metadata/lobby_metadata.dart';
 import 'lobby_chart_tile.dart';
 import 'lobby_counter_tile.dart';
 import 'lobby_indicator_tile.dart';
-import 'lobby_link_tile.dart';
 
 class LobbyElementTile extends StatelessWidget {
   final LobbyElementMetadata metadata;
@@ -20,11 +19,8 @@ class LobbyElementTile extends StatelessWidget {
       case LobbyElementType.barChart:
       case LobbyElementType.lineChart:
         return LobbyChartTile(metadata: metadata);
-      case LobbyElementType.linkTile:
-        return LobbyLinkTile(metadata: metadata);
-      case LobbyElementType.list:
       case LobbyElementType.unknown:
-        return LobbyLinkTile(metadata: metadata);
+        return const SizedBox.shrink();
     }
   }
 }

@@ -8,7 +8,7 @@ class ApiConfig {
     id: '',
     name: '',
     baseUrl: '',
-    realm: 'ifs',
+    realm: 'default',
     clientId: '',
     clientSecret: '',
   );
@@ -50,7 +50,7 @@ class ApiConfig {
 
   String get tokenEndpoint {
     final base = activeServer.baseUrl.replaceAll(RegExp(r'/+$'), '');
-    final realm = activeServer.realm.trim().isNotEmpty ? activeServer.realm.trim() : 'ifs';
+    final realm = activeServer.realm.trim().isNotEmpty ? activeServer.realm.trim() : 'default';
     return '$base/auth/realms/$realm/protocol/openid-connect/token';
   }
 }

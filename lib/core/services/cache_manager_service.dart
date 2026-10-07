@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/painting.dart';
+import 'schema_catalog_service.dart';
 
 class CacheManagerService {
   static final CacheManagerService instance = CacheManagerService._();
@@ -17,11 +18,11 @@ class CacheManagerService {
     try {
       final tempDir = Directory.systemTemp;
       if (tempDir.existsSync()) {
-        final entities = tempDir.listSync(recursive: true, followLinks: false);
-        for (final entity in entities) {
-          if (entity is File) {
+        final items = tempDir.listSync(recursive: true, followLinks: false);
+        for (final item in items) {
+          if (item is File) {
             try {
-              totalBytes += entity.lengthSync();
+              totalBytes += item.lengthSync();
             } catch (_) {}
           }
         }
@@ -51,17 +52,20 @@ class CacheManagerService {
       PaintingBinding.instance.imageCache.clearLiveImages();
     } catch (_) {}
 
+    // Clear schema metadata memory cache
+    SchemaCatalogService.instance.clearCache();
+
     // Clean ephemeral temporary files
     try {
       final tempDir = Directory.systemTemp;
       if (tempDir.existsSync()) {
-        final entities = tempDir.listSync(recursive: false);
-        for (final entity in entities) {
+        final items = tempDir.listSync(recursive: false);
+        for (final item in items) {
           try {
-            if (entity is File) {
-              entity.deleteSync();
-            } else if (entity is Directory) {
-              entity.deleteSync(recursive: true);
+            if (item is File) {
+              item.deleteSync();
+            } else if (item is Directory) {
+              item.deleteSync(recursive: true);
             }
           } catch (_) {}
         }

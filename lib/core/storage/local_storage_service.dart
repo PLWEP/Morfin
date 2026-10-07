@@ -65,10 +65,27 @@ class LocalStorageService {
     return servers.first;
   }
 
+  static const _keyFavorites = 'app_favorite_menu_ids_v1';
+
+  List<String> getFavoriteMenuIds() => _prefs.getStringList(_keyFavorites) ?? [];
+
+  Future<bool> saveFavoriteMenuIds(List<String> ids) => _prefs.setStringList(_keyFavorites, ids);
+
+  Future<bool> toggleFavoriteMenuId(String id) async {
+    final current = getFavoriteMenuIds().toList();
+    if (current.contains(id)) {
+      current.remove(id);
+    } else {
+      current.add(id);
+    }
+    return saveFavoriteMenuIds(current);
+  }
+
   Future<void> clearAll() async {
     clearLegacyMockData();
     await _prefs.remove(_keyTheme);
     await _prefs.remove(_keyServers);
     await _prefs.remove(_keySelectedServerId);
+    await _prefs.remove(_keyFavorites);
   }
 }

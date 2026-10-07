@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../core/network/api_client.dart';
 import '../../core/services/cache_manager_service.dart';
+import '../../core/services/navigator_service.dart';
 import 'settings_contract.dart';
 
 class SettingsViewModel extends ValueNotifier<SettingsState> {
@@ -21,6 +22,7 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
     switch (action) {
       case SettingsClearCache():
         await _cacheManager.clearCache();
+        NavigatorService.instance.clearCache();
         final text = await _cacheManager.getCacheSizeDescription();
         value = value.copyWith(
           cacheSizeText: text,
@@ -32,6 +34,7 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
         );
       case SettingsLockTerminal():
         ApiClient.instance.logout();
+        NavigatorService.instance.clearCache();
         value = value.copyWith(
           toastMessage: 'Logged out successfully',
         );
