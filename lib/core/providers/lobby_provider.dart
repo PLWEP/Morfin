@@ -26,7 +26,7 @@ class LobbyNotifier extends AsyncNotifier<LobbyPageMetadata> {
       tasks.add(() async {
         try {
           // Fetch count with filter
-          final count = await BackendService.instance.fetchEntityCount(
+          final count = await BackendService.instance.fetchRecordCount(
             projection: elem.targetProjection!,
             entitySet: elem.targetEndpoint!,
             filter: elem.filterConditions,
@@ -40,7 +40,7 @@ class LobbyNotifier extends AsyncNotifier<LobbyPageMetadata> {
             );
           } else if (elem.type == LobbyElementType.indicator) {
             // Fetch total count without filter to compute authentic ratio
-            final total = await BackendService.instance.fetchEntityCount(
+            final total = await BackendService.instance.fetchRecordCount(
               projection: elem.targetProjection!,
               entitySet: elem.targetEndpoint!,
             );

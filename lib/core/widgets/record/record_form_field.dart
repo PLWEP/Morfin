@@ -1,11 +1,11 @@
-import 'barcode_scanner_sheet.dart';
-import '../../services/industrial_feedback_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../storage/local_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/record_metadata.dart';
+import '../../services/industrial_feedback_service.dart';
+import '../../storage/local_storage_service.dart';
+import 'barcode_scanner_sheet.dart';
 import 'record_lookup_sheet.dart';
 
 class RecordFormField extends StatefulWidget {
@@ -48,11 +48,7 @@ class _RecordFormFieldState extends State<RecordFormField> {
   void _checkIndustrialMode() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      if (mounted) {
-        setState(() {
-          _isIndustrialMode = LocalStorageService(prefs).getIndustrialMode();
-        });
-      }
+      if (mounted) setState(() => _isIndustrialMode = LocalStorageService(prefs).getIndustrialMode());
     } catch (_) {}
   }
 
@@ -105,10 +101,24 @@ class _RecordFormFieldState extends State<RecordFormField> {
     );
   }
 
+  Future<void> _scanBarcode() async {
+    final code = await BarcodeScannerSheet.scan(
+      context,
+      title: 'Scan ${widget.field.label}',
+      subtitle: 'Align barcode within frame',
+    );
+    if (code != null && code.isNotEmpty) {
+      setState(() {
+        _controller.text = code;
+        _selectedValue = code;
+      });
+      widget.onChanged(code);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-
     if (widget.field.options.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 12),
@@ -135,82 +145,35 @@ class _RecordFormFieldState extends State<RecordFormField> {
         controller: _controller,
         readOnly: hasLov,
         onTap: hasLov ? _openLov : null,
-        keyboardType: isNum
-            ? TextInputType.number
-            : (isBarcode && _isIndustrialMode)
-                ? TextInputType.none
-                : TextInputType.text,
+        keyboardType: isNum ? TextInputType.number : (isBarcode && _isIndustrialMode) ? TextInputType.none : TextInputType.text,
         style: GoogleFonts.inter(fontSize: 13, color: colors.onSurface),
         decoration: _decoration(
           colors,
           suffixIcon: isBarcode
-              ? IconButton(
-                  icon: Icon(Icons.qr_code_scanner_rounded, size: 20, color: colors.statusActive),
-                  tooltip: 'Scan Barcode',
-                  onPressed: () async {
-                    final code = await BarcodeScannerSheet.scan(
-                      context,
-                      title: 'Scan ${widget.field.label}',
-                      subtitle: 'Align barcode within frame',
-                    );
-                    if (code != null && code.isNotEmpty) {
-                      setState(() {
-                        _controller.text = code;
-                        _selectedValue = code;
-                      });
-                      widget.onChanged(code);
-                    }
-                  },
-                )
-              : hasLov
-                  ? IconButton(
-                      icon: const Icon(Icons.arrow_drop_down_circle_outlined, size: 18),
-                      onPressed: _openLov,
-                    )
-                  : null,
+              ? IconButton(icon: Icon(Icons.qr_code_scanner_rounded, size: 20, color: colors.statusActive), tooltip: 'Scan Barcode', onPressed: _scanBarcode)
+              : hasLov ? IconButton(icon: const Icon(Icons.arrow_drop_down_circle_outlined, size: 18), onPressed: _openLov) : null,
         ),
-        validator: widget.field.isRequired
-            ? (val) => (val == null || val.trim().isEmpty) ? '${widget.field.label} is required' : null
-            : null,
+        validator: widget.field.isRequired ? (val) => (val == null || val.trim().isEmpty) ? '${widget.field.label} is required' : null : null,
         onChanged: widget.onChanged,
         onFieldSubmitted: (val) {
-          if (isBarcode) {
-            IndustrialFeedbackService.instance.playScan();
-          }
+          if (isBarcode) IndustrialFeedbackService.instance.playScan();
           widget.onChanged(val);
         },
-        onSaved: (val) {
-          if (hasLov && _selectedValue != null) {
-            widget.onSaved(_selectedValue);
-          } else {
-            widget.onSaved(val?.trim() ?? '');
-          }
-        },
+        onSaved: (val) => widget.onSaved(hasLov && _selectedValue != null ? _selectedValue : (val?.trim() ?? '')),
       ),
     );
   }
 
-  InputDecoration _decoration(AppPalette colors, {Widget? suffixIcon}) => InputDecoration(
-        labelText: widget.field.isRequired ? '${widget.field.label} *' : widget.field.label,
-        labelStyle: GoogleFonts.inter(fontSize: 12, color: colors.outline),
-        filled: true,
-        fillColor: colors.surfaceCard,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.surfaceBorder),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.primary, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.statusCritical),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.statusCritical, width: 1.5),
-        ),
-        suffixIcon: suffixIcon,
-      );
+  InputDecoration _decoration(AppPalette colors, {Widget? suffixIcon}) {
+    final b = OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: colors.surfaceBorder));
+    return InputDecoration(
+      labelText: widget.field.isRequired ? '${widget.field.label} *' : widget.field.label,
+      labelStyle: GoogleFonts.inter(fontSize: 12, color: colors.outline),
+      filled: true, fillColor: colors.surfaceCard, enabledBorder: b,
+      focusedBorder: b.copyWith(borderSide: BorderSide(color: colors.primary, width: 1.5)),
+      errorBorder: b.copyWith(borderSide: BorderSide(color: colors.statusCritical)),
+      focusedErrorBorder: b.copyWith(borderSide: BorderSide(color: colors.statusCritical, width: 1.5)),
+      suffixIcon: suffixIcon,
+    );
+  }
 }

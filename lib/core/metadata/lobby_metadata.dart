@@ -2,19 +2,11 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'action_metadata.dart';
 
-enum LobbyElementType {
-  counter,
-  indicator,
-  barChart,
-  lineChart,
-  unknown,
-}
+enum LobbyElementType { counter, indicator, barChart, lineChart, unknown }
 
 @immutable
 class LobbyGridSpan {
-  final int col;
-  final int row;
-
+  final int col, row;
   const LobbyGridSpan({this.col = 1, this.row = 1});
 
   factory LobbyGridSpan.fromJson(Map<String, dynamic>? json) {
@@ -51,21 +43,14 @@ class LobbyElementMetadata {
   });
 
   LobbyElementMetadata copyWith({
-    String? value,
-    String? change,
-    bool? isPositive,
-    String? benchmark,
-    double? percentage,
-    double? target,
-    List<Map<String, dynamic>>? chartPoints,
+    String? value, String? change, bool? isPositive, String? benchmark,
+    double? percentage, double? target, List<Map<String, dynamic>>? chartPoints,
   }) => LobbyElementMetadata(
     id: id, type: type, title: title, subtitle: subtitle, icon: icon, span: span,
     value: value ?? this.value, unit: unit, change: change ?? this.change,
     isPositive: isPositive ?? this.isPositive, benchmark: benchmark ?? this.benchmark,
-    trendPoints: trendPoints,
-    percentage: percentage ?? this.percentage,
-    target: target ?? this.target,
-    chartPoints: chartPoints ?? this.chartPoints,
+    trendPoints: trendPoints, percentage: percentage ?? this.percentage,
+    target: target ?? this.target, chartPoints: chartPoints ?? this.chartPoints,
     items: items, colorToken: colorToken, action: action, targetProjection: targetProjection,
     targetEndpoint: targetEndpoint, filterConditions: filterConditions, navNodeId: navNodeId,
   );
@@ -82,7 +67,6 @@ class LobbyElementMetadata {
 
     final rawTrend = (json['trendPoints'] ?? json['TrendPoints']) as List<dynamic>? ?? [];
     final trendPoints = rawTrend.map((e) => (e as num).toDouble()).toList();
-
     final targetProj = (json['targetProjection'] ?? json['TargetProjection']) as String?;
     final targetEndp = (json['targetEndpoint'] ?? json['TargetEndpoint']) as String?;
     final filterCond = (json['filterConditions'] ?? json['FilterConditions']) as String?;
@@ -115,7 +99,6 @@ class LobbyElementMetadata {
     double? pct = ((json['percentage'] ?? json['Percentage']) as num?)?.toDouble();
     double? tgt = ((json['target'] ?? json['Target']) as num?)?.toDouble();
 
-    // Dynamically parse JSON payloads from filterConditions (e.g. chart points array or indicator dict)
     if (filterCond != null && filterCond.trim().isNotEmpty) {
       try {
         final decoded = jsonDecode(filterCond);
@@ -160,23 +143,16 @@ class LobbyElementMetadata {
 
 @immutable
 class LobbyPageMetadata {
-  final String pageId;
-  final String title;
+  final String pageId, title;
   final String? subtitle;
   final List<LobbyElementMetadata> elements;
 
   const LobbyPageMetadata({
-    required this.pageId,
-    required this.title,
-    this.subtitle,
-    this.elements = const [],
+    required this.pageId, required this.title, this.subtitle, this.elements = const [],
   });
 
   const LobbyPageMetadata.empty()
-      : pageId = '',
-        title = '',
-        subtitle = null,
-        elements = const [];
+      : pageId = '', title = '', subtitle = null, elements = const [];
 
   factory LobbyPageMetadata.fromJson(Map<String, dynamic> json) {
     final rawElems = (json['elements'] ?? json['Elements'] ?? json['value'] ?? []) as List<dynamic>? ?? [];
@@ -184,10 +160,7 @@ class LobbyPageMetadata {
       pageId: (json['pageId'] ?? json['PageId'] ?? 'lobby_main').toString(),
       title: (json['title'] ?? json['Title'] ?? 'Lobby').toString(),
       subtitle: (json['subtitle'] ?? json['Subtitle']) as String?,
-      elements: rawElems
-          .whereType<Map>()
-          .map((e) => LobbyElementMetadata.fromJson(Map<String, dynamic>.from(e)))
-          .toList(),
+      elements: rawElems.whereType<Map>().map((e) => LobbyElementMetadata.fromJson(Map<String, dynamic>.from(e))).toList(),
     );
   }
 }

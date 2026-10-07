@@ -109,7 +109,7 @@ class BackendService {
     return LobbyPageMetadata.fromJson(res);
   }
 
-  Future<int> fetchEntityCount({
+  Future<int> fetchRecordCount({
     required String projection,
     required String entitySet,
     String? filter,

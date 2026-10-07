@@ -7,7 +7,7 @@
 [![Static_Analysis](https://img.shields.io/badge/Static_Analysis-0_Issues-brightgreen.svg)]()
 [![Tests](https://img.shields.io/badge/Tests-100%25_Passing-success.svg)]()
 
-> **Morfin** is a high-performance, vendor-neutral native Android ERP client built with Flutter. It implements an end-to-end **Server-Driven UI (SDUI)** architecture consuming live **REST Projections** (IFS Cloud compatible) with strict MVVM and Material Design 3.
+> **Morfin** is a high-performance, vendor-neutral native Android ERP client built with Flutter. It implements an end-to-end **Server-Driven UI (SDUI)** architecture consuming live **REST Projections** (IFS Cloud compatible) with strict MVVM, Material Design 3, and Unidirectional Data Flow (UDF).
 
 ---
 
@@ -18,7 +18,7 @@ Any engineer or AI agent contributing to this codebase must adhere strictly to t
 1. **Target Platform**:
    - **Android only**. No cross-platform shims, iOS pods, or redundant platform checks.
 2. **Strictly Always-Online (Zero Offline Transactions)**:
-   - ERP operations must always sync live with backend projections to ensure master data integrity.
+   - ERP operations always sync live with backend REST projections to guarantee master data integrity.
    - Offline-first mutation queues and cached transactional states are intentionally disallowed.
 3. **Anti-God-File Policy**:
    - **Soft Limit**: Maximum **180 lines** per file.
@@ -29,9 +29,9 @@ Any engineer or AI agent contributing to this codebase must adhere strictly to t
    - Strictly adhere to `antislop-ui` standards: clean, deterministic layouts; eliminate bloated abstractions, generic placeholder wrappers, and decorative UI slop.
 5. **Testing Directive**:
    - Do NOT generate test suites, unit tests, or instrumentation tests unless explicitly instructed.
-6. **Vendor Decoupling**:
-   - All internal class names, file paths, and identifiers must remain vendor-neutral (`ApiClient`, `ApiConfig`, `AuthInterceptor`, `BackendService`, `EntitySchemaRegistry`).
-   - Enterprise system branding is isolated exclusively to user-facing typography and visual assets.
+6. **Vendor Decoupling & Professional Naming**:
+   - All internal class names, contracts, and identifiers must remain vendor-neutral (`ApiClient`, `ApiConfig`, `AuthInterceptor`, `BackendService`, `RecordSchemaRegistry`, `RecordFieldMetadata`).
+   - Legacy prefixes (`ifs_`) and informal colloquialisms (`mobile`, `odata`, `entity` when referring to generic records) are avoided in internal domain models.
 7. **Mandatory RTK Tooling Prefix**:
    - All terminal, build, test, and git commands must be executed with the `rtk` wrapper prefix (e.g., `rtk dart analyze lib test`, `rtk flutter test`, `rtk git status`).
 
@@ -57,7 +57,7 @@ The codebase is indexed via **Graphify AST extraction** to provide full topologi
 | 6 | `localStorageServiceProvider` | Provider | 5 | Persists user preferences and server profiles |
 | 7 | `SettingsAction` | Sealed Class | 5 | Global theme and application configuration events |
 | 8 | `ActionMetadata` | Contract | 4 | Standardized contract for UI actions and navigation triggers |
-| 9 | `EntitySchemaMetadata` | Contract | 4 | SDUI schema definition for dynamic record sets, cards, and actions |
+| 9 | `RecordSchemaMetadata` | Contract | 4 | SDUI schema definition for dynamic endpoints, cards, and actions |
 | 10 | `ThemeModeNotifier` | Notifier / State | 4 | Reactive theme mode state management |
 
 ---
@@ -83,39 +83,39 @@ lib/
 │   │   ├── api_client.dart             # HTTP verbs, projection calls, OAuth
 │   │   ├── api_config.dart             # Active server target & token storage
 │   │   ├── auth_interceptor.dart       # Token injection & transparent 401 refresh
-│   │   └── data_query.dart             # Query string builder ($filter, $select, $top)
+│   │   └── data_query.dart             # Query builder ($filter, $select, $top)
 │   ├── providers/           # Shared Riverpod Global State Providers
+│   │   ├── lobby_provider.dart         # Dynamic lobby aggregation provider
 │   │   └── user_profile_provider.dart  # Live FrameworkServices user info provider
 │   ├── services/            # Domain Projection & Utility Gateways
 │   │   ├── activity_log_service.dart   # In-memory diagnostics logger & exporter
 │   │   ├── backend_service.dart        # Core projection gateway & batch executor
 │   │   ├── cache_manager_service.dart  # Cache directory size calculator & purger
+│   │   ├── industrial_feedback_service.dart # Haptic & sound cues for warehouse ops
 │   │   ├── navigator_service.dart      # Dynamic navigation hierarchy service
 │   │   └── schema_catalog_service.dart # Live projection schema discovery & XML metadata
 │   ├── storage/             # Device Local Storage
 │   │   └── local_storage_service.dart  # SharedPreferences for servers & theme
-│   ├── utils/               # Resolvers & Helpers
+│   ├── utils/               # Resolvers, Sanitizers & Parsers
+│   │   ├── action_field_consolidator.dart
+│   │   ├── action_metadata_loader.dart
 │   │   ├── color_resolver.dart
-│   │   ├── column_config_parser.dart   # Parser for dynamic list column configurations
-│   │   └── icon_resolver.dart
+│   │   ├── column_config_parser.dart
+│   │   ├── icon_resolver.dart
+│   │   ├── param_config_parser.dart
+│   │   ├── payload_utils.dart
+│   │   └── record_lookup_loader.dart
 │   └── widgets/             # Reusable SDUI Components
-│       ├── record/          # RecordCard, RecordStatusBadge, RecordListScreen, RecordDetailScreen, RecordActionSheet
-│       ├── lobby/           # LobbyGrid, LobbyElementTile, LobbyCounterTile, LobbyChartTile
+│       ├── record/          # RecordCard, RecordListScreen, RecordDetailScreen, RecordActionSheet, RecordFormField, BarcodeScannerSheet
+│       ├── lobby/           # LobbyGrid, LobbyElementTile, LobbyCounterTile, LobbyChartTile, LobbyDetailSheet, LobbyDetailSections
 │       └── menu/            # MenuSectionCard, MenuItemTile, ModuleInfoSheet
 ├── features/
 │   ├── login/               # Authentication & Server Profile Management
-│   │   ├── components/      # ServerCardTile, LoginFormCard, ServerFormField
-│   │   ├── models/          # ServerConfig
-│   │   ├── login_screen.dart
-│   │   ├── manage_servers_screen.dart
-│   │   └── server_form_screen.dart
 │   ├── lobby/               # Dynamic Dashboard Screens (LobbyScreen)
 │   ├── menu/                # Dynamic Navigator Menus (MenuScreen)
 │   ├── shell/               # 3-Tab Main Navigation Bar & Shell (MainShellScreen)
 │   ├── splash/              # Initialization & Session Recovery (SplashScreen)
 │   └── settings/            # User Preferences, Theme, Diagnostics, Cache Management
-│       ├── components/      # ActivityLogsSheet, ProfileSectionCard, StorageSectionCard
-│       └── settings_screen.dart
 └── theme/                   # Material 3 Dynamic Palette & Tokens
 ```
 
@@ -125,18 +125,18 @@ lib/
 
 ### A. Server-Driven UI (SDUI) Rendering Pipeline
 ```
-[Backend Metadata / Registry] ──> EntitySchemaMetadata
+[Backend Metadata / Registry] ──> RecordSchemaMetadata
                                       │
                                       ├──> RecordListScreen (Dynamic Appbar, Search, FAB)
                                       │         │
                                       │         └──> RecordCard (Aligned table grid, status badges)
                                       │
-                                      └──> AppActionDispatcher ──> RecordActionSheet (Dynamic forms)
+                                      └──> ActionDispatcher ──> RecordActionSheet (Dynamic forms & wizards)
 ```
 
-1. **Schema Definition**: Projections declare their projection name, entity set, fields, keys, filters, and actionable mutations via `EntitySchemaMetadata`.
+1. **Schema Definition**: Projections declare their projection name, entity set, fields, keys, filters, and actionable mutations via `RecordSchemaMetadata`.
 2. **Rendering**: `RecordListScreen` reads schema configuration to project raw records into uniform UI components without hardcoded record screens.
-3. **Actions**: Dynamic actions (`create`, `form_dialog`, `action`) render dynamic bottom sheets via `RecordActionSheet` and `RecordActionExecutor`.
+3. **Actions**: Dynamic actions (`create`, `form_dialog`, `action`) render dynamic bottom sheets via `RecordActionSheet` and step-by-step wizard modes for complex industrial input.
 
 ### B. Network Pipeline
 ```
@@ -168,7 +168,7 @@ rtk dart analyze lib test
 rtk flutter test
 ```
 
-### Adding a New Entity Projection
-1. Register the schema in `lib/core/metadata/entity_schema_registry.dart` with `projection` and `entitySet`.
-2. Register the route alias in `EntitySchemaRegistry.findByTarget(...)`.
-3. The entity is immediately browsable, searchable, and actionable across the app without writing a single new screen or widget.
+### Adding a New Record Projection
+1. Register the schema in `lib/core/metadata/record_schema_registry.dart` with `projection` and `entitySet`.
+2. Register the route alias in `RecordSchemaRegistry.findByTarget(...)`.
+3. The record collection is immediately browsable, searchable, and actionable across the app without writing a single new screen or widget.
