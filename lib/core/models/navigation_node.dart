@@ -3,7 +3,6 @@ class NavigationNode {
   final int? parentId;
   final String label;
   final String actionType;
-  final String? icon;
   final String? targetUrl;
   final String? defaultFilter;
   final String? itemClickAction;
@@ -21,7 +20,6 @@ class NavigationNode {
     this.parentId,
     required this.label,
     required this.actionType,
-    this.icon,
     this.targetUrl,
     this.targetProjection,
     this.targetEndpoint,
@@ -41,7 +39,6 @@ class NavigationNode {
       parentId: json['ParentId'] as int?,
       label: (json['Label'] ?? json['CleanLabel'] ?? '').toString(),
       actionType: (json['ActionType'] ?? '').toString(),
-      icon: json['Icon'] as String?,
       targetUrl: json['TargetUrl'] as String?,
       targetProjection: (json['TargetProjection'] ?? json['target_projection']) as String?,
       targetEndpoint: (json['TargetEndpoint'] ?? json['target_endpoint']) as String?,
@@ -61,7 +58,6 @@ class NavigationNode {
     'ParentId': parentId,
     'Label': label,
     'ActionType': actionType,
-    'Icon': icon,
     'TargetUrl': targetUrl,
     'TargetProjection': targetProjection,
     'TargetEndpoint': targetEndpoint,

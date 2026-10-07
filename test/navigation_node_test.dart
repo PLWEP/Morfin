@@ -10,7 +10,6 @@ void main() {
         'ParentId': 2,
         'Label': 'Release Purchase Requisition',
         'ActionType': 'LIST',
-        'Icon': 'shopping_cart',
         'TargetUrl': 'PurchaseRequisitionHandling.svc/PurchaseRequisitionSet',
         'DefaultFilter': "Objstate eq 'Planned'",
         'ItemClickAction': null,
