@@ -4,56 +4,78 @@ import 'package:flutter/services.dart';
 
 class IndustrialFeedbackService {
   static final IndustrialFeedbackService instance = IndustrialFeedbackService._();
-  final AudioPlayer _player = AudioPlayer();
+  AudioPlayer? _player;
   bool isSoundEnabled = true;
   bool isHapticsEnabled = true;
 
-  IndustrialFeedbackService._() {
-    _player.setReleaseMode(ReleaseMode.stop);
+  IndustrialFeedbackService._();
+
+  AudioPlayer get _audioPlayer {
+    if (_player == null) {
+      _player = AudioPlayer();
+      try {
+        _player!.setReleaseMode(ReleaseMode.stop);
+      } catch (_) {}
+    }
+    return _player!;
   }
 
   Future<void> playSuccess() async {
     if (isHapticsEnabled) {
-      await HapticFeedback.lightImpact();
+      try {
+        await HapticFeedback.lightImpact();
+      } catch (_) {}
     }
     if (!isSoundEnabled) return;
     try {
-      await _player.stop();
-      await _player.play(AssetSource('audio/success.mp3'));
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audio/success.mp3'));
     } catch (e) {
       debugPrint('IndustrialFeedbackService.playSuccess fallback: $e');
-      await SystemSound.play(SystemSoundType.click);
+      try {
+        await SystemSound.play(SystemSoundType.click);
+      } catch (_) {}
     }
   }
 
   Future<void> playError() async {
     if (isHapticsEnabled) {
-      await HapticFeedback.heavyImpact();
+      try {
+        await HapticFeedback.heavyImpact();
+      } catch (_) {}
     }
     if (!isSoundEnabled) return;
     try {
-      await _player.stop();
-      await _player.play(AssetSource('audio/error.mp3'));
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audio/error.mp3'));
     } catch (e) {
       debugPrint('IndustrialFeedbackService.playError fallback: $e');
-      await SystemSound.play(SystemSoundType.alert);
+      try {
+        await SystemSound.play(SystemSoundType.alert);
+      } catch (_) {}
     }
   }
 
   Future<void> playScan() async {
     if (isHapticsEnabled) {
-      await HapticFeedback.selectionClick();
+      try {
+        await HapticFeedback.selectionClick();
+      } catch (_) {}
     }
     if (!isSoundEnabled) return;
     try {
-      await _player.stop();
-      await _player.play(AssetSource('audio/success.mp3'));
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audio/success.mp3'));
     } catch (e) {
-      await SystemSound.play(SystemSoundType.click);
+      try {
+        await SystemSound.play(SystemSoundType.click);
+      } catch (_) {}
     }
   }
 
   void dispose() {
-    _player.dispose();
+    try {
+      _player?.dispose();
+    } catch (_) {}
   }
 }

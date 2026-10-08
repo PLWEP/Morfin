@@ -157,4 +157,10 @@ class NavigatorService {
     final e = parts[1].split('?')[0].replaceAll('/', '').trim();
     return (p.isNotEmpty ? p : null, e.isNotEmpty ? e : null);
   }
+
+  @visibleForTesting
+  MenuMetadata transformNodesForTesting(List<Map<String, dynamic>> nodes) => _transformNodesToMenu(nodes);
+
+  @visibleForTesting
+  (String?, String?) parseTargetUrlForTesting(String? url) => _parseTargetUrl(url);
 }
