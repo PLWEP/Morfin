@@ -6,6 +6,7 @@ import 'package:morfin/core/network/api_client.dart';
 import 'package:morfin/core/network/api_config.dart';
 import 'package:morfin/core/services/schema_catalog_service.dart';
 import 'package:morfin/features/login/models/server_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _TestHttpOverrides extends HttpOverrides {
   @override
@@ -16,6 +17,7 @@ class _TestHttpOverrides extends HttpOverrides {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = _TestHttpOverrides();
 
   late Map<String, dynamic> config;
@@ -23,6 +25,7 @@ void main() {
 
   setUpAll(() async {
     HttpOverrides.global = _TestHttpOverrides();
+    SharedPreferences.setMockInitialValues({});
     if (!configFile.existsSync()) {
       fail('Missing test/real_api_config.json!');
     }

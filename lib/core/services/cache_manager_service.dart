@@ -6,6 +6,8 @@ class CacheManagerService {
   static final CacheManagerService instance = CacheManagerService._();
   CacheManagerService._();
 
+  Directory get _appCacheDir => Directory('${Directory.systemTemp.path}/morfin_cache');
+
   Future<int> getCacheSizeBytes() async {
     int totalBytes = 0;
 
@@ -14,11 +16,10 @@ class CacheManagerService {
       totalBytes += PaintingBinding.instance.imageCache.currentSizeBytes;
     } catch (_) {}
 
-    // 2. Volatile OS temporary directory
+    // 2. Volatile application temporary directory
     try {
-      final tempDir = Directory.systemTemp;
-      if (tempDir.existsSync()) {
-        final items = tempDir.listSync(recursive: true, followLinks: false);
+      if (_appCacheDir.existsSync()) {
+        final items = _appCacheDir.listSync(recursive: true, followLinks: false);
         for (final item in items) {
           if (item is File) {
             try {
@@ -55,20 +56,10 @@ class CacheManagerService {
     // Clear schema metadata memory cache
     SchemaCatalogService.instance.clearCache();
 
-    // Clean ephemeral temporary files
+    // Clean ephemeral temporary files safely within app-scoped dir
     try {
-      final tempDir = Directory.systemTemp;
-      if (tempDir.existsSync()) {
-        final items = tempDir.listSync(recursive: false);
-        for (final item in items) {
-          try {
-            if (item is File) {
-              item.deleteSync();
-            } else if (item is Directory) {
-              item.deleteSync(recursive: true);
-            }
-          } catch (_) {}
-        }
+      if (_appCacheDir.existsSync()) {
+        _appCacheDir.deleteSync(recursive: true);
       }
     } catch (_) {}
   }

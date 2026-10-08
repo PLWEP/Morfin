@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../metadata/menu_metadata.dart';
-import '../../utils/icon_resolver.dart';
 import 'menu_item_tile.dart';
 
 class MenuSectionCard extends StatelessWidget {
@@ -24,7 +23,7 @@ class MenuSectionCard extends StatelessWidget {
     if (group.items.isEmpty) return const SizedBox.shrink();
 
     final colors = AppColors.of(context);
-    final iconData = group.icon != null ? IconResolver.resolve(group.icon) : null;
+    const iconData = Icons.folder_open_rounded;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,10 +32,8 @@ class MenuSectionCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Row(
             children: [
-              if (iconData != null) ...[
-                Icon(iconData, size: 15, color: colors.outline),
-                const SizedBox(width: 6),
-              ],
+              Icon(iconData, size: 15, color: colors.outline),
+              const SizedBox(width: 6),
               Text(
                 group.title.toUpperCase(),
                 style: GoogleFonts.inter(

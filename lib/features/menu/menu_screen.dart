@@ -43,7 +43,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
   List<MenuGroupMetadata> _filterGroups(MenuMetadata metadata) {
     return metadata.groups.map((group) {
       if (_selectedCategory != 'all' && group.id != _selectedCategory) {
-        return MenuGroupMetadata(id: group.id, title: group.title, icon: group.icon, items: const []);
+        return MenuGroupMetadata(id: group.id, title: group.title, items: const []);
       }
       final q = _searchQuery.toLowerCase();
       final filteredItems = group.items.where((item) {
@@ -56,7 +56,6 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
       return MenuGroupMetadata(
         id: group.id,
         title: group.title,
-        icon: group.icon,
         items: filteredItems,
       );
     }).where((group) => group.items.isNotEmpty).toList();

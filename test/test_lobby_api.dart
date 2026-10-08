@@ -16,7 +16,7 @@ class _TestHttpOverrides extends HttpOverrides {
 void main() {
   HttpOverrides.global = _TestHttpOverrides();
 
-  test('Test MobileLobbyHandling API endpoints', () async {
+  test('Test MobileLobbyDesignHandling API endpoints', () async {
     final configFile = File('test/real_api_config.json');
     final config = jsonDecode(configFile.readAsStringSync()) as Map<String, dynamic>;
 
@@ -41,7 +41,7 @@ void main() {
     // 1. Test GetMobileLobby() function
     try {
       final lobbyFuncRes = await ApiClient.instance.callFunction(
-        'MobileLobbyHandling',
+        'MobileLobbyDesignHandling',
         'GetMobileLobby()',
       );
       print('GetMobileLobby() function response:');
@@ -50,18 +50,18 @@ void main() {
       print('GetMobileLobby() function error: $e');
     }
 
-    // 2. Test MobileLobbyElementSet collection
+    // 2. Test MobileLobbyDesignSet collection
     try {
       final lobbySetRes = await ApiClient.instance.getCollection(
-        'MobileLobbyHandling',
-        'MobileLobbyElementSet',
+        'MobileLobbyDesignHandling',
+        'MobileLobbyDesignSet',
       );
-      print('MobileLobbyElementSet count: ${lobbySetRes.length}');
+      print('MobileLobbyDesignSet count: ${lobbySetRes.length}');
       for (final item in lobbySetRes) {
         print('Element: ${item['ElementId']} - ${item['Title']} - ${item['ElementType']}');
       }
     } catch (e) {
-      print('MobileLobbyElementSet error: $e');
+      print('MobileLobbyDesignSet error: $e');
     }
   });
 }

@@ -1,3 +1,4 @@
+import '../network/odata_filter_builder.dart';
 import 'transaction_coordinator.dart';
 import '../metadata/lobby_metadata.dart';
 import 'dart:convert';
@@ -18,6 +19,19 @@ class BackendService {
     DataQuery? query,
   }) async {
     return _client.getCollection(projection, entitySet, query: query);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFilteredCollection({
+    required String projection,
+    required String entitySet,
+    required List<ODataFilterEntry> filters,
+    DataQuery? baseQuery,
+  }) async {
+    final filterString = ODataFilterBuilder.build(filters);
+    final query = (baseQuery ?? const DataQuery()).copyWith(
+      filter: (filterString != null && filterString.isNotEmpty) ? filterString : baseQuery?.filter,
+    );
+    return fetchCollection(projection: projection, entitySet: entitySet, query: query);
   }
 
   Future<Map<String, dynamic>> fetchRecord({
@@ -67,7 +81,7 @@ class BackendService {
   }) async {
     final keyListJson = jsonEncode(items.map(PayloadUtils.sanitize).toList());
     return executeAction(
-      projection: 'MobileNavMenuHandling',
+      projection: 'MobileAppDesignHandling',
       actionName: 'ExecuteBatchAction',
       parameters: {
         'TargetProjection': targetProjection,
@@ -91,7 +105,7 @@ class BackendService {
   }) async {
     try {
       final res = await executeFunction(
-        projection: 'MobileNavMenuHandling',
+        projection: 'MobileAppDesignHandling',
         functionName: "GetMobileMenu(ScopeId='$scopeId',DeviceType='$deviceType')",
       );
       final val = res['value'];
@@ -103,7 +117,7 @@ class BackendService {
   }
   Future<LobbyPageMetadata> fetchLobbyMetadata() async {
     final res = await executeFunction(
-      projection: 'MobileLobbyHandling',
+      projection: 'MobileLobbyDesignHandling',
       functionName: 'GetMobileLobby()',
     );
     return LobbyPageMetadata.fromJson(res);

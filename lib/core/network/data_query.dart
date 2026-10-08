@@ -17,6 +17,25 @@ class DataQuery {
     this.customParams = const {},
   });
 
+
+  DataQuery copyWith({
+    String? filter,
+    List<String>? select,
+    String? orderby,
+    int? top,
+    int? skip,
+    List<String>? expand,
+    Map<String, dynamic>? customParams,
+  }) => DataQuery(
+    filter: filter ?? this.filter,
+    select: select ?? this.select,
+    orderby: orderby ?? this.orderby,
+    top: top ?? this.top,
+    skip: skip ?? this.skip,
+    expand: expand ?? this.expand,
+    customParams: customParams ?? this.customParams,
+  );
+
   Map<String, dynamic> toQueryParams() {
     final params = <String, dynamic>{...customParams};
     if (filter != null && filter!.isNotEmpty) params['\$filter'] = filter;

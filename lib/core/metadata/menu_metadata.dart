@@ -7,7 +7,6 @@ class MenuItemMetadata {
   final String code;
   final String title;
   final String subtitle;
-  final String icon;
   final String category;
   final String? badgeText;
   final String badgeType;
@@ -18,7 +17,6 @@ class MenuItemMetadata {
     required this.code,
     required this.title,
     required this.subtitle,
-    required this.icon,
     required this.category,
     this.badgeText,
     this.badgeType = 'none',
@@ -31,7 +29,6 @@ class MenuItemMetadata {
       code: json['code'] as String? ?? '',
       title: json['title'] as String? ?? '',
       subtitle: json['subtitle'] as String? ?? '',
-      icon: json['icon'] as String? ?? 'folder',
       category: json['category'] as String? ?? 'General',
       badgeText: json['badgeText'] as String?,
       badgeType: json['badgeType'] as String? ?? 'none',
@@ -46,7 +43,6 @@ class MenuItemMetadata {
         'code': code,
         'title': title,
         'subtitle': subtitle,
-        'icon': icon,
         'category': category,
         if (badgeText != null) 'badgeText': badgeText,
         'badgeType': badgeType,
@@ -58,13 +54,11 @@ class MenuItemMetadata {
 class MenuGroupMetadata {
   final String id;
   final String title;
-  final String? icon;
   final List<MenuItemMetadata> items;
 
   const MenuGroupMetadata({
     required this.id,
     required this.title,
-    this.icon,
     this.items = const [],
   });
 
@@ -73,7 +67,6 @@ class MenuGroupMetadata {
     return MenuGroupMetadata(
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      icon: json['icon'] as String?,
       items: rawItems
           .map((i) => MenuItemMetadata.fromJson(i as Map<String, dynamic>))
           .toList(),
@@ -83,7 +76,6 @@ class MenuGroupMetadata {
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,
-        if (icon != null) 'icon': icon,
         'items': items.map((i) => i.toJson()).toList(),
       };
 }

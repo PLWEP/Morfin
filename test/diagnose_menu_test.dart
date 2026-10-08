@@ -49,13 +49,13 @@ void main() {
   });
 
   test('Diagnose API Menu Nodes & Navigator Transformation', () async {
-    // Check MobileNavMenuHandling vs MobileNavMenu vs MobileAppNavigator
+    // Check MobileAppDesignHandling vs MobileNavMenu vs MobileAppNavigator
     try {
       final res1 = await ApiClient.instance.callFunction(
-        'MobileNavMenuHandling',
+        'MobileAppDesignHandling',
         "GetMobileMenu(ScopeId='global',DeviceType='phone')",
       );
-      print('MobileNavMenuHandling result: ${res1.runtimeType} -> ${res1['value']?.length} items');
+      print('MobileAppDesignHandling result: ${res1.runtimeType} -> ${res1['value']?.length} items');
       if (res1['value'] is List) {
         for (var i = 0; i < (res1['value'] as List).length; i++) {
           print('Item $i: ${res1['value'][i]}');
@@ -63,13 +63,13 @@ void main() {
       }
     } catch (e) {
       // ignore: avoid_print
-      print('MobileNavMenuHandling failed: $e');
+      print('MobileAppDesignHandling failed: $e');
     }
 
     // Check ActionParamSet
     // Check ActionParamSet
     try {
-      final res = await ApiClient.instance.getCollection('MobileNavMenuHandling', 'ActionParamSet');
+      final res = await ApiClient.instance.getCollection('MobileAppDesignHandling', 'ActionParamSet');
       print('ActionParamSet count: ${res.length}');
       if (res.isNotEmpty) {
         print('ActionParamSet item 0: ${res[0]}');

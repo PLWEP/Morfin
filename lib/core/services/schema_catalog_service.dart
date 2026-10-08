@@ -1,3 +1,6 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import '../storage/local_storage_service.dart';
+import '../utils/schema_hasher.dart';
 import '../metadata/record_metadata.dart';
 import '../network/api_client.dart';
 import '../network/api_config.dart';
@@ -11,6 +14,10 @@ class SchemaCatalogService {
 
   void clearCache() => _xmlCache.clear();
   void invalidateProjection(String projection) => _xmlCache.remove(projection);
+  Future<String?> getSavedSchemaHash(String projection) async {
+    final prefs = await SharedPreferences.getInstance();
+    return LocalStorageService(prefs).getSchemaHash(projection);
+  }
 
   Future<String?> _getMetadataXml(String projection) async {
     final cached = _xmlCache[projection];
@@ -21,6 +28,8 @@ class SchemaCatalogService {
     final xml = await ApiClient.instance.getRawXml(url);
     if (xml != null && xml.isNotEmpty) {
       _xmlCache[projection] = (DateTime.now(), xml);
+      final hash = SchemaHasher.computeRawHash(xml);
+      SharedPreferences.getInstance().then((prefs) => LocalStorageService(prefs).saveSchemaHash(projection, hash));
       return xml;
     }
     return null;
@@ -77,26 +86,26 @@ class SchemaCatalogService {
     final xml = await _getMetadataXml(projection);
     if (xml == null) return [];
 
-    var entityName = collectionOrType.split('/').last.split('?').first;
-    if (entityName.endsWith('Set')) {
-      final esRegex = RegExp('<EntitySet\\s+Name="$entityName"\\s+EntityType="([^"]+)"', caseSensitive: false);
+    var typeName = collectionOrType.split('/').last.split('?').first;
+    if (typeName.endsWith('Set')) {
+      final esRegex = RegExp('<EntitySet\\s+Name="$typeName"\\s+EntityType="([^"]+)"', caseSensitive: false);
       final esMatch = esRegex.firstMatch(xml);
       if (esMatch != null) {
-        entityName = esMatch.group(1)!.split('.').last;
+        typeName = esMatch.group(1)!.split('.').last;
       } else {
-        entityName = entityName.substring(0, entityName.length - 3);
+        typeName = typeName.substring(0, typeName.length - 3);
       }
     }
 
-    final etRegex = RegExp('<EntityType\\s+Name="$entityName"', caseSensitive: false);
+    final etRegex = RegExp('<EntityType\\s+Name="$typeName"', caseSensitive: false);
     final etMatch = etRegex.firstMatch(xml);
     if (etMatch == null) {
       final firstEtMatch = RegExp(r'<EntityType\s+Name="([^"]+)"').firstMatch(xml);
       if (firstEtMatch == null) return [];
-      entityName = firstEtMatch.group(1)!;
+      typeName = firstEtMatch.group(1)!;
     }
 
-    final etIdx = xml.indexOf(RegExp('<EntityType\\s+Name="$entityName"', caseSensitive: false));
+    final etIdx = xml.indexOf(RegExp('<EntityType\\s+Name="$typeName"', caseSensitive: false));
     if (etIdx == -1) return [];
     final etEnd = xml.indexOf('</EntityType>', etIdx);
     final snippet = etEnd != -1 ? xml.substring(etIdx, etEnd + 13) : xml.substring(etIdx);
@@ -125,21 +134,21 @@ class SchemaCatalogService {
     final xml = await _getMetadataXml(projection);
     if (xml == null) return [];
 
-    var entityName = collectionOrType.split('/').last.split('?').first;
-    if (entityName.startsWith('Reference_')) {
-      entityName = entityName.substring('Reference_'.length);
+    var typeName = collectionOrType.split('/').last.split('?').first;
+    if (typeName.startsWith('Reference_')) {
+      typeName = typeName.substring('Reference_'.length);
     }
-    if (entityName.endsWith('Set')) {
-      final esRegex = RegExp('<EntitySet\\s+Name="$entityName"\\s+EntityType="([^"]+)"', caseSensitive: false);
+    if (typeName.endsWith('Set')) {
+      final esRegex = RegExp('<EntitySet\\s+Name="$typeName"\\s+EntityType="([^"]+)"', caseSensitive: false);
       final esMatch = esRegex.firstMatch(xml);
       if (esMatch != null) {
-        entityName = esMatch.group(1)!.split('.').last;
+        typeName = esMatch.group(1)!.split('.').last;
       } else {
-        entityName = entityName.substring(0, entityName.length - 3);
+        typeName = typeName.substring(0, typeName.length - 3);
       }
     }
 
-    final etRegex = RegExp('<EntityType\\s+Name="$entityName"[^>]*>', caseSensitive: false);
+    final etRegex = RegExp('<EntityType\\s+Name="$typeName"[^>]*>', caseSensitive: false);
     final match = etRegex.firstMatch(xml);
     if (match == null) return [];
 

@@ -76,7 +76,6 @@ class NavigatorService {
     for (final root in rootNodes) {
       final rootId = (root['NodeId'] ?? root['Id'] ?? '').toString();
       final rootLabel = (root['Label'] ?? root['CleanLabel'] ?? 'Module').toString().trim();
-      final rootIcon = root['Icon']?.toString();
       final items = getChildrenOfNode(rootId);
 
       if (items.isNotEmpty) {
@@ -84,7 +83,6 @@ class NavigatorService {
           MenuGroupMetadata(
             id: rootId,
             title: rootLabel,
-            icon: rootIcon ?? 'folder',
             items: items,
           ),
         );
@@ -105,7 +103,6 @@ class NavigatorService {
       final projection = child['TargetProjection'] as String? ?? parsedProj ?? child['Projection'] as String?;
       final entitySet = child['TargetEntitySet'] as String? ?? parsedEndpoint ?? child['EntitySet'] as String?;
       final actionType = (child['ActionType'] as String?)?.toUpperCase() ?? 'LIST';
-      final icon = child['Icon'] as String?;
       final defaultFilter = child['DefaultFilter'] as String?;
       final childCount = (child['ChildCount'] as num?)?.toInt() ?? 0;
       final isBottomSheet = actionType == 'BOTTOM_SHEET';
@@ -125,7 +122,6 @@ class NavigatorService {
         code: '',
         title: childLabel,
         subtitle: projection != null ? 'Projection: $projection' : 'Module',
-        icon: icon ?? 'folder',
         category: key,
         badgeText: actionType == 'FORM' ? 'Form' : null,
         badgeType: actionType == 'FORM' ? 'warning' : 'none',
@@ -161,4 +157,10 @@ class NavigatorService {
     final e = parts[1].split('?')[0].replaceAll('/', '').trim();
     return (p.isNotEmpty ? p : null, e.isNotEmpty ? e : null);
   }
+
+  @visibleForTesting
+  MenuMetadata transformNodesForTesting(List<Map<String, dynamic>> nodes) => _transformNodesToMenu(nodes);
+
+  @visibleForTesting
+  (String?, String?) parseTargetUrlForTesting(String? url) => _parseTargetUrl(url);
 }

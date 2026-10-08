@@ -17,7 +17,7 @@ class ActionMetadataLoader {
     List<Map<String, dynamic>> rawParams = [];
     try {
       rawParams = await BackendService.instance.fetchCollection(
-        projection: 'MobileNavMenuHandling',
+        projection: 'MobileAppDesignHandling',
         entitySet: 'ActionParamSet',
         query: DataQuery(filter: "ProjectionName eq '$projection' and ActionName eq '$actionName'"),
       );

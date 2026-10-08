@@ -3,6 +3,46 @@ import 'package:dio/dio.dart';
 class PayloadUtils {
   const PayloadUtils._();
 
+  static String? _extractKey(dynamic f) {
+    if (f == null) return null;
+    if (f is Map) return f['key']?.toString();
+    try {
+      return (f.key as dynamic)?.toString();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static String? _extractType(dynamic f) {
+    if (f == null) return null;
+    if (f is Map) return f['type']?.toString();
+    try {
+      return (f.type as dynamic)?.toString();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static bool _extractIsRequired(dynamic f) {
+    if (f == null) return false;
+    if (f is Map) return f['isRequired'] == true;
+    try {
+      return (f.isRequired as dynamic) == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static List<dynamic>? _extractNestedFields(dynamic f) {
+    if (f == null) return null;
+    if (f is Map) return f['nestedFields'] as List<dynamic>?;
+    try {
+      return (f.nestedFields as dynamic) as List<dynamic>?;
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Map<String, dynamic> sanitize(Map<String, dynamic> raw) {
     const internalKeys = {'luname', 'objid', 'objversion', 'rowkey', 'rowstate', 'rowtype'};
     final cleaned = <String, dynamic>{};
@@ -23,7 +63,8 @@ class PayloadUtils {
     final result = <String, dynamic>{};
     final fieldMap = <String, dynamic>{};
     for (final f in allFieldDefs) {
-      if (f.key != null) fieldMap[f.key.toString().toLowerCase()] = f;
+      final key = _extractKey(f);
+      if (key != null) fieldMap[key.toLowerCase()] = f;
     }
 
     for (final entry in defaultValues.entries) {
@@ -40,19 +81,20 @@ class PayloadUtils {
 
     for (final lowerKey in allKeys) {
       final meta = fieldMap[lowerKey];
-      final actualKey = meta?.key as String? ?? sanitized.keys.firstWhere((k) => k.toLowerCase() == lowerKey, orElse: () => lowerKey);
+      final actualKey = _extractKey(meta) ?? sanitized.keys.firstWhere((k) => k.toLowerCase() == lowerKey, orElse: () => lowerKey);
       dynamic val = sanitized[actualKey] ?? sanitized.entries.firstWhere((e) => e.key.toLowerCase() == lowerKey, orElse: () => const MapEntry('', null)).value;
 
       if ((val == null || (val is String && val.isEmpty)) && defaultValues.containsKey(actualKey)) {
         val = defaultValues[actualKey];
       }
 
-      final isNumberType = meta != null && meta.type?.toString().contains('number') == true;
-      final isArrayType = meta != null && meta.type?.toString().contains('array') == true;
-      final isBoolType = meta != null && meta.type?.toString().contains('boolean') == true;
+      final typeStr = _extractType(meta) ?? '';
+      final isNumberType = typeStr.contains('number');
+      final isArrayType = typeStr.contains('array');
+      final isBoolType = typeStr.contains('boolean');
 
       if (isArrayType || val is List) {
-        final nestedDefs = (meta?.nestedFields as List<dynamic>?) ?? const [];
+        final nestedDefs = _extractNestedFields(meta) ?? const [];
         final list = (val as List<dynamic>?) ?? const [];
         result[actualKey] = list.map((item) => item is Map<String, dynamic> ? _formatNestedItem(parentKey: actualKey, rawItem: item, nestedDefs: nestedDefs, defaultValues: defaultValues) : item).toList();
       } else if (isNumberType) {
@@ -65,7 +107,7 @@ class PayloadUtils {
         }
       } else {
         if (val == null || (val is String && val.trim().isEmpty)) {
-          final isReq = meta?.isRequired ?? false;
+          final isReq = _extractIsRequired(meta);
           result[actualKey] = isReq ? '' : null;
         } else {
           result[actualKey] = val;
@@ -85,7 +127,8 @@ class PayloadUtils {
     final result = <String, dynamic>{};
     final childMap = <String, dynamic>{};
     for (final child in nestedDefs) {
-      if (child.key != null) childMap[child.key.toString().toLowerCase()] = child;
+      final key = _extractKey(child);
+      if (key != null) childMap[key.toLowerCase()] = child;
     }
 
     final prefix = '${parentKey.toLowerCase()}.';
@@ -101,9 +144,10 @@ class PayloadUtils {
     final allChildKeys = <String>{...childMap.keys, ...sanitized.keys.map((k) => k.toLowerCase())};
     for (final lowerKey in allChildKeys) {
       final childMeta = childMap[lowerKey];
-      final actualKey = childMeta?.key as String? ?? sanitized.keys.firstWhere((k) => k.toLowerCase() == lowerKey, orElse: () => lowerKey);
+      final actualKey = _extractKey(childMeta) ?? sanitized.keys.firstWhere((k) => k.toLowerCase() == lowerKey, orElse: () => lowerKey);
       dynamic val = sanitized[actualKey] ?? sanitized.entries.firstWhere((e) => e.key.toLowerCase() == lowerKey, orElse: () => const MapEntry('', null)).value;
-      result[actualKey] = (childMeta != null && childMeta.type?.toString().contains('number') == true) ? _parseNumber(val) : (val ?? '');
+      final typeStr = _extractType(childMeta) ?? '';
+      result[actualKey] = typeStr.contains('number') ? _parseNumber(val) : (val ?? '');
     }
     return result;
   }

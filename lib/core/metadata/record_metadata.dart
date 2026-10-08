@@ -5,14 +5,11 @@ enum ActionScope { global, record }
 
 @immutable
 class RecordFieldMetadata {
-  final String key;
-  final String label;
+  final String key, label;
   final FieldType type;
-  final bool isKey;
-  final bool isRequired;
+  final bool isKey, isRequired;
   final List<String> options;
-  final String? lovReference;
-  final String? lovProjection;
+  final String? lovReference, lovProjection;
   final List<RecordFieldMetadata> nestedFields;
 
   const RecordFieldMetadata({
@@ -29,15 +26,10 @@ class RecordFieldMetadata {
 
   factory RecordFieldMetadata.fromJson(Map<String, dynamic> json) {
     final typeStr = json['type'] as String? ?? 'text';
-    final fieldType = FieldType.values.firstWhere(
-      (e) => e.name == typeStr,
-      orElse: () => FieldType.text,
-    );
+    final fieldType = FieldType.values.firstWhere((e) => e.name == typeStr, orElse: () => FieldType.text);
     final rawOpts = json['options'] as List<dynamic>? ?? [];
     final rawNested = json['fields'] as List<dynamic>? ?? [];
-
-    final isReq = json['isRequired'] == true || json['required'] == true ||
-        json['isRequired'] == 'TRUE' || json['required'] == 'TRUE';
+    final isReq = json['isRequired'] == true || json['required'] == true || json['isRequired'] == 'TRUE' || json['required'] == 'TRUE';
 
     return RecordFieldMetadata(
       key: json['key'] as String? ?? '',
@@ -53,34 +45,19 @@ class RecordFieldMetadata {
   }
 
   RecordFieldMetadata copyWith({
-    String? key,
-    String? label,
-    FieldType? type,
-    bool? isKey,
-    bool? isRequired,
-    List<String>? options,
-    String? lovReference,
-    String? lovProjection,
-    List<RecordFieldMetadata>? nestedFields,
-  }) {
-    return RecordFieldMetadata(
-      key: key ?? this.key,
-      label: label ?? this.label,
-      type: type ?? this.type,
-      isKey: isKey ?? this.isKey,
-      isRequired: isRequired ?? this.isRequired,
-      options: options ?? this.options,
-      lovReference: lovReference ?? this.lovReference,
-      lovProjection: lovProjection ?? this.lovProjection,
-      nestedFields: nestedFields ?? this.nestedFields,
-    );
-  }
+    String? key, String? label, FieldType? type, bool? isKey, bool? isRequired,
+    List<String>? options, String? lovReference, String? lovProjection, List<RecordFieldMetadata>? nestedFields,
+  }) => RecordFieldMetadata(
+    key: key ?? this.key, label: label ?? this.label, type: type ?? this.type,
+    isKey: isKey ?? this.isKey, isRequired: isRequired ?? this.isRequired,
+    options: options ?? this.options, lovReference: lovReference ?? this.lovReference,
+    lovProjection: lovProjection ?? this.lovProjection, nestedFields: nestedFields ?? this.nestedFields,
+  );
 }
 
 @immutable
 class RecordActionMetadata {
-  final String name;
-  final String label;
+  final String name, label;
   final String? icon;
   final ActionScope scope;
   final List<RecordFieldMetadata> formFields;
@@ -103,9 +80,7 @@ class RecordActionMetadata {
       label: json['label'] as String? ?? '',
       icon: json['icon'] as String?,
       scope: scopeStr == 'global' ? ActionScope.global : ActionScope.record,
-      formFields: rawFields
-          .map((f) => RecordFieldMetadata.fromJson(f as Map<String, dynamic>))
-          .toList(),
+      formFields: rawFields.map((f) => RecordFieldMetadata.fromJson(f as Map<String, dynamic>)).toList(),
       condition: json['condition'] as String? ?? json['Condition'] as String? ?? json['visible'] as String?,
     );
   }
@@ -113,13 +88,8 @@ class RecordActionMetadata {
 
 @immutable
 class RecordListCardMetadata {
-  final String codeField;
-  final String primaryField;
-  final String? secondaryField;
-  final String? tertiaryField;
-  final String? statusField;
-  final String? priorityField;
-  final String? metricField;
+  final String codeField, primaryField;
+  final String? secondaryField, tertiaryField, statusField, priorityField, metricField;
 
   const RecordListCardMetadata({
     required this.codeField,
@@ -144,17 +114,16 @@ class RecordListCardMetadata {
 
 @immutable
 class RecordSchemaMetadata {
-  final String entityName;
-  final String title;
-  final String icon;
-  final String projection;
-  final String entitySet;
+  final String recordType, title, icon, projection, entitySet;
   final List<RecordFieldMetadata> fields;
   final List<RecordActionMetadata> actions;
   final RecordListCardMetadata listCard;
 
+  String get entityName => recordType;
+
   const RecordSchemaMetadata({
-    required this.entityName,
+    String? recordType,
+    String? entityName,
     required this.title,
     this.icon = 'assignment',
     this.projection = '',
@@ -162,13 +131,13 @@ class RecordSchemaMetadata {
     this.fields = const [],
     this.actions = const [],
     required this.listCard,
-  });
+  }) : recordType = recordType ?? entityName ?? '';
 
   factory RecordSchemaMetadata.fromJson(Map<String, dynamic> json) {
     final rawFields = json['fields'] as List<dynamic>? ?? [];
     final rawActions = json['actions'] as List<dynamic>? ?? [];
     return RecordSchemaMetadata(
-      entityName: json['entityName'] as String? ?? '',
+      recordType: (json['recordType'] ?? json['entityName'] ?? '') as String,
       title: json['title'] as String? ?? '',
       icon: json['icon'] as String? ?? 'assignment',
       projection: json['projection'] as String? ?? '',
@@ -179,4 +148,3 @@ class RecordSchemaMetadata {
     );
   }
 }
-

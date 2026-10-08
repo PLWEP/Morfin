@@ -16,7 +16,7 @@ class _TestHttpOverrides extends HttpOverrides {
 void main() {
   HttpOverrides.global = _TestHttpOverrides();
 
-  test('Setup MobileNavMenu items via MobileNavMenuHandling.svc', () async {
+  test('Setup MobileNavMenu items via MobileAppDesignHandling.svc', () async {
     final configFile = File('test/real_api_config.json');
     final config = jsonDecode(configFile.readAsStringSync()) as Map<String, dynamic>;
 
@@ -38,8 +38,8 @@ void main() {
     expect(loginOk, isTrue);
 
     final existing = await ApiClient.instance.getCollection(
-      'MobileNavMenuHandling',
-      'MobileNavMenuSet',
+      'MobileAppDesignHandling',
+      'MobileAppDesignSet',
     );
     print('Current menus count: ${existing.length}');
     for (final m in existing) {
@@ -50,13 +50,12 @@ void main() {
     if (!hasList) {
       print('Inserting Node 15 (Released PR Lines)...');
       final resList = await ApiClient.instance.postRecord(
-        'MobileNavMenuHandling',
-        'MobileNavMenuSet',
+        'MobileAppDesignHandling',
+        'MobileAppDesignSet',
         {
           'ParentId': 10,
           'Label': 'Released PR Lines',
           'ActionType': 'List',
-          'Icon': 'list_alt_rounded',
           'TargetProjection': 'MorfinApiHandling',
           'TargetEndpoint': 'ReleasedPurchaseReqLineSet',
           'SortOrder': 2,
@@ -71,8 +70,8 @@ void main() {
 
     // Refresh existing list to get exact NodeId of Released PR Lines
     final refreshed = await ApiClient.instance.getCollection(
-      'MobileNavMenuHandling',
-      'MobileNavMenuSet',
+      'MobileAppDesignHandling',
+      'MobileAppDesignSet',
     );
     final prLineNode = refreshed.firstWhere((m) => m['Label'] == 'Released PR Lines');
     final prLineNodeId = prLineNode['NodeId'];
@@ -82,13 +81,12 @@ void main() {
     if (!hasAction) {
       print('Inserting Action Convert to PO under Node $prLineNodeId...');
       final resAction = await ApiClient.instance.postRecord(
-        'MobileNavMenuHandling',
-        'MobileNavMenuSet',
+        'MobileAppDesignHandling',
+        'MobileAppDesignSet',
         {
           'ParentId': prLineNodeId,
           'Label': 'Convert to PO',
           'ActionType': 'Form',
-          'Icon': 'transform_rounded',
           'TargetProjection': 'MorfinApiHandling',
           'TargetEndpoint': 'ConvertPrLineToOrder',
           'SortOrder': 1,
@@ -102,7 +100,7 @@ void main() {
 
     // Verify GetMobileMenu
     final menuRes = await ApiClient.instance.callFunction(
-      'MobileNavMenuHandling',
+      'MobileAppDesignHandling',
       "GetMobileMenu(ScopeId='global',DeviceType='phone')",
     );
     final menuItems = menuRes['value'] as List<dynamic>? ?? [];

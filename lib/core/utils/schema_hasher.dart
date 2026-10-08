@@ -39,6 +39,8 @@ class SchemaHasher {
     return _hashString(buffer.toString());
   }
 
+  static String computeRawHash(String input) => _hashString(input);
+
   static String _hashString(String input) {
     var hash = 0xcbf29ce484222325;
     for (var i = 0; i < input.length; i++) {
